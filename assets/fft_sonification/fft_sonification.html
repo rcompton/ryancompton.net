@@ -1,0 +1,161 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<!--Converted with LaTeX2HTML 2002-2-1 (1.71)
+original version by:  Nikos Drakos, CBLU, University of Leeds
+* revised and updated by:  Marcus Hennecke, Ross Moore, Herb Swan
+* with significant contributions from:
+  Jens Lippmann, Marek Rouchal, Martin Wilck and others -->
+<HTML>
+<HEAD>
+<TITLE>fft_sonification</TITLE>
+<META NAME="description" CONTENT="fft_sonification">
+<META NAME="keywords" CONTENT="fft_sonification">
+<META NAME="resource-type" CONTENT="document">
+<META NAME="distribution" CONTENT="global">
+
+<META NAME="Generator" CONTENT="LaTeX2HTML v2002-2-1">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+
+<LINK REL="STYLESHEET" HREF="fft_sonification.css">
+
+</HEAD>
+
+<BODY >
+
+The FFT is an essential tool for digital signal processing and electronic music production. It is easily, commonly, and inefficiently implemented via the recursive Cooley-Tukey algorithm which we now briefly review.
+
+<P>
+To compute the discrete Fourier transform, <!-- MATH
+ $\{ X_k \}_{k=0}^{N-1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="78" HEIGHT="42" ALIGN="MIDDLE" BORDER="0"
+ SRC="img1.png"
+ ALT="$ \{ X_k \}_{k=0}^{N-1}$"></SPAN>, of a sequence <!-- MATH
+ $\{ x_n \}_{n=0}^{N-1}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="74" HEIGHT="42" ALIGN="MIDDLE" BORDER="0"
+ SRC="img2.png"
+ ALT="$ \{ x_n \}_{n=0}^{N-1}$"></SPAN> we must sum
+<P><!-- MATH
+ \begin{equation*}
+X_k = \sum_{n=0}^{N-1} x_n e^{\frac{-2 \pi i}{N}nk}
+\end{equation*}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="161" HEIGHT="79" ALIGN="MIDDLE" BORDER="0"
+ SRC="img3.png"
+ ALT="$\displaystyle X_k = \sum_{n=0}^{N-1} x_n e^{\frac{-2 \pi i}{N}nk}
+$">
+</DIV><P></P>
+for each <SPAN CLASS="MATH"><IMG
+ WIDTH="15" HEIGHT="20" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4.png"
+ ALT="$ k$"></SPAN> in <!-- MATH
+ $0, ..., N-1$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="96" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="img5.png"
+ ALT="$ 0, ..., N-1$"></SPAN>. As if we were Danielson and Lanczos we split the above sum into its even and odd constituents
+<BR>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<!-- MATH
+ \begin{eqnarray*}
+X_k &=& \sum_{n=0}^{N/2-1} x_{2n} e^{\frac{-2 \pi i}{N}(2n)k} + \sum_{n=0}^{N/2-1} x_{2n+1} e^{\frac{-2 \pi i}{N}(2n+1)k} \\
+&=& X_{\text{even }k} + e^{\frac{-2 \pi i}{N}k} X_{\text{odd }k}
+\end{eqnarray*}
+ -->
+<TABLE CELLPADDING="0" ALIGN="CENTER" WIDTH="100%">
+<TR VALIGN="MIDDLE"><TD NOWRAP WIDTH="50%" ALIGN="RIGHT"><IMG
+ WIDTH="29" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="img6.png"
+ ALT="$\displaystyle X_k$"></TD>
+<TD WIDTH="10" ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="19" HEIGHT="33" ALIGN="MIDDLE" BORDER="0"
+ SRC="img7.png"
+ ALT="$\displaystyle =$"></TD>
+<TD ALIGN="LEFT" NOWRAP WIDTH="50%"><IMG
+ WIDTH="351" HEIGHT="82" ALIGN="MIDDLE" BORDER="0"
+ SRC="img8.png"
+ ALT="$\displaystyle \sum_{n=0}^{N/2-1} x_{2n} e^{\frac{-2 \pi i}{N}(2n)k} + \sum_{n=0}^{N/2-1} x_{2n+1} e^{\frac{-2 \pi i}{N}(2n+1)k}$"></TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+&nbsp;</TD></TR>
+<TR VALIGN="MIDDLE"><TD NOWRAP WIDTH="50%" ALIGN="RIGHT">&nbsp;</TD>
+<TD WIDTH="10" ALIGN="CENTER" NOWRAP><IMG
+ WIDTH="19" HEIGHT="33" ALIGN="MIDDLE" BORDER="0"
+ SRC="img7.png"
+ ALT="$\displaystyle =$"></TD>
+<TD ALIGN="LEFT" NOWRAP WIDTH="50%"><IMG
+ WIDTH="180" HEIGHT="48" ALIGN="MIDDLE" BORDER="0"
+ SRC="img9.png"
+ ALT="$\displaystyle X_{\text{even }k} + e^{\frac{-2 \pi i}{N}k} X_{\text{odd }k}$"></TD>
+<TD CLASS="eqno" WIDTH=10 ALIGN="RIGHT">
+&nbsp;</TD></TR>
+</TABLE></DIV>
+<BR CLEAR="ALL">
+
+where <!-- MATH
+ $X_{\text{even }k}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="59" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="img10.png"
+ ALT="$ X_{\text{even }k}$"></SPAN> and <!-- MATH
+ $X_{\text{odd }k}$
+ -->
+<SPAN CLASS="MATH"><IMG
+ WIDTH="55" HEIGHT="35" ALIGN="MIDDLE" BORDER="0"
+ SRC="img11.png"
+ ALT="$ X_{\text{odd }k}$"></SPAN> are the <SPAN CLASS="MATH"><IMG
+ WIDTH="15" HEIGHT="20" ALIGN="BOTTOM" BORDER="0"
+ SRC="img4.png"
+ ALT="$ k$"></SPAN>th component of the DFT of the sequences obtained by selecting only the even or odd members from <SPAN CLASS="MATH"><IMG
+ WIDTH="44" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="img12.png"
+ ALT="$ \{ x_n \}$"></SPAN>. In this manner we compute the DFT by recursively computing the DFT of the even and odd subsequences of <SPAN CLASS="MATH"><IMG
+ WIDTH="44" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="img12.png"
+ ALT="$ \{ x_n \}$"></SPAN>. By the time that <SPAN CLASS="MATH"><IMG
+ WIDTH="56" HEIGHT="16" ALIGN="BOTTOM" BORDER="0"
+ SRC="img13.png"
+ ALT="$ N=1$"></SPAN> our DFT is simply the identity mapping from the constant sequence into the constant mode in Fourier space.
+
+<P>
+Now suppose that in our initial array we store values corresponding to the frequencies of the usual western equally tempered scale.
+<P><!-- MATH
+ \begin{equation*}
+x_n = 220.0*2^{\frac{n}{12}}
+\end{equation*}
+ -->
+</P>
+<DIV ALIGN="CENTER" CLASS="mathdisplay">
+<IMG
+ WIDTH="136" HEIGHT="43" ALIGN="MIDDLE" BORDER="0"
+ SRC="img14.png"
+ ALT="$\displaystyle x_n = 220.0*2^{\frac{n}{12}}
+$">
+</DIV><P></P>
+and execute our DFT on <SPAN CLASS="MATH"><IMG
+ WIDTH="44" HEIGHT="37" ALIGN="MIDDLE" BORDER="0"
+ SRC="img12.png"
+ ALT="$ \{ x_n \}$"></SPAN> playing the corresponding frequency on a guitar each time we reach the base case in our recursion. This will play the notes of the scale in bit reversed order and simultaneously allow us a tool for digital signal processing.
+
+<P>
+
+Here's how it sounds:
+<br>
+<a href = "fast_fourier_music.wav">fast_fourier_music.wav</a>
+<br>
+
+This is all made in C++ with STK. Here's the source code:
+<br>
+<a href = "fft-sonification.tar.gz">fft-sonification.tar.gz</a>
+<br>
+
+
+</BODY>
+</HTML>
