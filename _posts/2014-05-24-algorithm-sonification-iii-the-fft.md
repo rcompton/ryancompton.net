@@ -42,4 +42,4 @@ and execute our DFT algorithm on $$\{ x_n \}$$ while playing the corresponding f
 
 Here's how it sounds: [fast_fourier_music.wav]({{ site.url }}/assets/fft_sonification/fast_fourier_music.wav)
 
-Audio is made in C++ with STK. Here's the source code:
+Audio is made in C++ with STK. Here's the source code: [https://bitbucket.org/rcompton/fft-sonification/src](https://bitbucket.org/rcompton/fft-sonification/src)
