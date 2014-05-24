@@ -20,9 +20,9 @@ If you order the drums by their general MIDI number and simultaneously strike an
 
 To hear what's going on with quick sort a little better consider the case where you have dropped 12 guitar strings whose frequencies vary expoentially, ie
 
-frequency of string i = 220.0*( 2.0^(i/12.0) )
+frequency of string $$i = 220.0*( 2.0^{\frac{i}{12.0}} )$$
 
-for i=0,...,11 for more information [http://en.wikipedia.org/wiki/Pitch_(music)](http://en.wikipedia.org/wiki/Pitch_(music))
+for $$i=0,...,11$$ for more information [http://en.wikipedia.org/wiki/Pitch_(music)](http://en.wikipedia.org/wiki/Pitch_(music))
 
 <object width="480" height="385"><param name="movie" value="http://www.youtube.com/v/YR6VAZUGAMo&hl=en&fs=1&"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/YR6VAZUGAMo&hl=en&fs=1&" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="480" height="385"></embed></object>
 
