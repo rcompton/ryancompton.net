@@ -1,0 +1,8 @@
+data/Makefile.i
+data/bit_reversal.py.i
+data/fast_fourier_music.wav.i
+data/fast_fourier_music.wav.d
+data/fft_sonification.cpp.i
+data/fft_sonification2.cpp.i
+data/make_fft_movie.py.i
+data/print_step.cpp.i
