@@ -21,5 +21,14 @@ tagline:
     {% endfor %}
   </ul>
 
+  <footer>
+      <div class="container">
+        <p>&copy; {{ site.time | date: '%Y' }} {{ site.author.name }}
+          with help from <a href="http://jekyllbootstrap.com" target="_blank" title="The Definitive Jekyll Blogging Framework">Jekyll Bootstrap</a>
+          and <a href="http://github.com/dhulihan/hooligan" target="_blank">The Hooligan Theme</a>
+        </p>
+      </div>
+ </footer>
+
 
 
