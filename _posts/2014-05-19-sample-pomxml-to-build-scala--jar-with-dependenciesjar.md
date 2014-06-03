@@ -2,8 +2,7 @@
 layout: post
 title: "Sample pom.xml to build Scala *-jar-with-dependencies.jar"
 description: ""
-category: "scala"
-tags: ["scala"]
+tags: ["scala", "maven"]
 ---
 {% include JB/setup %}
 
