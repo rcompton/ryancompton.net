@@ -57,17 +57,17 @@ h1 small, h2 small, h3 small, h4 small, h5 small, h6 small {
 
 /* line 49, ../_sass/_base.scss */
 h1, h2 {
-  margin: 0 0 15px;
+  margin: 0 0 10px;
 }
 
 /* line 53, ../_sass/_base.scss */
 h1 {
-  font-size: 30px;
+  font-size: 25px;
 }
 
 /* line 57, ../_sass/_base.scss */
 h2 {
-  font-size: 25px;
+  font-size: 22px;
 }
 
 /* line 61, ../_sass/_base.scss */

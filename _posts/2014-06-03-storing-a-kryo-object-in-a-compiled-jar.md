@@ -35,7 +35,7 @@ input.close();
 log.info(locationMap.size());
 {% endhighlight %}
 
-the log.info showed 231,045 entries in my map.
+the `log.info` showed 231,045 entries in my map.
 
 Now, in order to access the .kryo file after compiling a *-jar-with-dependencies.jar (using Maven) I needed to replace `FileInputStream` with `MyClass.class.getResourceAsStream`
 
@@ -52,7 +52,7 @@ input.close();
 log.info(locationMap.size());
 {% endhighlight %}
 
-the log.error never showed and the log.info said I had 0 entries in my map. Why? `isr` was never null so it read something, Kryo just can't seem to deserialize it and never provided any error.
+the `log.error` never showed and the `log.info` said I had 0 entries in my map. Why? `isr` was never null so it read something, Kryo just can't seem to deserialize it and never provided any error.
 
 Well,
 
