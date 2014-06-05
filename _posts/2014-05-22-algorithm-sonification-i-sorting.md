@@ -3,7 +3,7 @@ layout: post
 title: "Algorithm Sonification I: Sorting"
 description: ""
 category:
-tags: []
+tags: ["audio", "coding"]
 ---
 {% include JB/setup %}
 

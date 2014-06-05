@@ -7,7 +7,7 @@ tags: ["papers"]
 ---
 {% include JB/setup %}
 
-Recently published a paper on the arxiv: [http://arxiv.org/abs/1404.7152](http://arxiv.org/abs/1404.7152),  and it made [Tech Review juinor varisty!](http://www.technologyreview.com/view/527246/other-interesting-arxiv-papers-week-ending-may-10-2014/) Here's the abstract:
+I recently published a paper on the arxiv: [http://arxiv.org/abs/1404.7152](http://arxiv.org/abs/1404.7152), and it made [Tech Review juinor varisty!](http://www.technologyreview.com/view/527246/other-interesting-arxiv-papers-week-ending-may-10-2014/) Here's the abstract:
 
 Geographically annotated social media is extremely valuable for modern information retrieval. However, when researchers can only access publicly-visible data, one quickly finds that social media users rarely publish location information. In this work, we provide a method which can geolocate the overwhelming majority of active Twitter users, independent of their location sharing preferences, using only publicly-visible Twitter data.
 

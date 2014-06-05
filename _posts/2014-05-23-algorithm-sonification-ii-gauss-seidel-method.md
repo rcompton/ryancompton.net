@@ -3,7 +3,7 @@ layout: post
 title: "Algorithm Sonification II: Gauss Seidel method"
 description: ""
 category:
-tags: []
+tags: ["audio", "coding"]
 ---
 {% include JB/setup %}
 
@@ -18,9 +18,9 @@ first. If we take b to be a song recording, some white noise as our
 initial guess and write out Ax at each iteration we observe that the
 high pitched notes in b become audible first while at the same time
 the pitch of the white noise decreases.
-{% endexcerpt %}
 
 Audio of the initial 12 second .wav file (white noise) [initialAx.wav]({{ site.url }}/assets/musical_gauss_seidel/initialAx.wav)
+{% endexcerpt %}
 
 Plots of the initial Ax, residual, and FFT of residual:
 

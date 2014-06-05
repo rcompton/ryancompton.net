@@ -3,7 +3,7 @@ layout: post
 title: "Storing a Kryo object in a compiled jar"
 description: ""
 category:
-tags: ["maven"]
+tags: ["coding"]
 ---
 {% include JB/setup %}
 
