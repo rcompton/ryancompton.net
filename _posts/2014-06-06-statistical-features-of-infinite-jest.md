@@ -7,6 +7,28 @@ tags: []
 ---
 {% include JB/setup %}
 
+{% highlight python %}
+def vocabulary_size(raw):
+    """
+    Compute the number of distinct words (stemmed)
+    ignores non-ascii letters
+    """
+    #remove non-ascii letters
+    rec = re.compile('[^A-Za-z ]')
+    no_punct_lower = re.sub(rec,' ',raw).lower()
+
+    #tokenize, stem, and count
+    tokens=nltk.word_tokenize(no_punct_lower)
+    stemmer = nltk.stem.PorterStemmer()
+    stemmed_tokens = []
+    for token in tokens:
+        stemmed_tokens.append(stemmer.stem(token))
+    return len(set(stemmed_tokens))
+
+print("words in vocabulary:\t",vocabulary_size(raw))
+{% endhighlight %}
+
+words in vocabulary:	 20584
 
 {% highlight SQL %}
 PREFIX terms:<http://wiktionary.dbpedia.org/terms/>
