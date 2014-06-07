@@ -1,9 +1,9 @@
 ---
 layout: post
-title: "Bit reversal permutation in Python"
+title: "Bit-reversal permutation in Python"
 description: ""
 category:
-tags: []
+tags: ["coding"]
 ---
 {% include JB/setup %}
 {% excerpt %}
@@ -25,8 +25,6 @@ def bit_reverse_traverse(a):
             yield even
         for odd in bit_reverse_traverse(a[odd_index]):
             yield odd
-
-    return
 {% endhighlight %}
 
 What I thought was interesting about this code was that I had to use Python’s `yield` statement, which I had never run into before.
@@ -41,6 +39,34 @@ def get_bit_reversed_list(l):
     indexs = arange(n)
     b = []
     for i in bit_reverse_traverse(indexs):
+        b.append(l[i])
+
+    return b
+{% endhighlight %}
+
+For reference, the alternative recursive implementation is below:
+{% highlight python %}
+def bit_reverse_traverse_no_generator(a):
+    n = a.shape[0]
+    assert(not n&(n-1))
+
+    if n == 1:
+        return a
+    else:
+        even_indicies = arange(n/2)*2
+        odd_indicies = arange(n/2)*2 + 1
+
+        evens = bit_reverse_traverse_no_generator(a[even_indicies])
+        odds = bit_reverse_traverse_no_generator(a[odd_indicies])
+
+        return concatenate([evens, odds])
+
+def get_bit_reversed_list_no_generator(l):
+    n = len(l)
+
+    indexs = arange(n)
+    b = []
+    for i in bit_reverse_traverse_no_generator(indexs):
         b.append(l[i])
 
     return b
