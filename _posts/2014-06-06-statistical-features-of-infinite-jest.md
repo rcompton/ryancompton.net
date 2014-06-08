@@ -130,10 +130,10 @@ By comparision, Aesop Rock has used a total of 7,392 words ([more than any other
 
 Specifically, the Brown Corpus contains 9,964,284 characters and 2,074,513 (not necessarily unique) words, while Infinite Jest contains 3,204,159 characters and 577,608 (not neccessarily unique) words. If we restrict the Brown Corpus to its first 3,204,159 characters we find that it's built from a vocabulary of only 15,771 unique words.
 
-If we restrict to the first 35,000 words, Infinite Jest contains 4,923 unique words (more than most rappers, but still less that the Wu-Tang clan) while the Brown Corpus contains 2,708 (which is (suspiciously) less than DMX).
+If we restrict to the first 35,000 words, Infinite Jest contains 4,923 unique words (more than most rappers, but still less that the Wu-Tang clan) while the Brown Corpus contains 2,708 (which is less than DMX, and makes me a bit suspicious about the rapper dataset).
 
 One issue with measuring vocabulary sizes is that suffixes may artificially inflate the number of distinct words in the set (e.g. fantod and fantods should not count as two words). To mitigate this, I used the
-Porter [Stemming](https://en.wikipedia.org/wiki/Stemming) algorithm to first remove suffixes for every word in the text before counting uniques. I also removed all characters which were not ascii letters.
+Porter [Stemming](https://en.wikipedia.org/wiki/Stemming) algorithm to first remove suffixes for every word in the text before counting uniques. I also removed all characters which were not ascii letters (e.g. digits).
 
 Here's the code:
 {% highlight python %}
