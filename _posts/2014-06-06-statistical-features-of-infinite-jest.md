@@ -3,7 +3,7 @@ layout: post
 title: "Infinite Jest by the numbers"
 description: ""
 category:
-tags: []
+tags: ["books", "coding"]
 ---
 {% include JB/setup %}
 
@@ -218,6 +218,4 @@ def acronyms(raw):
     return collections.Counter(acks)
 {% endhighlight %}
 
-
-
-
+The complete code is available here: <https://github.com/rcompton/ryancompton.net/blob/master/assets/dfw/dfw.py>
