@@ -10,7 +10,7 @@ tags: []
 {% excerpt %}
 After stressing my reading comprehension over the past eight months I've finally finished David Foster Wallace's Infinite Jest. The writing is, in a word, impressive. Wallace's command of the English language allows him to do things that I've never seen before. In this post I'll try to quantify a few of the stylistic features that really stood out to me.
 
-Now, to run these experiments, one needs an electroic version of the book. It turns out that these are incredibly easy to find online. I ran the .pdf [here](http://nkelber.com/engl295/blog/2012/07/03/playing-with-infinite-jests-corpus-exploring-tradition-literature-electronically/) through [pdftotext](https://en.wikipedia.org/wiki/Pdftotext), imported [nltk](http://www.nltk.org), and got these results:
+Now, to run these experiments, one needs an electronic version of the book. It turns out that these are remarkably easy to find online. I ran the .pdf [here](http://nkelber.com/engl295/blog/2012/07/03/playing-with-infinite-jests-corpus-exploring-tradition-literature-electronically/) through [pdftotext](https://en.wikipedia.org/wiki/Pdftotext), imported [nltk](http://www.nltk.org), and got these results:
 
 ###*"But and so and but so" is the longest uninterrupted chain of conjunctions*{: style="color: white"}
 
@@ -33,7 +33,7 @@ WHERE {
 }
 {% endhighlight %}
 
-In Infinite Jest conjunctions often appear in chains of length three or greater. The below table shows the top ten most frequently occuring conjunction chains of length three or greater, along with the number of times they occured in the text (the only length six chain is "But and so and but so"):
+In Infinite Jest conjunctions often appear in chains of length three or greater. The below table shows the top ten most frequently occurring conjunction chains of length three or greater, along with the number of times they occured in the text (the only length six chain is "But and so and but so"):
 
 | Conjunction Triples |  | Conjunction Quadruples |  | Conjunction Quintuples |  |
 |-:|:-|-:|:-|-:|:-|
@@ -138,7 +138,7 @@ Our next result concerns the number of distinct words used in the book.
 
 ###*Wallace used a vocabulary of 20,584 words to write Infinite Jest*{: style="color: white"}
 
-By comparision, Aesop Rock has used a total of 7,392 words (more than any other rapper) in his first 35,000 lyrics (cf <http://rappers.mdaniels.com.s3-website-us-east-1.amazonaws.com/>). The [Brown Corpus](https://en.wikipedia.org/wiki/Brown_Corpus), which is roughly three times longer than Infinite Jest, only contains 26,126 unique words. To be precise, the Brown Corpus shipped with nltk contains 9,964,284 characters over 2,074,513 (not neccessarily unique) words vs. 3,204,159 characters over 577,608 (not neccessarily unique) words in Inifinite Jest. If we restrict the Brown Corpus to it's first 3,204,159 characters we find that it is built from a vocabulary containing only 15,771 unique words.
+By comparision, Aesop Rock has used a total of 7,392 words (more than any other rapper) in his first 35,000 lyrics (cf <http://rappers.mdaniels.com.s3-website-us-east-1.amazonaws.com/>). The [Brown Corpus](https://en.wikipedia.org/wiki/Brown_Corpus), which is roughly three times longer than Infinite Jest, only contains 26,126 unique words. To be precise, the Brown Corpus shipped with nltk contains 9,964,284 characters over 2,074,513 (not necessarily unique) words vs. 3,204,159 characters over 577,608 (not neccessarily unique) words in Inifinite Jest. If we restrict the Brown Corpus to it's first 3,204,159 characters we find that it is built from a vocabulary containing only 15,771 unique words.
 
 An issue with measuring vocabulary sizes is that suffixes may artificially inflate the number of distinct words in the set. To mitigate this, I used the
 Porter [Stemming](https://en.wikipedia.org/wiki/Stemming) algorithm to first remove suffixes for every word in the text. Here's the code I used to measure vocabulary size:
@@ -185,7 +185,7 @@ Cartridge Theory or Film-Cartridge Production.
 
 Here's a table of the most common long acronyms (length 4 or greater):
 
-| Acronym :| Numer of Occurences |
+| Acronym :| Numer of Occurrences |
 |-:|:-|
 | O.N.A.N.T.A :| 31
 | P.G.O.A.T :| 13
@@ -208,7 +208,7 @@ Here's a table of the most common long acronyms (length 4 or greater):
 | B.A.M.E.S :| 1
 | I.B.P.W.D.W :| 1
 
-This is the code used to find them
+And the code used to find them
 {% highlight python %}
 def acronyms(raw):
     rec = re.compile('[^A-Z\.]')
