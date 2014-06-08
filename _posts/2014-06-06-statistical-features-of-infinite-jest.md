@@ -166,16 +166,9 @@ classes of Category-II through Category-VI, with C-II's (e.g. Dilaudid, Demerol)
 If we allow a "/" in a acronym, the longest becomes "N./O.N.A.N.C.A.A.":
 
 >Orin had exited his own substance-phase
-about the time he discovered sex, plus of course the N./O.N.A.N.C.A.A.-urine considerations, and he declined it, the cocaine, but
-not in a judgmental or killjoy way, and found he liked being with his P.G.O.A.T. straight while she ingested, he found it exciting,
-a vicariously on-the-edge feeling he associated with giving yourself not to any one game's definition but to yourself and how you
-unjudgmentally feel about somebody who's high and feeling even freer and better than normal, with you, alone, under the red
-balls. They were a natural match here: her ingestion then was recreational, and he not only didn't mind but never made a show of
-not minding, nor she that he abstained; the whole substance issue was natural and kind of free. Another reason they seemed star-
-fated was that Joelle had in her sophomore year decided to concentrate in Film/Cartridge, academically, at B.U. Either Film-
-Cartridge Theory or Film-Cartridge Production.
+about the time he discovered sex, plus of course the N./O.N.A.N.C.A.A.-urine considerations, and he declined it, the cocaine, but not in a judgmental or killjoy way, and found he liked being with his P.G.O.A.T. straight while she ingested, he found it exciting, a vicariously on-the-edge feeling he associated with giving yourself not to any one game's definition but to yourself and how you unjudgmentally feel about somebody who's high and feeling even freer and better than normal, with you, alone, under the red balls.
 
-Table of the most common long acronyms (length 4 or greater):
+And the table of the most common long acronyms (length 4 or greater):
 
 | Acronym :| Numer of Occurrences |
 |-:|:-|
