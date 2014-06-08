@@ -53,7 +53,7 @@ Using this list we can find the most frequently occurring uninterrupted conjunct
 
 The only length six chain is "But and so and but so".
 
-We can perform a simliar experiment with prepositions, of which there are [496](https://en.wiktionary.org/wiki/Category:English_prepositions). Here, we discover the longest chain of uninterrupted prepositions is "in over from behind like". This occurs on page 402, while Michael Pemulis is opening Hal's door:
+We can perform a simliar experiment using prepositions, of which there are [496](https://en.wiktionary.org/wiki/Category:English_prepositions). Here, we discover the longest chain of uninterrupted prepositions is "in over from behind like". This occurs on page 402, while Michael Pemulis is opening Hal's door:
 
 >With the door just cracked and his head poked in he brings his other arm in over from behind like it's not his arm, his hand in the shape of a claw just over his head, and makes as if the claw from behind is pulling him back out into the hall. W/ an eye-rolling look of fake terror.
 
@@ -97,7 +97,7 @@ If we toss out "/" from our word list the longest chain of either is "up and dow
 
 >Tell him we read books and tirelessly access D-bases and run our asses off all day here and need to eat instead of we don't just stand there and swing one leg up and down over and over for seven-plus figures.
 
-For reference, here's the code I used to identify the longest uninterrupted chains of conjunctions/prepositions:
+For reference, here's the code to identify the longest uninterrupted chains of conjunctions/prepositions:
 {% highlight python %}
 def all_uninterrupted_seqs(raw, prep_conj, min_seq_length=3):
     """
@@ -128,9 +128,9 @@ Our next result:
 
 By comparision, Aesop Rock has used a total of 7,392 words ([more than any other rapper](http://rappers.mdaniels.com.s3-website-us-east-1.amazonaws.com/)) in his first 35,000 lyrics. The [Brown Corpus](https://en.wikipedia.org/wiki/Brown_Corpus), which is roughly three times longer than Infinite Jest, only contains 26,126 unique words. .
 
-Specifically, the Brown Corpus contains 9,964,284 characters and 2,074,513 (not necessarily unique) words, while Infinite Jest contains 3,204,159 characters and 577,608 (not neccessarily unique) words. Note that if we restrict the Brown Corpus to its first 3,204,159 characters we find that it is built from a vocabulary containing only 15,771 unique words.
+Specifically, the Brown Corpus contains 9,964,284 characters and 2,074,513 (not necessarily unique) words, while Infinite Jest contains 3,204,159 characters and 577,608 (not neccessarily unique) words. If we restrict the Brown Corpus to its first 3,204,159 characters we find a vocabulary of only 15,771 unique words.
 
-An issue with measuring vocabulary sizes is that suffixes may artificially inflate the number of distinct words in the set. To mitigate this, I used the
+One issue with measuring vocabulary sizes is that suffixes may artificially inflate the number of distinct words in the set. To mitigate this, I used the
 Porter [Stemming](https://en.wikipedia.org/wiki/Stemming) algorithm to first remove suffixes for every word in the text before counting uniques. I also removed all characters which were not ascii letters.
 
 Here's the code:
@@ -168,7 +168,7 @@ If we allow a "/" in a acronym, the longest becomes "N./O.N.A.N.C.A.A.":
 >Orin had exited his own substance-phase
 about the time he discovered sex, plus of course the N./O.N.A.N.C.A.A.-urine considerations, and he declined it, the cocaine, but not in a judgmental or killjoy way, and found he liked being with his P.G.O.A.T. straight while she ingested, he found it exciting, a vicariously on-the-edge feeling he associated with giving yourself not to any one game's definition but to yourself and how you unjudgmentally feel about somebody who's high and feeling even freer and better than normal, with you, alone, under the red balls.
 
-Table of the most common long acronyms (length 4 or greater):
+Table of the most common long acronyms (length 5 or greater):
 
 | Acronym :| Numer of Occurrences |
 |-:|:-|
@@ -189,7 +189,6 @@ Table of the most common long acronyms (length 4 or greater):
 | F.O.P.P.P :| 1
 | N.A.A.U.P :| 1
 | O.N.A.N.D.E.A :| 1
-| O.N.A.N.. :| 1
 | B.A.M.E.S :| 1
 | I.B.P.W.D.W :| 1
 
