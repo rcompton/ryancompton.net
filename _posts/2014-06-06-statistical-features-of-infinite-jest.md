@@ -14,7 +14,7 @@ First off, to run these experiments, one needs an electronic version of the book
 
 ###*"But and so and but so" is the longest uninterrupted chain of conjunctions*{: style="color: white"}
 
-In Infinite Jest conjunctions often appear in chains of length three or greater. However, there is a length-six chain on page 379 of the .pdf. It's a minor character, "old Mikey", standing at the Boston AA podium and speaking to a crowd:
+In Infinite Jest conjunctions often appear in chains of length three or greater. There is a length-six chain on page 379 of the .pdf. It's due to a minor character, "old Mikey", standing at the Boston AA podium and speaking to a crowd:
 
 > I'm wanting to light my cunt of a sister up so bad I can't hardly see to get the truck off the lawn and leave. But and so and but so I'm
 driving back home, and I'm so mad I all of a sudden try and pray.
@@ -129,6 +129,8 @@ Our next result:
 By comparision, Aesop Rock has used a total of 7,392 words ([more than any other rapper](http://rappers.mdaniels.com.s3-website-us-east-1.amazonaws.com/)) in his first 35,000 lyrics. The [Brown Corpus](https://en.wikipedia.org/wiki/Brown_Corpus), which is roughly three times longer than Infinite Jest, contains 26,126 unique words.
 
 Specifically, the Brown Corpus contains 9,964,284 characters and 2,074,513 (not necessarily unique) words, while Infinite Jest contains 3,204,159 characters and 577,608 (not neccessarily unique) words. If we restrict the Brown Corpus to its first 3,204,159 characters we find that it's built from a vocabulary of only 15,771 unique words.
+
+If we restrict to the first 35,000 words, Infinite Jest contains 4,923 unique words (more than most rappers, but still less that the Wu-Tang clan) while the Brown Corpus contains 2,708 (which is (suspiciously) less than DMX).
 
 One issue with measuring vocabulary sizes is that suffixes may artificially inflate the number of distinct words in the set (e.g. fantod and fantods should not count as two words). To mitigate this, I used the
 Porter [Stemming](https://en.wikipedia.org/wiki/Stemming) algorithm to first remove suffixes for every word in the text before counting uniques. I also removed all characters which were not ascii letters.
