@@ -14,7 +14,7 @@ First off, to run these experiments, one needs an electronic version of the book
 
 ###*"But and so and but so" is the longest uninterrupted chain of conjunctions*{: style="color: white"}
 
-In Infinite Jest conjunctions often appear in chains of length three or greater. We find a length size chain on page 379 of the .pdf. It's a minor character, "old Mikey", at the Boston AA podium, speaking to a crowd:
+In Infinite Jest conjunctions often appear in chains of length three or greater. However, there is a length-six chain on page 379 of the .pdf. It's a minor character, "old Mikey", standing at the Boston AA podium and speaking to a crowd:
 
 > I'm wanting to light my cunt of a sister up so bad I can't hardly see to get the truck off the lawn and leave. But and so and but so I'm
 driving back home, and I'm so mad I all of a sudden try and pray.
