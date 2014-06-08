@@ -122,7 +122,7 @@ def all_uninterrupted_seqs(raw, prep_conj, min_seq_length=3):
     return all_seqs
 {% endhighlight %}
 
-Our next result concerns the number of distinct words used in the book.
+Our next result:
 
 ###*Wallace used a vocabulary of 20,584 words to write Infinite Jest*{: style="color: white"}
 
@@ -131,7 +131,9 @@ By comparision, Aesop Rock has used a total of 7,392 words ([more than any other
 Specifically, the Brown Corpus contains 9,964,284 characters and 2,074,513 (not necessarily unique) words, while Infinite Jest contains 3,204,159 characters and 577,608 (not neccessarily unique) words. Note that if we restrict the Brown Corpus to its first 3,204,159 characters we find that it is built from a vocabulary containing only 15,771 unique words.
 
 An issue with measuring vocabulary sizes is that suffixes may artificially inflate the number of distinct words in the set. To mitigate this, I used the
-Porter [Stemming](https://en.wikipedia.org/wiki/Stemming) algorithm to first remove suffixes for every word in the text. Here's the code:
+Porter [Stemming](https://en.wikipedia.org/wiki/Stemming) algorithm to first remove suffixes for every word in the text before counting uniques. I also removed all characters which were not ascii letters.
+
+Here's the code:
 {% highlight python %}
 def vocabulary_size(raw):
     """
