@@ -51,7 +51,6 @@ In Infinite Jest conjunctions often appear in chains of length three or greater.
 (Remark: accoring to Wiktionary, "/" is a valid conjunction)
 {% endexcerpt %}
 
-
 We can perform a simliar experiment with prepositions, of which there are [496](https://en.wiktionary.org/wiki/Category:English_prepositions). Here, we discover the longest chain of uninterrupted prepositions is "in over from behind like". It occurs on page 402, while Michael Pemulis is opening Hal's door slowly:
 
 >With the door just cracked and his head poked in he brings his other arm in over from behind like it's not his arm, his hand in the shape of a claw just over his head, and makes as if the claw from behind is pulling him back out into the hall. W/ an eye-rolling look of fake terror.
@@ -96,15 +95,59 @@ If we toss out "/" from our word list the longest chain is "up and down over and
 
 >Tell him we read books and tirelessly access D-bases and run our asses off all day here and need to eat instead of we don't just stand there and swing one leg up and down over and over for seven-plus figures.
 
+For reference, here's the code I used to identify the longest uninterrupted chains of conjunctions/prepositions:
+{% highlight python %}
+def all_uninterrupted_seqs(raw, prep_conj, min_seq_length=3):
+    """
+    Given a string of text and a set of terms to search for
+    return a count of how often uninterrupted seqs appear
+    """
+    tokens = nltk.wordpunct_tokenize(raw)
+
+    all_seqs = []
+    for idx,token in enumerate(tokens):
+        tokl = token.lower()
+        if tokl in prep_conj:
+            seq = [tokl]
+            n_ahead = 0
+            while tokl in prep_conj:
+                n_ahead += 1
+                tokl = tokens[idx+n_ahead].lower()
+                if tokl in prep_conj:
+                    seq.append(tokl)
+            if len(seq) >= min_seq_length:
+                all_seqs.append(seq)
+    return all_seqs
 
 
+def longest_seq(seqs):
+    """
+    Find the longest seq in the output of all_uninterrupted_seqs
+    """
+    max_len = 0
+    max_seq = []
+    for seq in seqs:
+        if len(seq) >= max_len:
+            max_seq = seq
+            max_len = len(max_seq)
+    return max_seq
+{% endhighlight %}
+
+
+Our next result concerns the number of distinct word used in the book.
+
+###*Wallace used a vocabulary of 20,584 words to write Infinite Jest*{: style="color: white"}
+
+By comparision, Aesop Rock has used a total of 7,392 words (more than any other rapper) in his first 35,000 lyrics (cf <http://rappers.mdaniels.com.s3-website-us-east-1.amazonaws.com/>). The [Brown Corpus](https://en.wikipedia.org/wiki/Brown_Corpus), which is roughly three times longer than Infinite Jest, only contains 26,126 unique words. To be precise, the Brown Corpus shipped with nltk contains 9,964,284 characters over 2,074,513 (not neccessarily unique) words vs. 3,204,159 characters over 577,608 (not neccessarily unique) words in Inifinite Jest. If we restrict the Brown Corpus to it's first 3,204,159 characters we find that it is built from a vocabulary containing only 15,771 unique words.
+
+An issue with measuring vocabulary sizes is that suffixes may artificially inflate the number of distinct words in the set. To mitigate this, I used the
+Porter [Stemming](https://en.wikipedia.org/wiki/Stemming) algorithm to first remove suffixes for every word in the text. Here's the code I used to measure vocabulary size:
 {% highlight python %}
 def vocabulary_size(raw):
     """
     Compute the number of distinct words (stemmed)
-    ignores non-ascii letters
     """
-    #remove non-ascii letters
+    #remove non-ascii letters and capitalization
     rec = re.compile('[^A-Za-z ]')
     no_punct_lower = re.sub(rec,' ',raw).lower()
 
@@ -115,60 +158,7 @@ def vocabulary_size(raw):
     for token in tokens:
         stemmed_tokens.append(stemmer.stem(token))
     return len(set(stemmed_tokens))
-
-print("words in vocabulary:\t",vocabulary_size(raw))
 {% endhighlight %}
-
-words in vocabulary:	 20584
-
-
-
-
-
-
-
-
-
-not until then that 	 1
-so and but that 	 1
-not only that but 	 1
-so then but so 	 1
-but so but then 	 1
-and where and when 	 1
-and but then when 	 1
-and but so why 	 1
-and so but since 	 1
-but not until after 	 1
-
-
-up next to 	 24
-up out of 	 14
-as in like 	 13
-come out of 	 9
-to come to 	 8
-come up with 	 7
-out from under 	 6
-come in to 	 6
-come in for 	 5
-to come in 	 5
-
-
-and out of 	 41
-and so on 	 39
-up and down 	 32
-in and out of 	 30
-over and over 	 28
-up next to 	 24
-and / or 	 22
-on and on 	 15
-up out of 	 14
-as in like 	 12
-
-
-
-
-
-
 
 
 >Following the Continental Controlled Substance Act of Y.T.M.P., O.N.A.N.D.E.A.'s hierarchy of analgesics/antipyretics/anxiolytics establishes drug-
