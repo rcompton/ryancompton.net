@@ -8,18 +8,18 @@ tags: ["books", "coding"]
 {% include JB/setup %}
 
 {% excerpt %}
-After stressing my reading comprehension over the past eight months I've finally finished David Foster Wallace's Infinite Jest. The writing is, in a word, impressive. Wallace's command of the English language allows him to do things that I've never seen before. In this post I'll try to quantify a few of the stylistic features that really stood out to me.
+After stressing my reading comprehension over the past eight months I've finally finished David Foster Wallace's Infinite Jest. The writing is, in a word, impressive. Wallace's command of the English language allows him to do things that I've never seen before. In this post I'll try to quantify a few of the stylistic features that I think really stood.
 
-Now, to run these experiments, one needs an electronic version of the book. It turns out that these are remarkably easy to find online. I ran the .pdf [here](http://nkelber.com/engl295/blog/2012/07/03/playing-with-infinite-jests-corpus-exploring-tradition-literature-electronically/) through [pdftotext](https://en.wikipedia.org/wiki/Pdftotext), imported [nltk](http://www.nltk.org), and got these results:
+First off, to run these experiments, one needs an electronic version of the book. It turns out that these are remarkably easy to find online. I ran the .pdf [here](http://nkelber.com/engl295/blog/2012/07/03/playing-with-infinite-jests-corpus-exploring-tradition-literature-electronically/) through [pdftotext](https://en.wikipedia.org/wiki/Pdftotext), imported [nltk](http://www.nltk.org), and got these results:
 
 ###*"But and so and but so" is the longest uninterrupted chain of conjunctions*{: style="color: white"}
 
-On page 379 of the .pdf. "old Mikey" at the Boston AA podium, speaking to a crowd:
+In Infinite Jest conjunctions often appear in chains of length three or greater. We find a length size chain on page 379 of the .pdf. It's a minor character, "old Mikey", at the Boston AA podium, speaking to a crowd:
 
 > I'm wanting to light my cunt of a sister up so bad I can't hardly see to get the truck off the lawn and leave. But and so and but so I'm
 driving back home, and I'm so mad I all of a sudden try and pray.
 
-According to Wiktionary, there are [224 conjunctions in the English language](https://en.wiktionary.org/wiki/Category:English_conjunctions). It's possible to quickly obtain a list of them all by entering this query into [DBpedia's public Wiktionary endpoint](http://wiktionary.dbpedia.org/sparql):
+Now, according to Wiktionary, there are [224 conjunctions in the English language](https://en.wiktionary.org/wiki/Category:English_conjunctions). It's possible to quickly obtain a list of them all by entering this query into [DBpedia's public Wiktionary endpoint](http://wiktionary.dbpedia.org/sparql):
 
 {% highlight SQL %}
 PREFIX terms:<http://wiktionary.dbpedia.org/terms/>
@@ -33,7 +33,7 @@ WHERE {
 }
 {% endhighlight %}
 
-In Infinite Jest conjunctions often appear in chains of length three or greater. The below table shows the top ten most frequently occurring conjunction chains of length three or greater, along with the number of times they occured in the text (the only length six chain is "But and so and but so"):
+Using this list we can find the most frequently occurring uninterrupted conjunction chains, along with the number of times they occured in the text:
 
 | Conjunction Triples |  | Conjunction Quadruples |  | Conjunction Quintuples |  |
 |-:|:-|-:|:-|-:|:-|
@@ -50,6 +50,8 @@ In Infinite Jest conjunctions often appear in chains of length three or greater.
 
 (Remark: accoring to Wiktionary, "/" is a valid conjunction)
 {% endexcerpt %}
+
+The only length six chain is "But and so and but so".
 
 We can perform a simliar experiment with prepositions, of which there are [496](https://en.wiktionary.org/wiki/Category:English_prepositions). Here, we discover the longest chain of uninterrupted prepositions is "in over from behind like". This occurs on page 402, while Michael Pemulis is opening Hal's door:
 
@@ -118,30 +120,18 @@ def all_uninterrupted_seqs(raw, prep_conj, min_seq_length=3):
             if len(seq) >= min_seq_length:
                 all_seqs.append(seq)
     return all_seqs
-
-
-def longest_seq(seqs):
-    """
-    Find the longest seq in the output of all_uninterrupted_seqs
-    """
-    max_len = 0
-    max_seq = []
-    for seq in seqs:
-        if len(seq) >= max_len:
-            max_seq = seq
-            max_len = len(max_seq)
-    return max_seq
 {% endhighlight %}
-
 
 Our next result concerns the number of distinct words used in the book.
 
 ###*Wallace used a vocabulary of 20,584 words to write Infinite Jest*{: style="color: white"}
 
-By comparision, Aesop Rock has used a total of 7,392 words (more than any other rapper) in his first 35,000 lyrics (cf <http://rappers.mdaniels.com.s3-website-us-east-1.amazonaws.com/>). The [Brown Corpus](https://en.wikipedia.org/wiki/Brown_Corpus), which is roughly three times longer than Infinite Jest, only contains 26,126 unique words. To be precise, the Brown Corpus shipped with nltk contains 9,964,284 characters over 2,074,513 (not necessarily unique) words vs. 3,204,159 characters over 577,608 (not neccessarily unique) words in Inifinite Jest. If we restrict the Brown Corpus to it's first 3,204,159 characters we find that it is built from a vocabulary containing only 15,771 unique words.
+By comparision, Aesop Rock has used a total of 7,392 words ([more than any other rapper](http://rappers.mdaniels.com.s3-website-us-east-1.amazonaws.com/)) in his first 35,000 lyrics. The [Brown Corpus](https://en.wikipedia.org/wiki/Brown_Corpus), which is roughly three times longer than Infinite Jest, only contains 26,126 unique words. .
+
+Specifically, the Brown Corpus contains 9,964,284 characters and 2,074,513 (not necessarily unique) words, while Infinite Jest contains 3,204,159 characters and 577,608 (not neccessarily unique) words. Note that if we restrict the Brown Corpus to its first 3,204,159 characters we find that it is built from a vocabulary containing only 15,771 unique words.
 
 An issue with measuring vocabulary sizes is that suffixes may artificially inflate the number of distinct words in the set. To mitigate this, I used the
-Porter [Stemming](https://en.wikipedia.org/wiki/Stemming) algorithm to first remove suffixes for every word in the text. Here's the code I used to measure vocabulary size:
+Porter [Stemming](https://en.wikipedia.org/wiki/Stemming) algorithm to first remove suffixes for every word in the text. Here's the code:
 {% highlight python %}
 def vocabulary_size(raw):
     """
@@ -171,7 +161,7 @@ O.N.A.N.D.E.A appears in footnote 12a. on page 388:
 >Following the Continental Controlled Substance Act of Y.T.M.P., O.N.A.N.D.E.A.'s hierarchy of analgesics/antipyretics/anxiolytics establishes drug-
 classes of Category-II through Category-VI, with C-II's (e.g. Dilaudid, Demerol) being judged the heaviest w/r/t dependence and possible abuse,
 
-If we allow a "/" in a acronym, the longest acronym is "N./O.N.A.N.C.A.A.":
+If we allow a "/" in a acronym, the longest becomes "N./O.N.A.N.C.A.A.":
 
 >Orin had exited his own substance-phase
 about the time he discovered sex, plus of course the N./O.N.A.N.C.A.A.-urine considerations, and he declined it, the cocaine, but
@@ -183,7 +173,7 @@ not minding, nor she that he abstained; the whole substance issue was natural an
 fated was that Joelle had in her sophomore year decided to concentrate in Film/Cartridge, academically, at B.U. Either Film-
 Cartridge Theory or Film-Cartridge Production.
 
-Here's a table of the most common long acronyms (length 4 or greater):
+Table of the most common long acronyms (length 4 or greater):
 
 | Acronym :| Numer of Occurrences |
 |-:|:-|
@@ -208,7 +198,7 @@ Here's a table of the most common long acronyms (length 4 or greater):
 | B.A.M.E.S :| 1
 | I.B.P.W.D.W :| 1
 
-And the code used to find them
+And the code used to find them:
 {% highlight python %}
 def acronyms(raw):
     rec = re.compile('[^A-Z\.]')
@@ -218,4 +208,4 @@ def acronyms(raw):
     return collections.Counter(acks)
 {% endhighlight %}
 
-The complete code is available here: <https://github.com/rcompton/ryancompton.net/blob/master/assets/dfw/dfw.py>
+The complete code for all experiments is available here: <https://github.com/rcompton/ryancompton.net/blob/master/assets/dfw/dfw.py>
