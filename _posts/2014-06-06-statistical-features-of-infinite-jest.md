@@ -8,9 +8,9 @@ tags: []
 {% include JB/setup %}
 
 {% excerpt %}
-After stressing my reading comprehension over the past eight months I've finally finished David Foster Wallace's Infinite Jest. The writing is, in a word, impressive. Wallace's command of the English language allows him to do things that I've never seen before. In this post I'll try to quantify a few of the stylistic features that stood out to me.
+After stressing my reading comprehension over the past eight months I've finally finished David Foster Wallace's Infinite Jest. The writing is, in a word, impressive. Wallace's command of the English language allows him to do things that I've never seen before. In this post I'll try to quantify a few of the stylistic features that really stood out to me.
 
-It turns out that Infinite Jest .pdfs are easy to find online. I ran [the one here](http://nkelber.com/engl295/blog/2012/07/03/playing-with-infinite-jests-corpus-exploring-tradition-literature-electronically/) through [pdftotext](https://en.wikipedia.org/wiki/Pdftotext), imported [nltk](http://www.nltk.org), and got these results:
+Now, to run these experiments, one needs an electroic version of the book. It turns out that these are incredibly easy to find online. I ran the .pdf [here](http://nkelber.com/engl295/blog/2012/07/03/playing-with-infinite-jests-corpus-exploring-tradition-literature-electronically/) through [pdftotext](https://en.wikipedia.org/wiki/Pdftotext), imported [nltk](http://www.nltk.org), and got these results:
 
 ###*"But and so and but so" is the longest uninterrupted chain of conjunctions*{: style="color: white"}
 
@@ -33,7 +33,7 @@ WHERE {
 }
 {% endhighlight %}
 
-In Infinite Jest conjunctions often appear in chains of length three or greater. The only length six chain is the "But and so and but so" on page 379. This table shows the top ten most frequently occuring conjunction chains of length three or greater, along with the number of times they occured in the text:
+In Infinite Jest conjunctions often appear in chains of length three or greater. The below table shows the top ten most frequently occuring conjunction chains of length three or greater, along with the number of times they occured in the text (the only length six chain is "But and so and but so"):
 
 | Conjunction Triples |  | Conjunction Quadruples |  | Conjunction Quintuples |  |
 |-:|:-|-:|:-|-:|:-|
@@ -51,7 +51,7 @@ In Infinite Jest conjunctions often appear in chains of length three or greater.
 (Remark: accoring to Wiktionary, "/" is a valid conjunction)
 {% endexcerpt %}
 
-We can perform a simliar experiment with prepositions, of which there are [496](https://en.wiktionary.org/wiki/Category:English_prepositions). Here, we discover the longest chain of uninterrupted prepositions is "in over from behind like". It occurs on page 402, while Michael Pemulis is opening Hal's door slowly:
+We can perform a simliar experiment with prepositions, of which there are [496](https://en.wiktionary.org/wiki/Category:English_prepositions). Here, we discover the longest chain of uninterrupted prepositions is "in over from behind like". This occurs on page 402, while Michael Pemulis is opening Hal's door:
 
 >With the door just cracked and his head poked in he brings his other arm in over from behind like it's not his arm, his hand in the shape of a claw just over his head, and makes as if the claw from behind is pulling him back out into the hall. W/ an eye-rolling look of fake terror.
 
@@ -64,19 +64,19 @@ Here's the correponding frequency table for prepositions:
 | as in like :| 13 | to come up to :| 1 |   |   |
 | come out of :| 9 | around with down in :| 1 |   |   |
 | to come to :| 8 | to come up with :| 1 |   |   |
-| come up with :| 7 | over from behind like :| 1 |   |   |
+| come up with :| 7 | in over from behind like :| 1 |   |   |
 | out from under :| 6 | come out of on :| 1 |   |   |
 | come in to :| 6 | in from out over :| 1 |   |   |
 | come in for :| 5 | as in with like :| 1 |   |   |
-| to come in :| 5 | in over from behind like :| 1 |   |   |
+| to come in :| 5 | over from behind like :| 1 |   |   |
 
-The longest uninterrupted chain composed entirely of prepositions or conjunctions is "again/And again and again/And again and again and again". It occurs on page 264, during a storytelling session in the Tunnel Club:
+The longest uninterrupted chain composed entirely of either prepositions or conjunctions is "again/And again and again/And again and again and again". It occurs on page 264, during a storytelling session in the Tunnel Club:
 
 >Peterson to Traub, while Gopnik holds the light: 'Eighteen-year-old top-ranked John Wayne / Had sex with Herr Schtitt on a
 train / They had sex again/And again and again/And again and again and again,' which the slightly older kids find more
 entertaining than Traub does.
 
-Here's the correponding frequency table for chains of either prepositions or conjunctions:
+And here's the frequency table for chains of either prepositions or conjunctions:
 
 | Either Triples |  | Either Quadruples |  | Either Quintuples |  |
 |-:|:-|-:|:-|-:|:-|
@@ -91,7 +91,7 @@ Here's the correponding frequency table for chains of either prepositions or con
 | up out of :| 14 | over and over for :| 3 | not to come down or :| 1 |
 | as in like :| 12 | up and down both :| 3 | about wanting to and so on :| 1 |
 
-If we toss out "/" from our word list the longest chain is "up and down over and over for". Not surprisingly, it's due to Michael Pemulis (page 403):
+If we toss out "/" from our word list the longest chain of either is "up and down over and over for". Not surprisingly, it's due to Michael Pemulis (page 403):
 
 >Tell him we read books and tirelessly access D-bases and run our asses off all day here and need to eat instead of we don't just stand there and swing one leg up and down over and over for seven-plus figures.
 
@@ -100,7 +100,7 @@ For reference, here's the code I used to identify the longest uninterrupted chai
 def all_uninterrupted_seqs(raw, prep_conj, min_seq_length=3):
     """
     Given a string of text and a set of terms to search for
-    return a count of how often uninterrupted seqs appear
+    return all uninterrupted chains of the terms
     """
     tokens = nltk.wordpunct_tokenize(raw)
 
@@ -134,7 +134,7 @@ def longest_seq(seqs):
 {% endhighlight %}
 
 
-Our next result concerns the number of distinct word used in the book.
+Our next result concerns the number of distinct words used in the book.
 
 ###*Wallace used a vocabulary of 20,584 words to write Infinite Jest*{: style="color: white"}
 
@@ -160,9 +160,18 @@ def vocabulary_size(raw):
     return len(set(stemmed_tokens))
 {% endhighlight %}
 
+Finally,
+
+###*The longest acronyms are O.N.A.N.D.E.A. and O.N.A.N.C.A.A.*{: style="color: white"}
+
+These are used to abbreviate institutions within the Organization of North American Nations (O.N.A.N.): the Drug Enforcement Organization (D.E.A.) and the Commonwealth Academy Association (C.A.A).
+
+O.N.A.N.D.E.A appears in footnote 12a. on page 388:
 
 >Following the Continental Controlled Substance Act of Y.T.M.P., O.N.A.N.D.E.A.'s hierarchy of analgesics/antipyretics/anxiolytics establishes drug-
 classes of Category-II through Category-VI, with C-II's (e.g. Dilaudid, Demerol) being judged the heaviest w/r/t dependence and possible abuse,
+
+If we allow a "/" in a acronym, the longest acronym is "N./O.N.A.N.C.A.A.":
 
 >Orin had exited his own substance-phase
 about the time he discovered sex, plus of course the N./O.N.A.N.C.A.A.-urine considerations, and he declined it, the cocaine, but
@@ -174,27 +183,41 @@ not minding, nor she that he abstained; the whole substance issue was natural an
 fated was that Joelle had in her sophomore year decided to concentrate in Film/Cartridge, academically, at B.U. Either Film-
 Cartridge Theory or Film-Cartridge Production.
 
-most common long acrynyms:
+Here's a table of the most common long acronyms (length 4 or greater):
 
-('O.N.A.N.T.A', 31)
-('P.G.O.A.T', 13)
-('E.M.P.H.H', 11)
-('U.S.O.U.S', 11)
-('U.S.S.M.K', 7)
-('O.N.A.N.C.A.A', 5)
-('U.S.B.S.S', 3)
-('Y.D.P.A.H', 2)
-('Y.T.S.D.B', 2)
-('Y.W.Q.M.D', 1)
-('O.N.A.N.F.L', 1)
-('F.O.P.P.P', 1)
-('N.A.A.U.P', 1)
-('O.N.A.N..', 1)
-('O.N.A.N.M.A', 1)
-('B.A.M.E.S', 1)
-('ESCHAX.DIR', 1)
-('I.B.P.W.D.W', 1)
-('O.N.A.N.D.E.A', 1)
-('A.A.O.A.A', 1)
+| Acronym :| Numer of Occurences |
+|-:|:-|
+| O.N.A.N.T.A :| 31
+| P.G.O.A.T :| 13
+| U.S.O.U.S :| 11
+| E.M.P.H.H :| 11
+| U.S.S.M.K :| 7
+| O.N.A.N.C.A.A :| 5
+| U.S.B.S.S :| 3
+| Y.T.S.D.B :| 2
+| Y.D.P.A.H :| 2
+| ESCHAX.DIR :| 1
+| A.A.O.A.A :| 1
+| O.N.A.N.F.L :| 1
+| Y.W.Q.M.D :| 1
+| O.N.A.N.M.A :| 1
+| F.O.P.P.P :| 1
+| N.A.A.U.P :| 1
+| O.N.A.N.D.E.A :| 1
+| O.N.A.N.. :| 1
+| B.A.M.E.S :| 1
+| I.B.P.W.D.W :| 1
+
+This is the code used to find them
+{% highlight python %}
+def acronyms(raw):
+    rec = re.compile('[^A-Z\.]')
+    caps = re.sub(rec,' ',raw)
+    toks = nltk.tokenize.word_tokenize(caps)
+    acks = filter(lambda x:('.' in x) and re.search('[A-Z]',x) and len(x) > 8, toks)
+    return collections.Counter(acks)
+{% endhighlight %}
+
+
 
 
