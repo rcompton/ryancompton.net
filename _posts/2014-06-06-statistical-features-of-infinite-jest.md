@@ -168,7 +168,7 @@ If we allow a "/" in a acronym, the longest becomes "N./O.N.A.N.C.A.A.":
 >Orin had exited his own substance-phase
 about the time he discovered sex, plus of course the N./O.N.A.N.C.A.A.-urine considerations, and he declined it, the cocaine, but not in a judgmental or killjoy way, and found he liked being with his P.G.O.A.T. straight while she ingested, he found it exciting, a vicariously on-the-edge feeling he associated with giving yourself not to any one game's definition but to yourself and how you unjudgmentally feel about somebody who's high and feeling even freer and better than normal, with you, alone, under the red balls.
 
-And the table of the most common long acronyms (length 4 or greater):
+Table of the most common long acronyms (length 4 or greater):
 
 | Acronym :| Numer of Occurrences |
 |-:|:-|
