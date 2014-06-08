@@ -172,25 +172,25 @@ Table of the most common long acronyms (length 5 or greater):
 
 | Acronym :| Numer of Occurrences |
 |-:|:-|
-| O.N.A.N.T.A :| 31
-| P.G.O.A.T :| 13
-| U.S.O.U.S :| 11
-| E.M.P.H.H :| 11
-| U.S.S.M.K :| 7
-| O.N.A.N.C.A.A :| 5
-| U.S.B.S.S :| 3
-| Y.T.S.D.B :| 2
-| Y.D.P.A.H :| 2
-| ESCHAX.DIR :| 1
-| A.A.O.A.A :| 1
-| O.N.A.N.F.L :| 1
-| Y.W.Q.M.D :| 1
-| O.N.A.N.M.A :| 1
-| F.O.P.P.P :| 1
-| N.A.A.U.P :| 1
-| O.N.A.N.D.E.A :| 1
-| B.A.M.E.S :| 1
-| I.B.P.W.D.W :| 1
+| O.N.A.N.T.A. :| 31
+| P.G.O.A.T. :| 13
+| U.S.O.U.S. :| 11
+| E.M.P.H.H. :| 11
+| U.S.S.M.K. :| 7
+| O.N.A.N.C.A.A. :| 5
+| U.S.B.S.S. :| 3
+| Y.T.S.D.B. :| 2
+| Y.D.P.A.H. :| 2
+| ESCHAX.DIR. :| 1
+| A.A.O.A.A. :| 1
+| O.N.A.N.F.L. :| 1
+| Y.W.Q.M.D. :| 1
+| O.N.A.N.M.A. :| 1
+| F.O.P.P.P. :| 1
+| N.A.A.U.P. :| 1
+| O.N.A.N.D.E.A. :| 1
+| B.A.M.E.S. :| 1
+| I.B.P.W.D.W. :| 1
 
 And the code used to find them:
 {% highlight python %}
@@ -198,7 +198,7 @@ def acronyms(raw):
     rec = re.compile('[^A-Z\.]')
     caps = re.sub(rec,' ',raw)
     toks = nltk.tokenize.word_tokenize(caps)
-    acks = filter(lambda x:('.' in x) and re.search('[A-Z]',x) and len(x) > 8, toks)
+    acks = filter(lambda x:('.' in x) and re.search('[A-Z]',x), toks)
     return collections.Counter(acks)
 {% endhighlight %}
 
