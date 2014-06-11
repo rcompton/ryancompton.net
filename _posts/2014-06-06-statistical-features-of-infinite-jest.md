@@ -16,8 +16,8 @@ First off, to run these experiments, one needs an electronic version of the book
 
 In Infinite Jest conjunctions often appear in chains of length three or greater. There is a length-six chain on page 379 of the .pdf. It's due to a minor character, "old Mikey", standing at the Boston AA podium and speaking to a crowd:
 
-> I'm wanting to light my cunt of a sister up so bad I can't hardly see to get the truck off the lawn and leave. But and so and but so I'm
-driving back home, and I'm so mad I all of a sudden try and pray.
+> *I'm wanting to light my cunt of a sister up so bad I can't hardly see to get the truck off the lawn and leave. But and so and but so I'm
+driving back home, and I'm so mad I all of a sudden try and pray.*
 
 Now, according to Wiktionary, there are [224 conjunctions in the English language](https://en.wiktionary.org/wiki/Category:English_conjunctions). It's possible to quickly get all of them by entering this query into [DBpedia's public Wiktionary endpoint](http://wiktionary.dbpedia.org/sparql):
 
@@ -33,7 +33,7 @@ WHERE {
 }
 {% endhighlight %}
 
-Using this list we can find the most frequently occurring uninterrupted conjunction chains, along with the number of times they occured in the text:
+Using this list we can find the most frequently occurring uninterrupted conjunction chains, along with the number of times they occurred in the text:
 
 | Conjunction Triples |  | Conjunction Quadruples |  | Conjunction Quintuples |  |
 |-:|:-|-:|:-|-:|:-|
@@ -48,16 +48,16 @@ Using this list we can find the most frequently occurring uninterrupted conjunct
 | and then if :| 5 | and so but since :| 1 |   |   |
 | if and when :| 5 | but not until after :| 1 |   |   |
 
-(Remark: accoring to Wiktionary, "/" is a valid conjunction)
+(Remark: according to Wiktionary, "/" is a valid conjunction)
 {% endexcerpt %}
 
 The only length six chain is "But and so and but so".
 
-We can perform a simliar experiment using prepositions, of which there are [496](https://en.wiktionary.org/wiki/Category:English_prepositions). Here, we discover the longest chain of uninterrupted prepositions is "in over from behind like". This occurs on page 402, while Michael Pemulis is opening Hal's door:
+We can perform a similar experiment using prepositions, of which there are [496](https://en.wiktionary.org/wiki/Category:English_prepositions). Here, we discover the longest chain of uninterrupted prepositions is "in over from behind like". This occurs on page 402, while Michael Pemulis is opening Hal's door:
 
->With the door just cracked and his head poked in he brings his other arm in over from behind like it's not his arm, his hand in the shape of a claw just over his head, and makes as if the claw from behind is pulling him back out into the hall. W/ an eye-rolling look of fake terror.
+> *With the door just cracked and his head poked in he brings his other arm in over from behind like it's not his arm, his hand in the shape of a claw just over his head, and makes as if the claw from behind is pulling him back out into the hall. W/ an eye-rolling look of fake terror.*
 
-Here's the correponding frequency table for prepositions:
+Here's the corresponding frequency table for prepositions:
 
 | Preposition Triples |  | Preposition Quadruples |  | Preposition Quintuples |  |
 |-:|:-|-:|:-|-:|:-|
@@ -72,11 +72,11 @@ Here's the correponding frequency table for prepositions:
 | come in for :| 5 | as in with like :| 1 |   |   |
 | to come in :| 5 | over from behind like :| 1 |   |   |
 
+<br>
+
 The longest uninterrupted chain composed entirely of either prepositions or conjunctions is "again/And again and again/And again and again and again". It occurs on page 264, during a storytelling session in the Tunnel Club:
 
->Peterson to Traub, while Gopnik holds the light: 'Eighteen-year-old top-ranked John Wayne / Had sex with Herr Schtitt on a
-train / They had sex again/And again and again/And again and again and again,' which the slightly older kids find more
-entertaining than Traub does.
+>*Peterson to Traub, while Gopnik holds the light: 'Eighteen-year-old top-ranked John Wayne / Had sex with Herr Schtitt on a train / They had sex again/And again and again/And again and again and again,' which the slightly older kids find more entertaining than Traub does.*
 
 And here's the frequency table for chains of either prepositions or conjunctions:
 
@@ -93,9 +93,11 @@ And here's the frequency table for chains of either prepositions or conjunctions
 | up out of :| 14 | over and over for :| 3 | not to come down or :| 1 |
 | as in like :| 12 | up and down both :| 3 | about wanting to and so on :| 1 |
 
+<br>
+
 If we toss out "/" from our word list the longest chain of either is "up and down over and over for". Not surprisingly, it's due to Michael Pemulis (page 403):
 
->Tell him we read books and tirelessly access D-bases and run our asses off all day here and need to eat instead of we don't just stand there and swing one leg up and down over and over for seven-plus figures.
+>*Tell him we read books and tirelessly access D-bases and run our asses off all day here and need to eat instead of we don't just stand there and swing one leg up and down over and over for seven-plus figures.*
 
 For reference, here's the code to identify the longest uninterrupted chains of conjunctions/prepositions:
 {% highlight python %}
@@ -105,7 +107,6 @@ def all_uninterrupted_seqs(raw, prep_conj, min_seq_length=3):
     return all uninterrupted chains of the terms
     """
     tokens = nltk.wordpunct_tokenize(raw)
-
     all_seqs = []
     for idx,token in enumerate(tokens):
         tokl = token.lower()
@@ -122,15 +123,15 @@ def all_uninterrupted_seqs(raw, prep_conj, min_seq_length=3):
     return all_seqs
 {% endhighlight %}
 
+***
+
 Our next result:
 
 ###*Wallace used a vocabulary of 20,584 words to write Infinite Jest*{: style="color: white"}
 
-By comparision, Aesop Rock has used a total of 7,392 words ([more than any other rapper](http://rappers.mdaniels.com.s3-website-us-east-1.amazonaws.com/)) in his first 35,000 lyrics. The [Brown Corpus](https://en.wikipedia.org/wiki/Brown_Corpus), which is roughly three times longer than Infinite Jest, contains 26,126 unique words.
+By comparison, the [Brown Corpus](https://en.wikipedia.org/wiki/Brown_Corpus), which is roughly three times longer than Infinite Jest, contains only 26,126 unique words. Specifically, the Brown Corpus contains 9,964,284 characters and 2,074,513 (not necessarily unique) words, while Infinite Jest contains 3,204,159 characters and 577,608 words. If we restrict the Brown Corpus to its first 3,204,159 characters we find a vocabulary of only 15,771 unique words.
 
-Specifically, the Brown Corpus contains 9,964,284 characters and 2,074,513 (not necessarily unique) words, while Infinite Jest contains 3,204,159 characters and 577,608 (not neccessarily unique) words. If we restrict the Brown Corpus to its first 3,204,159 characters we find that it's built from a vocabulary of only 15,771 unique words.
-
-If we restrict to the first 35,000 words, Infinite Jest contains 4,923 unique words (more than most rappers, but still less that the Wu-Tang clan) while the Brown Corpus contains 2,708 (which is less than DMX, and makes me a bit suspicious about the rapper dataset).
+If we restrict to the first 35,000 words, Infinite Jest contains 4,923 unique words ([more than most rappers, but still less than the Wu-Tang clan](http://rappers.mdaniels.com.s3-website-us-east-1.amazonaws.com/)) while the Brown Corpus contains 2,708.
 
 One issue with measuring vocabulary sizes is that suffixes may artificially inflate the number of distinct words in the set (e.g. fantod and fantods should not count as two words). To mitigate this, I used the
 Porter [Stemming](https://en.wikipedia.org/wiki/Stemming) algorithm to first remove suffixes for every word in the text before counting uniques. I also removed all characters which were not ascii letters (e.g. digits).
@@ -146,13 +147,13 @@ def vocabulary_size(raw):
     no_punct_lower = re.sub(rec,' ',raw).lower()
 
     #tokenize, stem, and count
-    tokens=nltk.word_tokenize(no_punct_lower)
+    tokens = nltk.word_tokenize(no_punct_lower)
     stemmer = nltk.stem.PorterStemmer()
-    stemmed_tokens = []
-    for token in tokens:
-        stemmed_tokens.append(stemmer.stem(token))
+    stemmed_tokens = map(lambda x: stemmer.stem(x), tokens)
     return len(set(stemmed_tokens))
 {% endhighlight %}
+
+***
 
 Finally,
 
@@ -162,17 +163,15 @@ These are used to abbreviate institutions within the Organization of North Ameri
 
 O.N.A.N.D.E.A appears in footnote 12a. on page 388:
 
->Following the Continental Controlled Substance Act of Y.T.M.P., O.N.A.N.D.E.A.'s hierarchy of analgesics/antipyretics/anxiolytics establishes drug-
-classes of Category-II through Category-VI, with C-II's (e.g. Dilaudid, Demerol) being judged the heaviest w/r/t dependence and possible abuse,
+>*Following the Continental Controlled Substance Act of Y.T.M.P., O.N.A.N.D.E.A.'s hierarchy of analgesics/antipyretics/anxiolytics establishes drug-classes of Category-II through Category-VI, with C-II's (e.g. Dilaudid, Demerol) being judged the heaviest w/r/t dependence and possible abuse*
 
 If we allow a "/" in a acronym, the longest becomes "N./O.N.A.N.C.A.A.":
 
->Orin had exited his own substance-phase
-about the time he discovered sex, plus of course the N./O.N.A.N.C.A.A.-urine considerations, and he declined it, the cocaine, but not in a judgmental or killjoy way, and found he liked being with his P.G.O.A.T. straight while she ingested, he found it exciting, a vicariously on-the-edge feeling he associated with giving yourself not to any one game's definition but to yourself and how you unjudgmentally feel about somebody who's high and feeling even freer and better than normal, with you, alone, under the red balls.
+>*Orin had exited his own substance-phase about the time he discovered sex, plus of course the N./O.N.A.N.C.A.A.-urine considerations, and he declined it, the cocaine, but not in a judgmental or killjoy way, and found he liked being with his P.G.O.A.T. straight while she ingested, he found it exciting, a vicariously on-the-edge feeling he associated with giving yourself not to any one game's definition but to yourself and how you unjudgmentally feel about somebody who's high and feeling even freer and better than normal, with you, alone, under the red balls.*
 
 Table of the most common long acronyms (length 5 or greater):
 
-| Acronym :| Numer of Occurrences |
+| Acronym :| Number of Occurrences |
 |-:|:-|
 | O.N.A.N.T.A. :| 31
 | P.G.O.A.T. :| 13
@@ -193,6 +192,8 @@ Table of the most common long acronyms (length 5 or greater):
 | O.N.A.N.D.E.A. :| 1
 | B.A.M.E.S. :| 1
 | I.B.P.W.D.W. :| 1
+
+<br>
 
 And the code used to find them:
 {% highlight python %}
