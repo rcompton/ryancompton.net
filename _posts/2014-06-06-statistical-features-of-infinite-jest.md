@@ -33,7 +33,7 @@ WHERE {
 }
 {% endhighlight %}
 
-Using this list we can find the most frequently occurring uninterrupted conjunction chains, along with the number of times they occurred in the text:
+With this list we can find the most common uninterrupted conjunction chains along with the number of times they appeared in the text:
 
 | Conjunction Triples |  | Conjunction Quadruples |  | Conjunction Quintuples |  |
 |-:|:-|-:|:-|-:|:-|
@@ -129,11 +129,11 @@ Our next result:
 
 ###*Wallace used a vocabulary of 20,584 words to write Infinite Jest*{: style="color: white"}
 
-By comparison, the [Brown Corpus](https://en.wikipedia.org/wiki/Brown_Corpus), which is roughly three times longer than Infinite Jest, contains only 26,126 unique words. Specifically, the Brown Corpus contains 9,964,284 characters and 2,074,513 (not necessarily unique) words, while Infinite Jest contains 3,204,159 characters and 577,608 words. If we restrict the Brown Corpus to its first 3,204,159 characters we find a vocabulary of only 15,771 unique words.
+By comparison, the [Brown Corpus](https://en.wikipedia.org/wiki/Brown_Corpus), which is roughly three times longer than Infinite Jest, contains only 26,126 unique words. To be precise, the Brown Corpus contains 9,964,284 characters and 2,074,513 (not necessarily unique) words, while Infinite Jest contains 3,204,159 characters and 577,608 words. If we restrict the Brown Corpus to its first 3,204,159 characters we find a vocabulary of only 15,771 unique words.
 
 If we restrict to the first 35,000 words, Infinite Jest contains 4,923 unique words ([more than most rappers, but still less than the Wu-Tang clan](http://rappers.mdaniels.com.s3-website-us-east-1.amazonaws.com/)) while the Brown Corpus contains 2,708.
 
-One issue with measuring vocabulary sizes is that suffixes may artificially inflate the number of distinct words in the set (e.g. fantod and fantods should not count as two words). To mitigate this, I used the
+One issue with measuring vocabulary size is that suffixes may artificially inflate the number of distinct words in the set (e.g. fantod and fantods should not count as two words). To mitigate this, I used the
 Porter [Stemming](https://en.wikipedia.org/wiki/Stemming) algorithm to first remove suffixes for every word in the text before counting uniques. I also removed all characters which were not ascii letters (e.g. digits).
 
 Here's the code:

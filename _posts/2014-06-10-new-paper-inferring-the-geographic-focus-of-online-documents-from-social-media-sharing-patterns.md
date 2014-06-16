@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "New Paper: Inferring the geographic focus of online documents from social media sharing patterns"
+title: "New Paper: Inferring the Geographic Focus of Online Documents from Social Media Sharing Patterns"
 description: ""
 category: 
 tags: ["papers"]
