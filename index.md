@@ -16,10 +16,10 @@ tagline:
         </h3>
         {% if post.excerpt_tag %}
           {{ post.excerpt_tag | markdownify }}
+          <a href="{{ post.url | prepend: site.baseurl }}">Read more...</a>
         {% else %}
           {{ post.content }}
         {% endif %}
-        <a href="{{ post.url | prepend: site.baseurl }}">Read more...</a>
       </li>
       <hr>
     {% endfor %}
