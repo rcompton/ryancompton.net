@@ -59,10 +59,18 @@ def get_adjacent_subreddits(subreddit_name='surfing',limit=5):
     return weighted_edges
 
 def main():
-	source_subreddit = 'worldnews'
-	edges = get_adjacent_subreddits(subreddit_name=source_subreddit, limit=None)
+	source_subreddit = 'all'
+	all_edges = get_adjacent_subreddits(subreddit_name=source_subreddit, limit=None)
+
+	#repeat the experiment for all distance-1 subreddits
+	d1_subreddits = set([x[1] for x in all_edges])
+	logger.info(d1_subreddits)
+	for d1_subreddit in d1_subreddits:
+		new_edges = get_adjacent_subreddits(subreddit_name=d1_subreddit, limit=None)
+		all_edges.extend(new_edges)
+
 	with open(source_subreddit+'_edgelist.tsv','w') as fout:
-		for edge in edges:
+		for edge in all_edges:
 			fout.write('{0}\t{1}\t{2}\n'.format(edge[0],edge[1],edge[2]))
 
 	return
