@@ -9,6 +9,8 @@ import random
 import logging
 import datetime
 import requests
+import os
+import pytz
 
 FORMAT = '%(asctime)-15s %(levelname)-6s %(message)s'
 DATE_FORMAT = '%b %d %H:%M:%S'
@@ -27,10 +29,19 @@ class PRAWSubredditDownloader(object):
                                     .format(self.subreddit))
         self.r.login(username=username,password=pw)
 
+        self.run_date = datetime.datetime.now(pytz.timezone('US/Pacific')).date()
+        self.out_dir = 'subreddit_downloader'+str(self.run_date)
+        os.mkdir(self.out_dir)
+
+
     def get_subreddit_authors(self,limit=None):
         """
         Collect unique authors of recent comments in a subreddit
         """
+        out_dir = os.path.join(self.out_dir,'subreddit_authors')
+        if not os.path.exists(out_dir):
+            os.mkdir(out_dir)
+
         comments = self.r.get_comments(self.subreddit,limit=limit)
         cs = []
         for c in comments:
@@ -44,7 +55,7 @@ class PRAWSubredditDownloader(object):
                 logger.error('comments download problem')
         #save to file
         df = pd.DataFrame(cs)
-        df.to_csv('subreddit_comments/{0}.tsv'.format(self.subreddit),sep='\t',index=False)
+        df.to_csv(os.path.join(out_dir,'{0}.tsv'.format(self.subreddit)),sep='\t',index=False)
         #hash based on usernames, Redditor class has no __hash__ ...
         d = {str(x['author']): x['author'] for x in cs}
         return list(d.values())
@@ -53,6 +64,11 @@ class PRAWSubredditDownloader(object):
         """
         Figure all the subreddits a redditor comments to
         """
+
+        out_dir = os.path.join(self.out_dir,'redditors_history')
+        if not os.path.exists(out_dir):
+            os.mkdir(out_dir)
+
         logger.info('getting post history for {0} limit={1}'.format(redditor,limit))
         rcs = redditor.get_comments(limit=limit)
         out = [{'subreddit':c.subreddit, 
@@ -60,7 +76,7 @@ class PRAWSubredditDownloader(object):
                 'body':c.body.replace('\n',' ')} for c in rcs]
         #save for later...
         df = pd.DataFrame(out)
-        df.to_csv('redditor_histories/{0}.tsv'.format(redditor),sep='\t',index=False)
+        df.to_csv(os.path.join(out_dir,'{0}.tsv'.format(redditor)),sep='\t',index=False)
         logger.info('Dowloaded comments from {0}: {1}'.format(redditor, len(out)))
         return out
 
@@ -97,10 +113,11 @@ def single_subreddit_worker(subreddit_name):
     # pw = df.iloc[idx]['pw']
     # logger.info('praw username={0}'.format(u))
 
-    praw_downloader = PRAWSubredditDownloader(subreddit_name,username='fukumupo',pw='sixoroxo')
-    edges = praw_downloader.get_adjacent_subreddits(redditors_limit=2000,comments_limit=100)
+    praw_downloader = PRAWSubredditDownloader(subreddit_name,username='fukumupo',pw='sixoroxo',
+        out_dir='edgelists')
+    edges = praw_downloader.get_adjacent_subreddits(redditors_limit=20,comments_limit=10)
     
-    with open('edgelists/'+subreddit_name+'_edgelist.tsv','w') as fout:
+    with open(os.path.join(out_dir,subreddit_name+'_edgelist.tsv'),'w') as fout:
         for edge in edges:
             fout.write('{0}\t{1}\t{2}\n'.format(edge[0],edge[1],edge[2]))
 
@@ -108,7 +125,9 @@ def single_subreddit_worker(subreddit_name):
 
 def main():
 
-    df = pd.read_csv('drugs_subreddit_list_sorted.tsv',sep='\t')
+    today = datetime.datetime.now(pytz.timezone('US/Pacific')).date()
+
+    df = pd.read_csv('drugs_subreddit_list_sorted.tsv',sep='\t',out_dir='edgelists'+str(today))
     srs = df['subreddit']
 
     for sr in srs.tolist()[6:]:
