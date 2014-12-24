@@ -166,7 +166,7 @@ def create_spotify_playlist_from_titles(todays_titles, playlist_name):
         new_pl = sp.user_playlist_create(user=sp.me()['id'],name=playlist_name,public=True)
 
     out_url = new_pl['external_urls']['spotify']
-    logger.warning(out_url)
+    logger.info(out_url)
 
     #get all tracks in the playlist
     new_new_pl = sp.user_playlist(sp.me()['id'], new_pl['uri'])
@@ -185,7 +185,7 @@ def create_spotify_playlist_from_titles(todays_titles, playlist_name):
         return (seq[pos:pos + size] for pos in range(0, len(seq), size))
 
     logger.warning('adding {0} new tracks to {1}'.format(len(new_track_uris), new_pl['name']))
-    if len(new_track_uris) > 0:
+    if new_track_uris > 0:
         for sublist in chunker(new_track_uris,99):
             sp.user_playlist_add_tracks(sp.me()['id'],new_pl['uri'],sublist)
             time.sleep(7)
