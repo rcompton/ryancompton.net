@@ -8,6 +8,7 @@ import multiprocessing
 import random
 import logging
 import datetime
+import requests
 
 FORMAT = '%(asctime)-15s %(levelname)-6s %(message)s'
 DATE_FORMAT = '%b %d %H:%M:%S'
@@ -110,10 +111,20 @@ def main():
     df = pd.read_csv('drugs_subreddit_list_sorted.tsv',sep='\t')
     srs = df['subreddit']
 
-    p = multiprocessing.Pool(1) #ugh turns out that more processes just gets me rate limited
-    results = p.map(single_subreddit_worker, srs)
-    p.close()
-    p.join()
+    for sr in srs.tolist()[6:]:
+        logger.info(sr)
+        while True: #try until no HTTPError
+            try:
+                single_subreddit_worker(sr)
+            except requests.exceptions.HTTPError:
+                continue
+            break
+
+    # this didn't help due to IP rate-limits
+    # p = multiprocessing.Pool(1) #ugh turns out that more processes just gets me rate limited
+    # results = p.map(single_subreddit_worker, srs)
+    # p.close()
+    # p.join()
 
     return
 

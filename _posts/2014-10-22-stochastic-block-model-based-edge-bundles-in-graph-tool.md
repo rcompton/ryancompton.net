@@ -3,7 +3,7 @@ layout: post
 title: "Stochastic block model based edge bundles in graph-tool"
 description: ""
 category: 
-tags: [coding]
+tags: ["coding"]
 ---
 {% include JB/setup %}
 {% excerpt %}
