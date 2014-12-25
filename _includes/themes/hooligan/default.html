@@ -124,12 +124,9 @@
       <div class="footer-push"></div>
     </div><!--/.page-wrap -->
 
-
-
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
     <script>window.jQuery || document.write('<script src="{{ ASSET_PATH }}/js/jquery.min.js"><\/script>')</script>
     <script src="{{ ASSET_PATH }}/bootstrap/js/bootstrap.min.js"></script>
-
 
 <!-- mathjax config similar to math.stackexchange -->
 <script type="text/x-mathjax-config">
@@ -147,6 +144,14 @@ MathJax.Hub.Config({
 </script>
 <script src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
 
+<footer>
+  <div class="container">
+    <p>&copy; {{ site.time | date: '%Y' }} {{ site.author.name }}
+      with help from <a href="http://jekyllbootstrap.com" target="_blank" title="The Definitive Jekyll Blogging Framework">Jekyll Bootstrap</a>
+      and <a href="http://github.com/dhulihan/hooligan" target="_blank">The Hooligan Theme</a>
+    </p>
+  </div>
+</footer>
 
   </body>
 </html>
