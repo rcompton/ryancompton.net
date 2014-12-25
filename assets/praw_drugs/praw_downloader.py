@@ -127,7 +127,7 @@ def main():
 
     today = datetime.datetime.now(pytz.timezone('US/Pacific')).date()
 
-    df = pd.read_csv('drugs_subreddit_list_sorted.tsv',sep='\t',out_dir='edgelists'+str(today))
+    df = pd.read_csv('drugs_subreddit_list_sorted.tsv',sep='\t')
     srs = df['subreddit']
 
     for sr in srs.tolist()[6:]:
