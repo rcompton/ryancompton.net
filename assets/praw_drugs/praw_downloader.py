@@ -29,9 +29,11 @@ class PRAWSubredditDownloader(object):
                                     .format(self.subreddit))
         self.r.login(username=username,password=pw)
 
-        self.run_date = datetime.datetime.now(pytz.timezone('US/Pacific')).date()
-        self.out_dir = 'subreddit_downloader'+str(self.run_date)
-        os.mkdir(self.out_dir)
+        self.run_datetime = datetime.datetime.now()
+
+        self.out_dir = os.path.join('subreddit_downloader','results_'+str(self.run_datetime))
+        if not os.path.exists(self.out_dir):
+            os.mkdir(self.out_dir)
 
 
     def get_subreddit_authors(self,limit=None):
@@ -105,7 +107,10 @@ class PRAWSubredditDownloader(object):
 
 
 def single_subreddit_worker(subreddit_name):
-
+    """
+    function to scrape a single subreddit
+    amenable to multiprocessing library
+    """
     # #choose random credentials
     # df = pd.read_csv('throwaway_accounts.tsv',sep='\t')
     # idx = random.randint(0,len(df)-1)
@@ -113,9 +118,13 @@ def single_subreddit_worker(subreddit_name):
     # pw = df.iloc[idx]['pw']
     # logger.info('praw username={0}'.format(u))
 
-    praw_downloader = PRAWSubredditDownloader(subreddit_name,username='fukumupo',pw='sixoroxo',
-        out_dir='edgelists')
-    edges = praw_downloader.get_adjacent_subreddits(redditors_limit=20,comments_limit=10)
+    praw_downloader = PRAWSubredditDownloader(subreddit_name,username='fukumupo',pw='sixoroxo')
+
+    #redditor limit determines how many posts to pull from the subreddit
+    #comments_limit is # c's per redditor...
+    edges = praw_downloader.get_adjacent_subreddits(redditors_limit=1000,comments_limit=100)
+
+    out_dir = praw_downloader.out_dir
     
     with open(os.path.join(out_dir,subreddit_name+'_edgelist.tsv'),'w') as fout:
         for edge in edges:
@@ -125,9 +134,7 @@ def single_subreddit_worker(subreddit_name):
 
 def main():
 
-    today = datetime.datetime.now(pytz.timezone('US/Pacific')).date()
-
-    df = pd.read_csv('drugs_subreddit_list_sorted.tsv',sep='\t')
+    df = pd.read_csv('/home/ubuntu/ryancompton.net/assets/praw_drugs/drugs_subreddit_list_sorted.tsv',sep='\t')
     srs = df['subreddit']
 
     for sr in srs.tolist()[6:]:
