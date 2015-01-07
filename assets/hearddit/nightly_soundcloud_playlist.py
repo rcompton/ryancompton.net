@@ -38,29 +38,28 @@ def get_submissions(subreddit='electronicmusic',limit=100,session=None):
     sr = r.get_subreddit(subreddit).get_hot(limit=limit)
     return sr
 
-def submit_link(creds_file, subreddit, title, playlist_url, username='heardditbot'):
+def add_url_to_submissions_db(url, dbfname='/home/ubuntu/hearddit_submitted_links.txt'):
+    with open(dbfname, 'a') as fout:
+        fout.write(url + '\n')
+    return
+
+def url_was_already_submitted(url, dbfname='/home/ubuntu/hearddit_submitted_links.txt'):
+    with open(dbfname, 'r') as fin:
+        lines = fin.readlines()
+    return (url in lines)
+
+
+def check_reposts_and_submit_url(creds_file, subreddit, title, playlist_url, username='heardditbot'):
     with open(creds_file,'r') as fin:
         d = dict( l.rstrip().split('=') for l in fin)
     r = praw.Reddit(user_agent='post_link; subreddit={0}'.format(subreddit))
     r.login(username=username,password=d[username])
     assert r.is_logged_in()
-    
-    # identify a daily discussion (I'm banned from /r/electronicmusic...)
-    def get_daily_discussion_thread(subreddit,session=None):
-        sr = get_submissions(subreddit=subreddit,limit=200,session=session)
-        dds = [s for s in sr if "Daily Discussion" in s.title]
-        if dds:
-            dds = sorted(dds, key=lambda x: -x.created)
-            return dds[0]
-        else:
-            return None
+        
+    if not url_was_already_submitted(playlist_url):
+        r.submit(subreddit,title=title,url=playlist_url)
+        add_url_to_submissions_db(playlist_url)
 
-    #if there's a Daily Discussion (eg /r/electronicmusic) use that
-    dd = get_daily_discussion_thread(subreddit,session=r)
-    if dd:
-        dd.add_comment(title + ' ' + playlist_url)
-    
-    r.submit(subreddit,title=title,url=playlist_url)
     return
 
 def soundclound_login():
@@ -185,7 +184,7 @@ def create_spotify_playlist_from_titles(todays_titles, playlist_name):
         return (seq[pos:pos + size] for pos in range(0, len(seq), size))
 
     logger.warning('adding {0} new tracks to {1}'.format(len(new_track_uris), new_pl['name']))
-    if new_track_uris > 0:
+    if len(new_track_uris) > 0:
         for sublist in chunker(new_track_uris,99):
             sp.user_playlist_add_tracks(sp.me()['id'],new_pl['uri'],sublist)
             time.sleep(7)
@@ -195,7 +194,6 @@ def create_spotify_playlist_from_titles(todays_titles, playlist_name):
 
 
 def main():
-    #today = datetime.datetime.now(pytz.timezone('US/Pacific')).date()
     monday = isoweek.Week(2015,0).thisweek().monday()
 
     subreddit=sys.argv[1]
@@ -220,10 +218,25 @@ def main():
     new_spotify_list_url = create_spotify_playlist_from_titles(todays_titles, playlist_name)
     logger.info(new_spotify_list_url)
 
-    #link_title='Soundcloud playlist for '+playlist_name
-    #logger.info('posting '+link_title+' to '+subreddit+' url: '+new_list_url)
-    #submit_link(creds_file='/home/ubuntu/my_reddit_accounts.properties', subreddit=subreddit, 
-    #            title=link_title, playlist_url=new_list_url, username=botname)
+    #post to reddit on Wednesdays (after the playlists get some stuff in them)
+    today = datetime.datetime.now().date()
+    wednesday = isoweek.Week(2015,0).thisweek().wednesday()
+    if today == wednesday:
+        #the subreddits I've already posted on
+        allowed_subreddits = ['futurebeats']
+        if subreddit in allowed_subreddits:
+            link_title='Soundcloud playlist for '+playlist_name
+            logger.info('posting '+link_title+' to '+subreddit+' url: '+new_soundcloud_list_url)
+            check_reposts_and_submit_url(creds_file='/home/ubuntu/my_reddit_accounts.properties', subreddit=subreddit, 
+                    title=link_title, playlist_url=new_soundcloud_list_url, username=botname)
+
+            logger.info('sleeping 10min for reddit ratelimits...')
+            time.sleep(600)
+
+            link_title='Spotify playlist for '+playlist_name
+            logger.info('posting '+link_title+' to '+subreddit+' url: '+new_spotify_list_url)
+            check_reposts_and_submit_url(creds_file='/home/ubuntu/my_reddit_accounts.properties', subreddit=subreddit, 
+                    title=link_title, playlist_url=new_spotify_list_url, username=botname)
 
     return
 
