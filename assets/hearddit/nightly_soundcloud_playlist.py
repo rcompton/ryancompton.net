@@ -125,7 +125,7 @@ def spotify_login():
         client_secret=d['SPOTIPY_CLIENT_SECRET'],
         redirect_uri=d['SPOTIPY_REDIRECT_URI']
         )
-    logger.warning('got a token!!!!: {}'.format(token))
+    logger.warning('got spotify token: {}'.format(token))
 
     return spotipy.Spotify(auth=token)
 
