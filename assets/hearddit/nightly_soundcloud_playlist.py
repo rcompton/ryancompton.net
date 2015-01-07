@@ -45,9 +45,8 @@ def add_url_to_submissions_db(url, dbfname='/home/ubuntu/hearddit_submitted_link
 
 def url_was_already_submitted(url, dbfname='/home/ubuntu/hearddit_submitted_links.txt'):
     with open(dbfname, 'r') as fin:
-        lines = fin.readlines()
+        lines = [line.rstrip() for line in fin]
     return (url in lines)
-
 
 def check_reposts_and_submit_url(creds_file, subreddit, title, playlist_url, username='heardditbot'):
     with open(creds_file,'r') as fin:
@@ -56,6 +55,7 @@ def check_reposts_and_submit_url(creds_file, subreddit, title, playlist_url, use
     r.login(username=username,password=d[username])
     assert r.is_logged_in()
         
+    logger.info("url_was_already_submitted: {}".format(url_was_already_submitted(playlist_url)))
     if not url_was_already_submitted(playlist_url):
         r.submit(subreddit,title=title,url=playlist_url)
         add_url_to_submissions_db(playlist_url)
