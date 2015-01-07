@@ -222,6 +222,7 @@ def main():
     today = datetime.datetime.now().date()
     wednesday = isoweek.Week(2015,0).thisweek().wednesday()
     if today == wednesday:
+        logger.info("it's wednesday, posting list")
         #the subreddits I've already posted on
         allowed_subreddits = ['futurebeats']
         if subreddit in allowed_subreddits:
