@@ -11,14 +11,21 @@ import datetime
 import requests
 import os
 import pytz
+import sqlite3
+import sqlalchemy
 
 FORMAT = '%(asctime)-15s %(levelname)-6s %(message)s'
 DATE_FORMAT = '%b %d %H:%M:%S'
 formatter = logging.Formatter(fmt=FORMAT, datefmt=DATE_FORMAT)
+
 handler = logging.StreamHandler()
 handler.setFormatter(formatter)
+fhandler = logging.FileHandler('/home/ubuntu/praw_downloader.log')
+fhandler.setFormatter(formatter)
+
 logger = logging.getLogger(__name__)
 logger.addHandler(handler)
+logger.addHandler(fhandler)
 logger.setLevel(logging.INFO)
 
 class PRAWSubredditDownloader(object):
@@ -33,7 +40,10 @@ class PRAWSubredditDownloader(object):
 
         self.out_dir = os.path.join('subreddit_downloader','results_'+str(self.run_datetime))
         if not os.path.exists(self.out_dir):
-            os.mkdir(self.out_dir)
+             os.mkdir(self.out_dir)
+
+        self.conn = sqlalchemy.create_engine('sqlite+pysqlite:////home/ubuntu/drugs.db', 
+                                            module=sqlite3.dbapi2)
 
 
     def get_subreddit_authors(self,limit=None):
@@ -54,10 +64,21 @@ class PRAWSubredditDownloader(object):
                 'posted_time': datetime.datetime.utcfromtimestamp(c.created_utc)}
                 cs.append(d)
             except:
-                logger.error('comments download problem')
-        #save to file
-        df = pd.DataFrame(cs)
-        df.to_csv(os.path.join(out_dir,'{0}.tsv'.format(self.subreddit)),sep='\t',index=False)
+                logger.exception('comments download problem')
+        
+        #read existing subreddit history
+        try:
+            df_old = pd.read_sql(self.subreddit,self.conn)
+        except:
+            logger.error('no table for: {}'.format(self.subreddit))
+            df_old = pd.DataFrame()
+
+        #save to sql
+        c_strs = [{k:str(v) for (k,v) in d.items()} for d in cs]
+        df = pd.concat([df_old, pd.DataFrame(c_strs)])
+        df = df.drop_duplicates()
+        df.to_sql(self.subreddit,self.conn,index=False,if_exists='replace')
+
         #hash based on usernames, Redditor class has no __hash__ ...
         d = {str(x['author']): x['author'] for x in cs}
         return list(d.values())
@@ -66,19 +87,25 @@ class PRAWSubredditDownloader(object):
         """
         Figure all the subreddits a redditor comments to
         """
-
-        out_dir = os.path.join(self.out_dir,'redditors_history')
-        if not os.path.exists(out_dir):
-            os.mkdir(out_dir)
-
         logger.info('getting post history for {0} limit={1}'.format(redditor,limit))
         rcs = redditor.get_comments(limit=limit)
-        out = [{'subreddit':c.subreddit, 
+        out = [{'redditor':redditor.name,
+                'subreddit':c.subreddit.name, 
                 'posted_time': datetime.datetime.utcfromtimestamp(c.created_utc),
                 'body':c.body.replace('\n',' ')} for c in rcs]
-        #save for later...
-        df = pd.DataFrame(out)
-        df.to_csv(os.path.join(out_dir,'{0}.tsv'.format(redditor)),sep='\t',index=False)
+
+        #read existing subreddit history
+        out_table = 'redditors_history'
+        try:
+            df_old = pd.read_sql(out_table,self.conn)
+        except:
+            logger.error('no table for: {}'.format(out_table))
+            df_old = pd.DataFrame()
+        #save to sql
+        df = pd.concat([df_old, pd.DataFrame(out)])
+        df = df.drop_duplicates()
+        df.to_sql(out_table,self.conn,index=False,if_exists='replace')
+  
         logger.info('Dowloaded comments from {0}: {1}'.format(redditor, len(out)))
         return out
 
@@ -89,14 +116,15 @@ class PRAWSubredditDownloader(object):
         """
         if self.redditors is None:
             self.redditors = self.get_subreddit_authors(limit=redditors_limit)
+
         logger.info('num redditors in {0}: {1}'.format(self.subreddit, len(self.redditors)))
         edges = []
         for redditor in self.redditors:
             try:
-                #if redditor is not None:
-                rscs = self.get_redditor_history(redditor, limit=comments_limit)
-                rscs = [d['subreddit'] for d in rscs]
-                edges.extend([(self.subreddit.lower(), str(x).lower()) for x in rscs])
+                if redditor is not None:
+                    rscs = self.get_redditor_history(redditor, limit=comments_limit)
+                    rscs = [d['subreddit'] for d in rscs]
+                    edges.extend([(self.subreddit.lower(), str(x).lower()) for x in rscs])
             except:
                 logger.error('problem with redditor {0}'.format(redditor))
 
