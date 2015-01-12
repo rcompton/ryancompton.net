@@ -29,11 +29,11 @@ logger.addHandler(fhandler)
 logger.setLevel(logging.INFO)
 
 class PRAWSubredditDownloader(object):
-    def __init__(self,subreddit,username,pw):
-        self.subreddit = subreddit
+    def __init__(self,subreddit_name,username,pw):
+        self.subreddit_name = subreddit_name
         self.redditors = None
         self.r = praw.Reddit(user_agent='get_drugs_subreddits; subreddit_name={0}'
-                                    .format(self.subreddit))
+                                    .format(self.subreddit_name))
         self.r.login(username=username,password=pw)
 
         self.run_datetime = datetime.datetime.now()
@@ -54,12 +54,12 @@ class PRAWSubredditDownloader(object):
         if not os.path.exists(out_dir):
             os.mkdir(out_dir)
 
-        comments = self.r.get_comments(self.subreddit,limit=limit)
+        comments = self.r.get_comments(self.subreddit_name,limit=limit)
         cs = []
         for c in comments:
             try:
                 d = {'author':c.author,
-                'subreddit':self.subreddit,
+                'subreddit':self.subreddit_name,
                 'body':c.body.replace('\n',' '), 
                 'posted_time': datetime.datetime.utcfromtimestamp(c.created_utc)}
                 cs.append(d)
@@ -68,16 +68,16 @@ class PRAWSubredditDownloader(object):
         
         #read existing subreddit history
         try:
-            df_old = pd.read_sql(self.subreddit,self.conn)
+            df_old = pd.read_sql(self.subreddit_name,self.conn)
         except:
-            logger.error('no table for: {}'.format(self.subreddit))
+            logger.error('no table for: {}'.format(self.subreddit_name))
             df_old = pd.DataFrame()
 
         #save to sql
         c_strs = [{k:str(v) for (k,v) in d.items()} for d in cs]
         df = pd.concat([df_old, pd.DataFrame(c_strs)])
         df = df.drop_duplicates()
-        df.to_sql(self.subreddit,self.conn,index=False,if_exists='replace')
+        df.to_sql(self.subreddit_name,self.conn,index=False,if_exists='replace')
 
         #hash based on usernames, Redditor class has no __hash__ ...
         d = {str(x['author']): x['author'] for x in cs}
@@ -90,7 +90,7 @@ class PRAWSubredditDownloader(object):
         logger.info('getting post history for {0} limit={1}'.format(redditor,limit))
         rcs = redditor.get_comments(limit=limit)
         out = [{'redditor':redditor.name,
-                'subreddit':c.subreddit.name, 
+                'subreddit':c.subreddit.display_name, 
                 'posted_time': datetime.datetime.utcfromtimestamp(c.created_utc),
                 'body':c.body.replace('\n',' ')} for c in rcs]
 
@@ -117,16 +117,16 @@ class PRAWSubredditDownloader(object):
         if self.redditors is None:
             self.redditors = self.get_subreddit_authors(limit=redditors_limit)
 
-        logger.info('num redditors in {0}: {1}'.format(self.subreddit, len(self.redditors)))
+        logger.info('num redditors in {0}: {1}'.format(self.subreddit_name, len(self.redditors)))
         edges = []
         for redditor in self.redditors:
             try:
                 if redditor is not None:
                     rscs = self.get_redditor_history(redditor, limit=comments_limit)
                     rscs = [d['subreddit'] for d in rscs]
-                    edges.extend([(self.subreddit.lower(), str(x).lower()) for x in rscs])
+                    edges.extend([(self.subreddit_name.lower(), str(x).lower()) for x in rscs])
             except:
-                logger.error('problem with redditor {0}'.format(redditor))
+                logger.exception('problem with redditor {0}'.format(redditor))
 
         #figure weights
         c = collections.Counter(edges)
