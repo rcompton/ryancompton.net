@@ -66,18 +66,12 @@ class PRAWSubredditDownloader(object):
             except:
                 logger.exception('comments download problem')
         
-        #read existing subreddit history
-        try:
-            df_old = pd.read_sql(self.subreddit_name,self.conn)
-        except:
-            logger.error('no table for: {}'.format(self.subreddit_name))
-            df_old = pd.DataFrame()
-
         #save to sql
         c_strs = [{k:str(v) for (k,v) in d.items()} for d in cs]
-        df = pd.concat([df_old, pd.DataFrame(c_strs)])
+        df = pd.DataFrame(c_strs)
         df = df.drop_duplicates()
-        df.to_sql(self.subreddit_name,self.conn,index=False,if_exists='replace')
+        df.to_sql(self.subreddit_name,self.conn,index=False,if_exists='append')
+        self.drop_sqlite3_duplicates(self.subreddit_name,'body')
 
         #hash based on usernames, Redditor class has no __hash__ ...
         d = {str(x['author']): x['author'] for x in cs}
@@ -94,18 +88,13 @@ class PRAWSubredditDownloader(object):
                 'posted_time': datetime.datetime.utcfromtimestamp(c.created_utc),
                 'body':c.body.replace('\n',' ')} for c in rcs]
 
-        #read existing subreddit history
-        out_table = 'redditors_history'
-        try:
-            df_old = pd.read_sql(out_table,self.conn)
-        except:
-            logger.error('no table for: {}'.format(out_table))
-            df_old = pd.DataFrame()
         #save to sql
-        df = pd.concat([df_old, pd.DataFrame(out)])
+        out_table_name = 'redditors_history'
+        df = pd.DataFrame(out)
         df = df.drop_duplicates()
-        df.to_sql(out_table,self.conn,index=False,if_exists='replace')
-  
+        df.to_sql(out_table_name, self.conn, index=False, if_exists='append')
+        self.drop_sqlite3_duplicates(out_table_name, 'body')
+
         logger.info('Dowloaded comments from {0}: {1}'.format(redditor, len(out)))
         return out
 
@@ -132,6 +121,24 @@ class PRAWSubredditDownloader(object):
         c = collections.Counter(edges)
         weighted_edges = [(x[0], x[1], c[x]) for x in c]
         return weighted_edges
+
+    def drop_sqlite3_duplicates(self, table, hash_column):
+        """
+        remove rows that contain duplicate text
+        take the min rowid
+        """
+        logger.info('dropping duplicates from: {0}, hash on table: {1}'.format(table, hash_column))
+
+        tbl_size = [r for r in self.conn.engine.execute('SELECT COUNT(rowid) FROM {};'.format(table))]
+        logger.info('size: before drop: {}'.format(tbl_size))
+
+        self.conn.engine.execute('DELETE FROM {0} WHERE rowid NOT IN (SELECT MIN(rowid) FROM {0} GROUP BY {1});'
+            .format(table, hash_column))
+
+        tbl_size = [r for r in self.conn.engine.execute('SELECT COUNT(rowid) FROM {};'.format(table))]
+        logger.info('size: after drop: {}'.format(tbl_size))
+        return
+
 
 
 def single_subreddit_worker(subreddit_name):
