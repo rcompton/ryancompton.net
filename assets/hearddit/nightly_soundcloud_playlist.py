@@ -132,13 +132,19 @@ def spotify_login():
 def search_spotify_for_a_title(title, sp):
     query = re.split('(\[|\()',title)[0] # title.split('[')[0]
     
-    if len(query) > 5:
+    if len(query) > 5:  # search for 5+ char strings
         results = sp.search(q=query, type='track')
         if len(results['tracks']['items']) > 0:
-            logger.info('hit! {0}'.format(query))
+            #check that the artist and title are indeed part of the query (Spotify's search is to aggressive with matches)
+            hit_artist = results['tracks']['items'][0]['artists'][0]['name']
+            hit_title = results['tracks']['items'][0]['name']
+            if (hit_artist.lower() in query.lower()) and (hit_title.lower() in query.lower()):
+                logger.info('hit accepted: query={0} \t title={1} \t artist={2}'.format(query, hit_title, hit_artist))
+            else:
+                logger.info('hit rejected: query={0} \t title={1} \t artist={2}'.format(query, hit_title, hit_artist))
             return results
         else:
-            logger.info('miss! {0}'.format(query))
+            logger.debug('miss! {0}'.format(query))
     return
 
 def create_spotify_playlist_from_titles(todays_titles, playlist_name):
