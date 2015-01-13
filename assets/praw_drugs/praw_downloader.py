@@ -93,7 +93,6 @@ class PRAWSubredditDownloader(object):
         df = pd.DataFrame(out)
         df = df.drop_duplicates()
         df.to_sql(out_table_name, self.conn, index=False, if_exists='append')
-        self.drop_sqlite3_duplicates(out_table_name, 'body')
 
         logger.info('Dowloaded comments from {0}: {1}'.format(redditor, len(out)))
         return out
@@ -116,6 +115,9 @@ class PRAWSubredditDownloader(object):
                     edges.extend([(self.subreddit_name.lower(), str(x).lower()) for x in rscs])
             except:
                 logger.exception('problem with redditor {0}'.format(redditor))
+
+        #db cleanup
+        self.drop_sqlite3_duplicates("redditors_history", 'body')
 
         #figure weights
         c = collections.Counter(edges)
