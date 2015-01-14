@@ -62,7 +62,7 @@ def check_reposts_and_submit_url(creds_file, subreddit, title, playlist_url, use
 
     return
 
-def soundclound_login():
+def soundcloud_login():
     with open('/home/ubuntu/soundcloud_creds.properties','r') as fin:
         d = dict( l.rstrip().split('=') for l in fin)
     client = soundcloud.Client(client_id=d['client_id'], 
@@ -75,17 +75,17 @@ def create_soundcloud_playlist_from_urls(urls, playlist_name):
     """
     login to soundcloud and create a playlist on my account 
     """
-    client = soundclound_login()    
+    client = soundcloud_login()    
 
     #use soundcloud api to resolve links
     tracks = []
     for url in urls:
         if 'soundcloud' in url:
-            logger.info(url)
+            logger.debug(url)
             try:
                 tracks.append(client.get('/resolve', url=url))
             except requests.exceptions.HTTPError:
-                logger.error('except!'+url)
+                logger.warning('soundcloud url not resolved: '+url)
     track_ids = [x.id for x in tracks]
     track_dicts = list(map(lambda id: dict(id=id), track_ids))
     logger.info(track_dicts)
@@ -151,6 +151,7 @@ def create_spotify_playlist_from_titles(todays_titles, playlist_name):
     """
     login to spotify, search for titles, and create a playlist
     """
+    logger.info("create_spotify_playlist_from_titles")
     sp = spotify_login()
 
     #try to map the submission titles to spotify tracks
@@ -218,11 +219,20 @@ def main():
     logger.info("len(todays_urls): {0}".format(len(todays_urls)))
     logger.info("len(todays_titles): {0}".format(len(todays_titles)))
 
-    new_soundcloud_list_url = create_soundcloud_playlist_from_urls(todays_urls, playlist_name)
-    logger.info(new_soundcloud_list_url)
+    #append to soundcloud playlist
+    try:
+        #logger.warning("NO SOUNDCLOUD!!!")
+        new_soundcloud_list_url = create_soundcloud_playlist_from_urls(todays_urls, playlist_name)
+        logger.info("new_soundcloud_list_url:  {}".format(new_soundcloud_list_url))
+    except:
+        logger.exception('create_soundcloud_playlist_from_urls exception...')
 
-    new_spotify_list_url = create_spotify_playlist_from_titles(todays_titles, playlist_name)
-    logger.info(new_spotify_list_url)
+    #append to spotify playlist
+    try:
+        new_spotify_list_url = create_spotify_playlist_from_titles(todays_titles, playlist_name)
+        logger.info("new_spotify_list_url:  {}".format(new_spotify_list_url))
+    except:
+        logger.exception("create_spotify_playlist_from_titles exception...")
 
     #post to reddit on Wednesdays (after the playlists get some stuff in them)
     today = datetime.datetime.now().date()
@@ -230,7 +240,7 @@ def main():
     if today == wednesday:
         #the subreddits I've already posted on
         allowed_subreddits = ['futurebeats']
-        if subreddit in allowed_subreddits:
+        if (subreddit in allowed_subreddits) and (new_soundcloud_list_url is not None):
             link_title='Soundcloud playlist for '+playlist_name
             logger.info('posting '+link_title+' to '+subreddit+' url: '+new_soundcloud_list_url)
             check_reposts_and_submit_url(creds_file='/home/ubuntu/my_reddit_accounts.properties', subreddit=subreddit, 
