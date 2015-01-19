@@ -11,6 +11,8 @@ import spotipy
 import spotipy.util
 import re
 import time
+import dateutil
+import dateutil.parser
 
 import warnings
 #soundcloud sends tons of these..
@@ -88,10 +90,28 @@ def create_soundcloud_playlist_from_urls(urls, playlist_name):
                 logger.warning('soundcloud url not resolved: '+url)
     track_ids = [x.id for x in tracks]
     track_dicts = list(map(lambda id: dict(id=id), track_ids))
-    logger.info(track_dicts)
+    logger.info("soundcloud track_dicts: {}".format(track_dicts))
 
-    #check if playlist already exists
+    #get my playlists (this will 504 if I have too many playlists)
+    logger.info('client.get(/me/playlists), will 504 if I have too many playlists')
     my_playlists = client.get('/me/playlists')
+
+    #delete old playlists
+    max_playlist_age = 21
+    logger.info('delete playlists older than {} days'.format(max_playlist_age))
+    dto = datetime.datetime.now() - datetime.timedelta(max_playlist_age)
+    expired_pls = [pl for pl in my_playlists if 
+        dateutil.parser.parse(pl.fields()['created_at']).replace(tzinfo=None) < dto]
+    for expired_pl in expired_pls:
+        logger.warning('delete playlist {}'.format(expired_pl.uri))
+        client.delete(expired_pl.uri)
+    logger.info('done clearing expired playlists')
+
+    #focus attention on new lists only
+    my_playlists = [pl for pl in my_playlists if 
+        dateutil.parser.parse(pl.fields()['created_at']).replace(tzinfo=None) >= dto]
+
+    #existing list urls
     old_list_urls = [p for p in my_playlists if p.fields()['title'] == playlist_name]
     if old_list_urls:
         # add tracks to playlist
@@ -105,6 +125,7 @@ def create_soundcloud_playlist_from_urls(urls, playlist_name):
             'tracks': track_dicts})
 
     #get the link to the list created
+    logger.info('client.get(/me/playlists), will 504 if I have too many playlists')
     my_playlists = client.get('/me/playlists')
     new_list_url = [p.fields()['permalink_url'] for p in my_playlists 
                     if p.fields()['title'] == playlist_name]
