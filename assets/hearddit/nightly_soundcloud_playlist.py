@@ -11,6 +11,8 @@ import spotipy
 import spotipy.util
 import re
 import time
+import dateutil
+import dateutil.parser
 
 import warnings
 #soundcloud sends tons of these..
@@ -62,7 +64,7 @@ def check_reposts_and_submit_url(creds_file, subreddit, title, playlist_url, use
 
     return
 
-def soundclound_login():
+def soundcloud_login():
     with open('/home/ubuntu/soundcloud_creds.properties','r') as fin:
         d = dict( l.rstrip().split('=') for l in fin)
     client = soundcloud.Client(client_id=d['client_id'], 
@@ -75,23 +77,41 @@ def create_soundcloud_playlist_from_urls(urls, playlist_name):
     """
     login to soundcloud and create a playlist on my account 
     """
-    client = soundclound_login()    
+    client = soundcloud_login()    
 
     #use soundcloud api to resolve links
     tracks = []
     for url in urls:
         if 'soundcloud' in url:
-            logger.info(url)
+            logger.debug(url)
             try:
                 tracks.append(client.get('/resolve', url=url))
             except requests.exceptions.HTTPError:
-                logger.error('except!'+url)
+                logger.warning('soundcloud url not resolved: '+url)
     track_ids = [x.id for x in tracks]
     track_dicts = list(map(lambda id: dict(id=id), track_ids))
-    logger.info(track_dicts)
+    logger.info("soundcloud track_dicts: {}".format(track_dicts))
 
-    #check if playlist already exists
+    #get my playlists (this will 504 if I have too many playlists)
+    logger.info('client.get(/me/playlists), will 504 if I have too many playlists')
     my_playlists = client.get('/me/playlists')
+
+    #delete old playlists
+    max_playlist_age = 21
+    logger.info('delete playlists older than {} days'.format(max_playlist_age))
+    dto = datetime.datetime.now() - datetime.timedelta(max_playlist_age)
+    expired_pls = [pl for pl in my_playlists if 
+        dateutil.parser.parse(pl.fields()['created_at']).replace(tzinfo=None) < dto]
+    for expired_pl in expired_pls:
+        logger.warning('delete playlist {}'.format(expired_pl.uri))
+        client.delete(expired_pl.uri)
+    logger.info('done clearing expired playlists')
+
+    #focus attention on new lists only
+    my_playlists = [pl for pl in my_playlists if 
+        dateutil.parser.parse(pl.fields()['created_at']).replace(tzinfo=None) >= dto]
+
+    #existing list urls
     old_list_urls = [p for p in my_playlists if p.fields()['title'] == playlist_name]
     if old_list_urls:
         # add tracks to playlist
@@ -105,6 +125,7 @@ def create_soundcloud_playlist_from_urls(urls, playlist_name):
             'tracks': track_dicts})
 
     #get the link to the list created
+    logger.info('client.get(/me/playlists), will 504 if I have too many playlists')
     my_playlists = client.get('/me/playlists')
     new_list_url = [p.fields()['permalink_url'] for p in my_playlists 
                     if p.fields()['title'] == playlist_name]
@@ -132,19 +153,26 @@ def spotify_login():
 def search_spotify_for_a_title(title, sp):
     query = re.split('(\[|\()',title)[0] # title.split('[')[0]
     
-    if len(query) > 5:
+    if len(query) > 5:  # search for 5+ char strings
         results = sp.search(q=query, type='track')
         if len(results['tracks']['items']) > 0:
-            logger.info('hit! {0}'.format(query))
+            #check that the artist and title are indeed part of the query (Spotify's search is to aggressive with matches)
+            hit_artist = results['tracks']['items'][0]['artists'][0]['name']
+            hit_title = results['tracks']['items'][0]['name']
+            if (hit_artist.lower() in query.lower()) and (hit_title.lower() in query.lower()):
+                logger.info('hit accepted: query={0} \t title={1} \t artist={2}'.format(query, hit_title, hit_artist))
+            else:
+                logger.info('hit rejected: query={0} \t title={1} \t artist={2}'.format(query, hit_title, hit_artist))
             return results
         else:
-            logger.info('miss! {0}'.format(query))
+            logger.debug('miss! {0}'.format(query))
     return
 
 def create_spotify_playlist_from_titles(todays_titles, playlist_name):
     """
     login to spotify, search for titles, and create a playlist
     """
+    logger.info("create_spotify_playlist_from_titles")
     sp = spotify_login()
 
     #try to map the submission titles to spotify tracks
@@ -212,11 +240,20 @@ def main():
     logger.info("len(todays_urls): {0}".format(len(todays_urls)))
     logger.info("len(todays_titles): {0}".format(len(todays_titles)))
 
-    new_soundcloud_list_url = create_soundcloud_playlist_from_urls(todays_urls, playlist_name)
-    logger.info(new_soundcloud_list_url)
+    #append to soundcloud playlist
+    try:
+        #logger.warning("NO SOUNDCLOUD!!!")
+        new_soundcloud_list_url = create_soundcloud_playlist_from_urls(todays_urls, playlist_name)
+        logger.info("new_soundcloud_list_url:  {}".format(new_soundcloud_list_url))
+    except:
+        logger.exception('create_soundcloud_playlist_from_urls exception...')
 
-    new_spotify_list_url = create_spotify_playlist_from_titles(todays_titles, playlist_name)
-    logger.info(new_spotify_list_url)
+    #append to spotify playlist
+    try:
+        new_spotify_list_url = create_spotify_playlist_from_titles(todays_titles, playlist_name)
+        logger.info("new_spotify_list_url:  {}".format(new_spotify_list_url))
+    except:
+        logger.exception("create_spotify_playlist_from_titles exception...")
 
     #post to reddit on Wednesdays (after the playlists get some stuff in them)
     today = datetime.datetime.now().date()
@@ -224,7 +261,7 @@ def main():
     if today == wednesday:
         #the subreddits I've already posted on
         allowed_subreddits = ['futurebeats']
-        if subreddit in allowed_subreddits:
+        if (subreddit in allowed_subreddits) and (new_soundcloud_list_url is not None):
             link_title='Soundcloud playlist for '+playlist_name
             logger.info('posting '+link_title+' to '+subreddit+' url: '+new_soundcloud_list_url)
             check_reposts_and_submit_url(creds_file='/home/ubuntu/my_reddit_accounts.properties', subreddit=subreddit, 
