@@ -5,7 +5,7 @@ description: ""
 ---
 {% include JB/setup %}
 
-Contact: <rcpt@protonmail.ch>
+Contact: <ryan@ryancompton.net>
 
 #Employment
 
