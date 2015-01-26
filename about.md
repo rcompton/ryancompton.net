@@ -6,13 +6,11 @@ group: navigation
 ---
 {% include JB/setup %}
 
-I am a postdoc at Hughes Research Laboratories in Malibu, CA. My work focuses on social media data mining for early detection of newsworthy events, most recent paper: [http://arxiv.org/abs/1404.7152](http://arxiv.org/abs/1404.7152). In 2012 I finished a mathematics PhD at UCLA. My graduate work involved [sparsity promoting optimization in quantum mechanical signal processing](http://code.google.com/p/typingstuff/downloads/list). You can find me elsewhere on the web: [stackoverflow.com]( http://stackoverflow.com/users/424631) [scholar.google.com](http://scholar.google.com/citations?user=YcJNT5AAAAAJ&hl=en)
+I am a postdoc at Howard Hughes Research Laboratories in Malibu, CA. My work focuses on social media data mining for early detection of newsworthy events, most recent paper: [http://arxiv.org/abs/1404.7152](http://arxiv.org/abs/1404.7152). In 2012 I finished a mathematics PhD at UCLA. My graduate work involved [sparsity promoting optimization in quantum mechanical signal processing](http://code.google.com/p/typingstuff/downloads/list). You can find me elsewhere on the web: [stackoverflow.com]( http://stackoverflow.com/users/424631) [scholar.google.com](http://scholar.google.com/citations?user=YcJNT5AAAAAJ&hl=en)
 
-+ Contact info: <ryan@ryancompton.net>
++ Contact: <ryan@ryancompton.net>
 
 + [Resume]({{ site.url }}/assets/resume/ryan_compton_resume.yaml)
 
-+ Photo: 
-
-![polblogs_blockmodel_1024]({{ site.url }}/assets/graphviz/polblogs_blockmodel_1024.png)
++ [Photo]({{ site.url }}/assets/resume/IMG_6683_small.jpg)
 
