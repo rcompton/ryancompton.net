@@ -25,7 +25,7 @@ edu['MS'] = ['UCLA, Mathematics, 2008']
 edu['BA'] = ['New College of Florida, Mathematics/Physics, 2006', 'Advised by Patrick McDonald', 'Thesis title "Optimizing Cover Times with Constraints"']
 edu = ['PhD, UCLA, Mathematics, 2012',
 'MS, UCLA, Mathematics, 2008',
-'BA, Mathematics/Physics, New College of Florida, 2006']
+'BA, New College of Florida, Mathematics/Physics, 2006']
 resume['education'] = edu
 
 
