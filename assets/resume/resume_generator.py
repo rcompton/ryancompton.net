@@ -47,7 +47,7 @@ def main():
 
     resume_str = yaml.dump(resume, default_flow_style=False)
 
-    with open('resume.yaml','w') as fout:
+    with open('ryan_compton_resume.yaml','w') as fout:
         fout.write(resume_str)
 
 
