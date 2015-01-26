@@ -10,7 +10,7 @@ tags: ["coding"]
 
 Here's a plot of the political blogging network data but with the edge bundles determined using a [stochastic block model](http://arxiv.org/abs/1310.4377).
 
-The color scheme is the same as in the original paper, i.e. each node corresponds to a blog url and the colors reflect political orientation, red for conservative, and blue for liberal. Orange edges go from liberal blogs to conservative blogs, and purple ones from conservative to liberal (cf  fig. 1 in Adamic and Glance). All 1,490 nodes and 19,090 edges are drawn.
+The color scheme is the same as in the original paper, i.e. each node corresponds to a blog url and the colors reflect political orientation, red for conservative, and blue for liberal. Orange edges go from liberal blogs to conservative blogs, and purple ones from conservative to liberal (cf  fig. 1 in Adamic and Glance).
 
 ![polblogs_blockmodel_1024]({{ site.url }}/assets/graphviz/polblogs_blockmodel_1024.png)
 
