@@ -20,7 +20,6 @@ Code and high-res version here:
 
 {% highlight python %}
 # -*- coding: utf-8 -*-
-
 import graph_tool.all as gt
 import math
 
