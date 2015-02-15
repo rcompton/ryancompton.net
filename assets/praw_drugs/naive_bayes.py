@@ -12,6 +12,10 @@ import sqlite3
 import collections
 import matplotlib.pyplot as plt
 
+import seaborn as sns
+sns.set(style="white", context="talk")
+
+
 import logging
 FORMAT = '%(asctime)-15s %(levelname)-6s %(message)s'
 DATE_FORMAT = '%b %d %H:%M:%S'
@@ -147,11 +151,17 @@ def check_classifier(test_pos, train_pos, test_neg, train_neg):
     pdf = pdf[pdf['predicts_for'] == test_pos[0][1]]
 
     #plt.suptitle('Most informative features')
-    plt.title(r'\Huge{Ryan} \newline Probability term appears in a comment in the subreddit \
-    divided by \newline the probability that the term appears in a comment outside the subreddit.')
     #plt.xkcd()
-    pdf[['fname','ratio']].plot(x='fname',kind='barh')
-    plt.show()
+    #pdf[['fname','ratio']].plot(x='fname',kind='barh')
+    #plt.title('Most distinguishing terms for drug subreddits')
+    #plt.figtext(.5,.85,'The ratios describe the probability that each \
+    #term appears in a comment within the subreddit divided by the \
+    #probability that the term appears in a comment outside the subreddit.',fontsize=10,ha='center')
+
+#    plt.title(r"""\Huge{Probability} term appears in a comment in the subreddit \
+#        divided by \newline the probability that the term appears in a comment outside the subreddit.""")
+    # Make room for the ridiculously large title.
+    return pdf.sort(columns='ratio')
 
 # <codecell>
 
@@ -228,8 +238,36 @@ def main():
     logger.info('done!')
 
     test_pos, train_pos, test_neg, train_neg = build_binary_classifier_inputs(df,transformer,subreddit_name='cocaine')
+    cocaine_df = check_classifier(test_pos, train_pos, test_neg, train_neg)
 
-    check_classifier(test_pos, train_pos, test_neg, train_neg)
+    test_pos, train_pos, test_neg, train_neg = build_binary_classifier_inputs(df,transformer,subreddit_name='lsd')
+    lsd_df = check_classifier(test_pos, train_pos, test_neg, train_neg)
+
+
+    f, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 6))
+
+    x1 = cocaine_df['fname']
+    y1 = cocaine_df['ratio']
+    #sns.barplot(x1, y1, ci=None, palette="coolwarm", hline=0, ax=ax1)
+    cocaine_df.plot(x='fname', kind='bar', ax=ax1)
+    ax1.set_ylabel("/r/cocaine")
+
+    #x2 = lsd_df['fname']
+    #y2 = lsd_df['ratio']
+    #sns.barplot(x2, y2, ci=None, palette="coolwarm", hline=0, ax=ax2)
+    lsd_df.plot(x='fname', kind='bar',ax=ax2)
+    ax2.set_ylabel("/r/lsd")
+
+    #y3 = pdf['ratio']
+    #sns.barplot(x, y3, ci=None, palette="Paired", hline=.1, ax=ax3)
+    #ax3.set_ylabel("Qualitative")
+
+    #sns.despine(bottom=True)
+    plt.setp(f.axes, yticks=[])
+    plt.tight_layout(h_pad=3)
+    plt.title('Most distinguishing terms for drug subreddits')
+
+    plt.show()
 
 if __name__=='__main__':
     main()
