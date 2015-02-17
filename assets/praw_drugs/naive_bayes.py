@@ -12,9 +12,11 @@ import sqlite3
 import collections
 import matplotlib.pyplot as plt
 
-import seaborn as sns
-sns.set(style="white", context="talk")
+import urlmarker
+import re
 
+import seaborn as sns
+#sns.set(style="white", context="talk")
 
 import logging
 FORMAT = '%(asctime)-15s %(levelname)-6s %(message)s'
@@ -105,7 +107,7 @@ def features_from_messages(messages, label, feature_extractor, **kwargs):
     Make a (features, label) tuple for each message in a list of a certain,
     label of e-mails ('spam', 'ham') and return a list of these tuples.
 
-    Note every e-mail in 'messages' should have the same label.
+    Note every text in 'messages' should have the same label.
     '''
     features_labels = []
     feature_vecs = feature_extractor(messages)
@@ -223,6 +225,15 @@ def my_show_most_informative_features(classifier, n=10):
 
 def main():
 
+    st = '''The regex patterns in this gist are intended to match any URLs,
+including "mailto:foo@example.com", "x-whatever://foo", etc. For a
+pattern that attempts only to match web URLs (http, https), see:
+https://gist.github.com/gruber/8891611
+'''
+    logger.info(re.findall(urlmarker.WEB_URL_REGEX,st))
+    logger.info(re.findall(urlmarker.ANY_URL_REGEX,st))
+
+
     #load the data
     subs = ['lsd','Benzodiazepines','opiates','cripplingalcoholism','cocaine','trees']
     #subs = ['lsd','opiates','cocaine']
@@ -232,6 +243,9 @@ def main():
         df = df.head(3000)
         dfs.append(df)
     df = pd.concat(dfs)
+
+    #clean out urls
+    df['body'] = df['body'].map(lambda x: re.sub(urlmarker.WEB_URL_REGEX,'', x))
 
     logger.info('tokenize and build vectors...')
     transformer = build_count_transformer(df['body'], tokenizer=my_tokenize, max_doc_count=None, vocab_limit=25000)
@@ -249,13 +263,17 @@ def main():
     x1 = cocaine_df['fname']
     y1 = cocaine_df['ratio']
     #sns.barplot(x1, y1, ci=None, palette="coolwarm", hline=0, ax=ax1)
-    cocaine_df.plot(x='fname', kind='bar', ax=ax1)
+    cocaine_df['ratio'].plot(kind='bar', ax=ax1)
+    #ax1.set_ylim(0, max(cocaine_df['ratio']))
+    for i, label in enumerate(list(cocaine_df.index)):
+        text = cocaine_df.ix[label]['fname']
+        ax1.annotate(str(text), (i, cocaine_df.ix[label]['ratio'] + 0))
     ax1.set_ylabel("/r/cocaine")
 
     #x2 = lsd_df['fname']
     #y2 = lsd_df['ratio']
     #sns.barplot(x2, y2, ci=None, palette="coolwarm", hline=0, ax=ax2)
-    lsd_df.plot(x='fname', kind='bar',ax=ax2)
+    lsd_df.plot(kind='bar',ax=ax2)
     ax2.set_ylabel("/r/lsd")
 
     #y3 = pdf['ratio']
