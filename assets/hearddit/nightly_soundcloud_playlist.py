@@ -56,18 +56,19 @@ def check_reposts_and_submit_url(creds_file, subreddit, title, playlist_url, use
     r = praw.Reddit(user_agent='post_link; subreddit={0}'.format(subreddit))
     r.login(username=username,password=d[username])
     assert r.is_logged_in()
-        
+
     logger.info("url_was_already_submitted: {}".format(url_was_already_submitted(playlist_url)))
     if not url_was_already_submitted(playlist_url):
-        r.submit(subreddit,title=title,url=playlist_url)
+        submission = r.submit(subreddit,title=title,url=playlist_url)
         add_url_to_submissions_db(playlist_url)
+        submission.add_comment('''Hearddit builds playlists from links posted on music subreddits. Details: http://ryancompton.net/2014/12/23/hearddit/ ''')
 
     return
 
 def soundcloud_login():
     with open('/home/ubuntu/soundcloud_creds.properties','r') as fin:
         d = dict( l.rstrip().split('=') for l in fin)
-    client = soundcloud.Client(client_id=d['client_id'], 
+    client = soundcloud.Client(client_id=d['client_id'],
                             client_secret=d['client_secret'],
                             username=d['username'],
                            password=d['password'])
@@ -75,9 +76,9 @@ def soundcloud_login():
 
 def create_soundcloud_playlist_from_urls(urls, playlist_name):
     """
-    login to soundcloud and create a playlist on my account 
+    login to soundcloud and create a playlist on my account
     """
-    client = soundcloud_login()    
+    client = soundcloud_login()
 
     #use soundcloud api to resolve links
     tracks = []
@@ -100,7 +101,7 @@ def create_soundcloud_playlist_from_urls(urls, playlist_name):
     max_playlist_age = 21
     logger.info('delete playlists older than {} days'.format(max_playlist_age))
     dto = datetime.datetime.now() - datetime.timedelta(max_playlist_age)
-    expired_pls = [pl for pl in my_playlists if 
+    expired_pls = [pl for pl in my_playlists if
         dateutil.parser.parse(pl.fields()['created_at']).replace(tzinfo=None) < dto]
     for expired_pl in expired_pls:
         logger.warning('delete playlist {}'.format(expired_pl.uri))
@@ -108,7 +109,7 @@ def create_soundcloud_playlist_from_urls(urls, playlist_name):
     logger.info('done clearing expired playlists')
 
     #focus attention on new lists only
-    my_playlists = [pl for pl in my_playlists if 
+    my_playlists = [pl for pl in my_playlists if
         dateutil.parser.parse(pl.fields()['created_at']).replace(tzinfo=None) >= dto]
 
     #existing list urls
@@ -127,7 +128,7 @@ def create_soundcloud_playlist_from_urls(urls, playlist_name):
     #get the link to the list created
     logger.info('client.get(/me/playlists), will 504 if I have too many playlists')
     my_playlists = client.get('/me/playlists')
-    new_list_url = [p.fields()['permalink_url'] for p in my_playlists 
+    new_list_url = [p.fields()['permalink_url'] for p in my_playlists
                     if p.fields()['title'] == playlist_name]
 
     if new_list_url:
@@ -142,7 +143,7 @@ def spotify_login():
         d = dict( l.rstrip().split('=') for l in fin)
     token = spotipy.util.prompt_for_user_token(username='1210400091',
         scope=scopes,
-        client_id=d['SPOTIPY_CLIENT_ID'], 
+        client_id=d['SPOTIPY_CLIENT_ID'],
         client_secret=d['SPOTIPY_CLIENT_SECRET'],
         redirect_uri=d['SPOTIPY_REDIRECT_URI']
         )
@@ -152,7 +153,7 @@ def spotify_login():
 
 def search_spotify_for_a_title(title, sp):
     query = re.split('(\[|\()',title)[0] # title.split('[')[0]
-    
+
     if len(query) > 5:  # search for 5+ char strings
         results = sp.search(q=query, type='track')
         if len(results['tracks']['items']) > 0:
@@ -233,7 +234,7 @@ def main():
     hot_links = list(get_submissions(subreddit=subreddit,limit=500))
     logger.info('number of submissions: {0}'.format(len(hot_links)))
 
-    #parse out the urls, titles, and post times from the submissions 
+    #parse out the urls, titles, and post times from the submissions
     urls = [(x.url, x.title, datetime.datetime.fromtimestamp(x.created)) for x in hot_links]
     todays_urls = [x[0] for x in urls if x[2].date() >= monday]
     todays_titles = [x[1] for x in urls if x[2].date() >= monday]
@@ -264,7 +265,7 @@ def main():
         if (subreddit in allowed_subreddits) and (new_soundcloud_list_url is not None):
             link_title='Soundcloud playlist for '+playlist_name
             logger.info('posting '+link_title+' to '+subreddit+' url: '+new_soundcloud_list_url)
-            check_reposts_and_submit_url(creds_file='/home/ubuntu/my_reddit_accounts.properties', subreddit=subreddit, 
+            check_reposts_and_submit_url(creds_file='/home/ubuntu/my_reddit_accounts.properties', subreddit=subreddit,
                     title=link_title, playlist_url=new_soundcloud_list_url, username=botname)
 
             logger.info('sleeping 10min for reddit ratelimits...')
@@ -272,7 +273,7 @@ def main():
 
             link_title='Spotify playlist for '+playlist_name
             logger.info('posting '+link_title+' to '+subreddit+' url: '+new_spotify_list_url)
-            check_reposts_and_submit_url(creds_file='/home/ubuntu/my_reddit_accounts.properties', subreddit=subreddit, 
+            check_reposts_and_submit_url(creds_file='/home/ubuntu/my_reddit_accounts.properties', subreddit=subreddit,
                     title=link_title, playlist_url=new_spotify_list_url, username=botname)
 
     return
