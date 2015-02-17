@@ -21,4 +21,4 @@ match all URLs, regardless of protocol, see: https://gist.github.com/gruber/2495
 
 print(re.findall(urlmarker.WEB_URL_REGEX,text))
 {% endhighlight %}
-will show `['https://gist.github.com/gruber/249502']`
+will show `['example.com', 'https://gist.github.com/gruber/249502']`
