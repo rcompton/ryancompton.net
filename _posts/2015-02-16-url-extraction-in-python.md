@@ -7,7 +7,7 @@ tags: ["coding"]
 ---
 {% include JB/setup %}
 
-I was looking for a way to identify urls in text and eventually found this huge regex <http://daringfireball.net/2010/07/improved_regex_for_matching_urls> . I figured I'll need to do this again so I stuck all that into a file here:  [urlmaker.py]({{ site.url }}/assets/praw_drugs/urlmarker.py) Now when I need it I can just import it, eg.
+I was looking for a way to identify urls in text and eventually found this huge regex <http://daringfireball.net/2010/07/improved_regex_for_matching_urls> . I figured I'll need to do this again so I stuck all that into [urlmaker.py](https://github.com/rcompton/ryancompton.net/blob/master/assets/praw_drugs/urlmarker.py) so now when I need it I can just import it, eg.
 
 {% highlight python %}
 import urlmarker
