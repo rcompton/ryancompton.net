@@ -255,7 +255,7 @@ def main():
         logger.info("new_spotify_list_url:  {}".format(new_spotify_list_url))
     except:
         logger.exception("create_spotify_playlist_from_titles exception...")
-
+    """
     #post to reddit on Wednesdays (after the playlists get some stuff in them)
     today = datetime.datetime.now().date()
     wednesday = isoweek.Week(2015,0).thisweek().wednesday()
@@ -275,7 +275,7 @@ def main():
             logger.info('posting '+link_title+' to '+subreddit+' url: '+new_spotify_list_url)
             check_reposts_and_submit_url(creds_file='/home/ubuntu/my_reddit_accounts.properties', subreddit=subreddit,
                     title=link_title, playlist_url=new_spotify_list_url, username=botname)
-
+    """
     return
 
 if __name__ == '__main__':
