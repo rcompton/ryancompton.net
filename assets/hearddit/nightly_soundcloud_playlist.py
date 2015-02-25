@@ -57,10 +57,12 @@ def check_reposts_and_submit_url(creds_file, subreddit, title, playlist_url, use
     r.login(username=username,password=d[username])
     assert r.is_logged_in()
 
-    logger.info("url_was_already_submitted: {}".format(url_was_already_submitted(playlist_url)))
-    if not url_was_already_submitted(playlist_url):
+    submission_hash = playlist_url+'\t'+title
+
+    logger.info("url_was_already_submitted: {}".format(url_was_already_submitted(submission_hash)))
+    if not url_was_already_submitted(submission_hash):
         submission = r.submit(subreddit,title=title,url=playlist_url)
-        add_url_to_submissions_db(playlist_url)
+        add_url_to_submissions_db(submission_hash)
         submission.add_comment('''Hearddit builds playlists from links posted on music subreddits. Details: http://ryancompton.net/2014/12/23/hearddit/ ''')
 
     return
