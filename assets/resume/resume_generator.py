@@ -35,9 +35,11 @@ pubs['first-authored'] = ['Compton, Ryan, Matthew S. Keegan, and Jiejun Xu. "Inf
 'Compton, Ryan, et al. "Using publicly visible social media to build detailed forecasts of civil unrest." Springer Security Informatics, 2014.',
 'Compton, Ryan, et al. "Detecting future social unrest in unprocessed Twitter data." Intelligence and Security Informatics (ISI), 2013 IEEE International Conference on. IEEE, 2013. (best paper nomination)',
 'Compton, Ryan, Stanley Osher, and Louis Bouchard. "Hybrid regularization for MRI reconstruction with static field inhomogeneity correction." Biomedical Imaging (ISBI), 2012 9th IEEE International Symposium on. IEEE, 2012.',
-'Ryan Compton, Hankyu Moon, and Tsai-Ching Lu, "Catastrophe prediction via estimated network autocorrelation." Workshop on Information in Networks, 2011.'
+'Compton, Ryan, Hankyu Moon, and Tsai-Ching Lu, "Catastrophe prediction via estimated network autocorrelation." Workshop on Information in Networks, 2011.'
 ]
-pubs['coauthored'] = ['de Silva, Brian, and Ryan Compton. "Prediction of Foreign Box Office Revenues Based on Wikipedia Page Activity." Computational Approaches to Social Modeling (ChASM), 2014.',
+pubs['coauthored'] = [
+'Park, Patrick, Ryan Compton and Tsai-Ching Lu. "Network-Based Group Account Classification." Social Computing, Behavioral-Cultural Modeling and Prediction (SBP), 2015.',
+'de Silva, Brian, and Ryan Compton. "Prediction of Foreign Box Office Revenues Based on Wikipedia Page Activity." Computational Approaches to Social Modeling (ChASM), 2014.',
 'Xu, Jiejun, et al. "Quantifying cross-platform engagement through large-scale user alignment." Proceedings of the 2014 ACM conference on Web science. ACM, 2014.',
 'Xu, Jiejun, et al. "Rolling through Tumblr Characterizing behavioral patterns of the microblogging platform." Proceedings of the 2014 ACM conference on Web science. ACM, 2014.'
 ]

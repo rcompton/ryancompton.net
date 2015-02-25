@@ -26,9 +26,12 @@ publications:
     - Compton, Ryan, Stanley Osher, and Louis Bouchard. "Hybrid regularization for
         MRI reconstruction with static field inhomogeneity correction." Biomedical
         Imaging (ISBI), 2012 9th IEEE International Symposium on. IEEE, 2012.
-    - Ryan Compton, Hankyu Moon, and Tsai-Ching Lu, "Catastrophe prediction via estimated
+    - Compton, Ryan, Hankyu Moon, and Tsai-Ching Lu, "Catastrophe prediction via estimated
         network autocorrelation." Workshop on Information in Networks, 2011.
     coauthored:
+    - Park, Patrick, Ryan Compton and Tsai-Ching Lu. "Network-Based Group Account
+        Classification." Social Computing, Behavioral-Cultural Modeling and Prediction
+        (SBP), 2015.
     - de Silva, Brian, and Ryan Compton. "Prediction of Foreign Box Office Revenues
         Based on Wikipedia Page Activity." Computational Approaches to Social Modeling
         (ChASM), 2014.
