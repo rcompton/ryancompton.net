@@ -21,6 +21,4 @@ You can find me elsewhere on the web:
 
 + <https://github.com/rcompton>
 
-<a href="http://stackexchange.com/users/186936">
-<img src="http://stackexchange.com/users/flair/186936.png?theme=dark" width="208" height="58" alt="profile for dranxo on Stack Exchange, a network of free, community-driven Q&amp;A sites" title="profile for dranxo on Stack Exchange, a network of free, community-driven Q&amp;A sites">
-</a>
+<a href="http://stackexchange.com/users/186936/dranxo"><img src="http://stackexchange.com/users/flair/186936.png?theme=dark" width="208" height="58" alt="profile for dranxo on Stack Exchange, a network of free, community-driven Q&amp;A sites" title="profile for dranxo on Stack Exchange, a network of free, community-driven Q&amp;A sites" /></a>
