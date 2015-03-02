@@ -29,7 +29,7 @@ logger.addHandler(fhandler)
 logger.setLevel(logging.INFO)
 
 class PRAWSubredditDownloader(object):
-    def __init__(self,subreddit_name,username,pw):
+    def __init__(self,subreddit_name,username,pw,dbname='sqlite+pysqlite:////home/ubuntu/drugs.db'):
         self.subreddit_name = subreddit_name
         self.redditors = None
         self.r = praw.Reddit(user_agent='get_drugs_subreddits; subreddit_name={0}'
@@ -42,8 +42,7 @@ class PRAWSubredditDownloader(object):
         if not os.path.exists(self.out_dir):
              os.mkdir(self.out_dir)
 
-        self.conn = sqlalchemy.create_engine('sqlite+pysqlite:////home/ubuntu/drugs.db', 
-                                            module=sqlite3.dbapi2)
+        self.conn = sqlalchemy.create_engine(dbname, module=sqlite3.dbapi2)
 
 
     def get_subreddit_authors(self,limit=None):
@@ -60,12 +59,14 @@ class PRAWSubredditDownloader(object):
             try:
                 d = {'author':c.author,
                 'subreddit':self.subreddit_name,
+                'submission_permalink':c.submission.permalink,
                 'body':c.body.replace('\n',' '), 
                 'posted_time': datetime.datetime.utcfromtimestamp(c.created_utc)}
                 cs.append(d)
             except:
                 logger.exception('comments download problem')
         
+        logger.info('len(cs): {}'.format(len(cs)))
         #save to sql
         c_strs = [{k:str(v) for (k,v) in d.items()} for d in cs]
         df = pd.DataFrame(c_strs)
@@ -85,6 +86,7 @@ class PRAWSubredditDownloader(object):
         rcs = redditor.get_comments(limit=limit)
         out = [{'redditor':redditor.name,
                 'subreddit':c.subreddit.display_name, 
+                'submission_permalink':c.submission.permalink,
                 'posted_time': datetime.datetime.utcfromtimestamp(c.created_utc),
                 'body':c.body.replace('\n',' ')} for c in rcs]
 
@@ -142,8 +144,7 @@ class PRAWSubredditDownloader(object):
         return
 
 
-
-def single_subreddit_worker(subreddit_name):
+def get_all_users_and_their_histories_in_a_subreddit(subreddit_name):
     """
     function to scrape a single subreddit
     amenable to multiprocessing library
@@ -169,17 +170,32 @@ def single_subreddit_worker(subreddit_name):
 
     return edges
 
+def single_subreddit_submission_scraper(subreddit_name):
+    """
+    get all the submissions in a subreddit
+    save to a db file
+    """
+    praw_downloader = PRAWSubredditDownloader(subreddit_name,
+        username='fukumupo',pw='sixoroxo',
+        dbname='sqlite+pysqlite:////home/ubuntu/drugs_w_submissions.db')
+    praw_downloader.get_subreddit_authors()
+    praw_downloader.drop_sqlite3_duplicates(table=subreddit_name, hash_column='body')
+    return
+
 def main():
 
     df = pd.read_csv('/home/ubuntu/ryancompton.net/assets/praw_drugs/drugs_subreddit_list_sorted.tsv',sep='\t')
     srs = df['subreddit']
 
-    for sr in srs.tolist()[6:]:
+    #update 2015-03-01
+    #don't get all histories, do get submission thread
+    for sr in srs.tolist():
         logger.info(sr)
         while True: #try until no HTTPError
             try:
-                single_subreddit_worker(sr)
+                single_subreddit_submission_scraper(sr)
             except requests.exceptions.HTTPError:
+                logger.warning('requests.exceptions.HTTPError... retrying....')
                 continue
             break
 
