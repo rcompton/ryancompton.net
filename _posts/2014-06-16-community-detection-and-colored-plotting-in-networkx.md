@@ -2,7 +2,7 @@
 layout: post
 title: "Community detection and colored plotting in networkx"
 description: ""
-category: 
+category:
 tags: ["coding"]
 ---
 {% include JB/setup %}
