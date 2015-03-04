@@ -12,6 +12,10 @@ permalink: pretty
 #else the excerpt plugin will fail
 excerpt_separator: ""
 
+#create sitemaps.org comlpliant sitemap.xml
+#https://github.com/jekyll/jekyll-sitemap
+gems:
+  - jekyll-sitemap
 
 # Themes are encouraged to use these universal variables
 # so be sure to set them if your theme uses them.
@@ -20,7 +24,7 @@ title : Ryan Compton
 tagline: blog
 author :
   name : Ryan Compton
-  email : ryan@ryancompton.net 
+  email : ryan@ryancompton.net
   github : rcompton
   twitter : eldataloco
 #  feedburner : feedname
@@ -119,4 +123,3 @@ JB :
   # and include your custom code. Your custom file must be defined at:
   #   ./_includes/custom/[HELPER]
   # where [HELPER] is the name of the helper you are overriding.
-
