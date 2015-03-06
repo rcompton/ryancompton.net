@@ -11,7 +11,7 @@ Earlier this week I updated a paper on the arxiv: [http://arxiv.org/abs/1404.715
 ) [my](http://calendar.ics.uci.edu/event.php?calendar=1&category=&event=1386&date=2015-01-16) [talks](http://wwwcontent.cs.ucr.edu/department/eventlookup/491
 ) [last](http://myweb.lmu.edu/yma/LMUMathSeminar.htm
 ) [year](http://web.csulb.edu/depts/math/?q=node/36
-).  Here's the abstract:
+).  This update syncs the arxiv paper with what was accepted for the conference. Here's the abstract:
 
 Geographically annotated social media is extremely valuable for modern information retrieval. However, when researchers can only access publicly-visible data, one quickly finds that social media users rarely publish location information. In this work, we provide a method which can geolocate the overwhelming majority of active Twitter users, independent of their location sharing preferences, using only publicly-visible Twitter data.
 
