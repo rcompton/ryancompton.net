@@ -66,7 +66,7 @@ class PRAWSubredditDownloader(object):
             except:
                 logger.exception('comments download problem')
         
-        logger.info('len(cs): {}'.format(len(cs)))
+        logger.info('saving comments to sqlite db, len(comments): {}'.format(len(cs)))
         #save to sql
         c_strs = [{k:str(v) for (k,v) in d.items()} for d in cs]
         df = pd.DataFrame(c_strs)
