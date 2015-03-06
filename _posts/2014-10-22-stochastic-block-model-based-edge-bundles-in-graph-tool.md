@@ -2,15 +2,15 @@
 layout: post
 title: "Stochastic block model based edge bundles in graph-tool"
 description: ""
-category: 
+category:
 tags: ["coding"]
 ---
 {% include JB/setup %}
 {% excerpt %}
 
-Here's a plot of the political blogging network data but with the edge bundles determined using a [stochastic block model](http://arxiv.org/abs/1310.4377).
+Here's a plot of the political blogging network in [“The political blogosphere and the 2004 US Election”](http://dx.doi.org/10.1145/1134271.1134277) but with the edge bundles determined using a [stochastic block model](http://arxiv.org/abs/1310.4377) (remark: the below plot is the same (ie. same layout and data) as fig. 5 in Tiago's paper - I just put a black background on it).
 
-The color scheme is the same as in the original paper, i.e. each node corresponds to a blog url and the colors reflect political orientation, red for conservative, and blue for liberal. Orange edges go from liberal blogs to conservative blogs, and purple ones from conservative to liberal (cf  fig. 1 in Adamic and Glance).
+The edge-color scheme is the same as in the original paper, i.e. each node corresponds to a blog url and the colors reflect political orientation, red for conservative, and blue for liberal. Orange edges go from liberal blogs to conservative blogs, and purple ones from conservative to liberal (cf  fig. 1 in Adamic and Glance).
 
 ![polblogs_blockmodel_1024]({{ site.url }}/assets/graphviz/polblogs_blockmodel_1024.png)
 
@@ -49,7 +49,7 @@ for e in g.edges():
             #orange on dem -> rep
             edge_color[e] = (255.0/255.0, 102/255.0, 0/255.0, alpha)
         else:
-            edge_color[e] = (102.0/255.0, 51/255.0, 153/255.0, alpha)            
+            edge_color[e] = (102.0/255.0, 51/255.0, 153/255.0, alpha)
     #red on rep-rep edges
     elif plot_color[e.source()] == (1,0,0,1):
         edge_color[e] = (1,0,0, alpha)
@@ -74,7 +74,7 @@ for v in g.vertices():
     else:
         text_rot[v] = math.pi + math.atan(pos[v][1]/pos[v][0])
 
-gt.graph_draw(g, pos=pos, vertex_fill_color=g.vertex_properties['plot_color'], 
+gt.graph_draw(g, pos=pos, vertex_fill_color=g.vertex_properties['plot_color'],
             vertex_color=g.vertex_properties['plot_color'],
             edge_control_points=cts,
             vertex_size=10,
