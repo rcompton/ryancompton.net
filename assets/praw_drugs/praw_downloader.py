@@ -189,7 +189,7 @@ def main():
 
     #update 2015-03-01
     #don't get all histories, do get submission thread
-    for sr in srs.tolist():
+    for sr in set(srs.tolist()):
         logger.info(sr)
         while True: #try until no HTTPError
             try:
