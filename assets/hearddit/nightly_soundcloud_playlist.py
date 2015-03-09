@@ -263,15 +263,15 @@ def main():
     wednesday = isoweek.Week(2015,0).thisweek().wednesday()
     if today == wednesday:
         #the subreddits I've already posted on
-        allowed_subreddits = ['futurebeats', 'hiphopheads']
+        allowed_subreddits = ['futurebeats', 'hiphopheads', 'treemusic']
         if (subreddit in allowed_subreddits) and (new_soundcloud_list_url is not None):
             link_title='Soundcloud playlist for '+playlist_name
             logger.info('posting '+link_title+' to '+subreddit+' url: '+new_soundcloud_list_url)
             check_reposts_and_submit_url(creds_file='/home/ubuntu/my_reddit_accounts.properties', subreddit=subreddit,
                     title=link_title, playlist_url=new_soundcloud_list_url, username=botname)
 
-            logger.info('sleeping 10min for reddit ratelimits...')
-            time.sleep(600)
+            logger.info('sleeping 10min+ for reddit ratelimits...')
+            time.sleep(800)
 
             link_title='Spotify playlist for '+playlist_name
             logger.info('posting '+link_title+' to '+subreddit+' url: '+new_spotify_list_url)
