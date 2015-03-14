@@ -7,6 +7,19 @@ tags: ["papers"]
 ---
 {% include JB/setup %}
 
+***
+
+###*Press coverage (updated 2015-03-14):*{: style="color: white"}
+
++ [Forbes](www.forbes.com/sites/thomasbrewster/2015/03/07/twitter-location-can-be-determined-through-friends/)
++ [Business Insider](http://www.businessinsider.com/twitter-location-research-at-mentions-cornell-2015-3)
++ [New York Observer](http://observer.com/2015/03/you-dont-have-to-geotag-your-tweets-to-give-away-your-location/)
++ [Schneier on Security](https://www.schneier.com/blog/archives/2015/03/geotagging_twit.html)
++ [Daily Caller](http://dailycaller.com/2015/03/06/how-your-tweets-can-reveal-your-real-location/)
++ [Komando](http://www.komando.com/happening-now/299085/forget-gps-hackers-can-pinpoint-your-exact-location-using-social-media/all)
+
+***
+
 Earlier this week I updated a paper on the arxiv: [http://arxiv.org/abs/1404.7152](http://arxiv.org/abs/1404.7152). The paper appeared a few months ago at [IEEE BigData 2014](http://cci.drexel.edu/bigdata/bigdata2014/) and was the subject of [all](http://papyrus.math.ucla.edu/seminars/display.php?&id=831425
 ) [my](http://calendar.ics.uci.edu/event.php?calendar=1&category=&event=1386&date=2015-01-16) [talks](http://wwwcontent.cs.ucr.edu/department/eventlookup/491
 ) [last](http://myweb.lmu.edu/yma/LMUMathSeminar.htm
