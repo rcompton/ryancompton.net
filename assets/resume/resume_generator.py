@@ -43,15 +43,15 @@ pubs['coauthored'] = [
 'Xu, Jiejun, et al. "Quantifying cross-platform engagement through large-scale user alignment." Proceedings of the 2014 ACM conference on Web science. ACM, 2014.',
 'Xu, Jiejun, et al. "Rolling through Tumblr Characterizing behavioral patterns of the microblogging platform." Proceedings of the 2014 ACM conference on Web science. ACM, 2014.'
 ]
-resume['publications'] = pubs 
+resume['publications'] = pubs
 
 
 code = collections.OrderedDict()
-code['Python'] = 'Five years, used for machine learning, numerical methods, and visualization, e.g. http://bitbucket.org/rcompton/fft-sonification'
-code['Java'] = 'Two years, used for the Hadoop stack, Android, and various web apis, e.g. http://code.google.com/p/ndbc-buoy4j'
-code['Scala'] = 'One year, used for Apache Spark, e.g. http://arxiv.org/abs/1404.7152'
-code['C++'] = 'Three years, used for numerical methods, e.g. http://bitbucket.org/rcompton/fftw-boost-wrapper'
-code['Matlab'] = 'Three years, used for linear algebra and optimization, e.g. http://code.google.com/p/framelet-mri'
+code['Python'] = 'Five years, used for machine learning, numerical methods, and visualization.'
+code['Java'] = 'Two years, used for the Hadoop stack, Android, and various web apis.'
+code['Scala'] = 'One year, used for Apache Spark.'
+code['C++'] = 'Three years, used for numerical methods.'
+code['Matlab'] = 'Three years, used for linear algebra and optimization.'
 resume['code'] = code
 
 

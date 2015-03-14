@@ -43,10 +43,8 @@ publications:
         Web science. ACM, 2014.
 
 code:
-    Python: Five years, used for machine learning, numerical methods, and visualization,
-        e.g. http://bitbucket.org/rcompton/fft-sonification
-    Java: Two years, used for the Hadoop stack, Android, and various web apis, e.g.
-        http://code.google.com/p/ndbc-buoy4j
-    Scala: One year, used for Apache Spark, e.g. http://arxiv.org/abs/1404.7152
-    C++: Three years, used for numerical methods, e.g. http://bitbucket.org/rcompton/fftw-boost-wrapper
-    Matlab: Three years, used for linear algebra and optimization, e.g. http://code.google.com/p/framelet-mri
+    Python: Five years, used for machine learning, numerical methods, and visualization.
+    Java: Two years, used for the Hadoop stack, Android, and various web apis.
+    Scala: One year, used for Apache Spark.
+    C++: Three years, used for numerical methods.
+    Matlab: Three years, used for linear algebra and optimization.
