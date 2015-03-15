@@ -6,7 +6,7 @@ group: navigation
 ---
 {% include JB/setup %}
 
-I am a postdoc at Howard Hughes Aircraft Company Research Laboratories in Malibu, CA. My work focuses on social media data mining for early detection of newsworthy events, most recent paper: [http://arxiv.org/abs/1404.7152](http://arxiv.org/abs/1404.7152). In 2012 I finished a mathematics PhD at UCLA. My graduate work involved [sparsity promoting optimization in quantum mechanical signal processing](http://code.google.com/p/typingstuff/downloads/list).
+I am a postdoc at Howard Hughes Research Laboratories in Malibu, CA. My work focuses on social media data mining for early detection of newsworthy events, most recent paper: [http://arxiv.org/abs/1404.7152](http://arxiv.org/abs/1404.7152). In 2012 I finished a mathematics PhD at UCLA. My graduate work involved [sparsity promoting optimization in quantum mechanical signal processing](http://code.google.com/p/typingstuff/downloads/list).
 
 + Contact: <ryan@ryancompton.net>
 
