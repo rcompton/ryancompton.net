@@ -27,4 +27,4 @@ It's easy to get [modularity](https://en.wikipedia.org/wiki/Modularity_%28networ
 mod = community.modularity(part,G)
 print("modularity:", mod)
 {% endhighlight %}
-gave `modularity: 0.8700238252368541`, which is quite high.
+gave `modularity: 0.8700238252368541`.
