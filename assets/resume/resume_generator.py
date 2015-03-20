@@ -14,7 +14,7 @@ resume = collections.OrderedDict()
 contact = collections.OrderedDict()
 contact['name'] = 'Ryan Compton'
 contact['email'] = 'ryan@ryancompton.net'
-contact['website'] = 'http://ryancompton.net'
+contact['website'] = 'http://ryancompton.net/'
 resume['contact'] = contact
 
 resume['employment'] = 'Howard Hughes Research Laboratories, June 2012-present. Work on large-scale social media data mining for early detection of newsworthy events.'
