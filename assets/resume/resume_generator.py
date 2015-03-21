@@ -67,7 +67,7 @@ def main():
 
 
 
-    with open('ryan_compton_resume.yaml','w') as fout:
+    with open('ryan_compton_resume.txt','w') as fout:
         fout.write(resume_str)
 
 
