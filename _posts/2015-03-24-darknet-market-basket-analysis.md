@@ -17,14 +17,14 @@ On Evolution there are a few top-level categories ("Drugs", "Digital Goods", "Fr
 
 I built a graph between products based on vendor co-occurrence relationships, i.e. each node corresponds to a product with edge weights defined by the number of vendors who sell both incident products. So, for example, if there are 3 vendors selling both mescaline and 4-AcO-DMT then my graph has an edge with weight 3 between the mescaline and 4-AcO-DMT nodes. I used [graph-tool's](https://graph-tool.skewed.de/static/doc/community.html#graph_tool.community.minimize_blockmodel_dl) implementation of stochastic block model-based hierarchal edge bundling to generate the below visualization of the Evolution product network:
 
-![evo_market_labeled_1024]({{site.url}}/assets/darknet-market-basket-analysis/evo_market_labeled_1024.png)
+![evo_market_labeled_1024]({{site.url}}/assets/darknet-market-basket-analysis/evo_market_labeled_new_1024.png)
 The graph is available in graphml format [here.]({{ site.url }}/assets/darknet-market-basket-analysis/evo_product_affinity.xml) It contains 73 nodes and 2,219 edges (I found a total of 3,785 vendors in the data).
 
 Edges with higher weights are drawn more brightly. Node are clustered with a [stochastic block model](http://arxiv.org/abs/1310.4377) and nodes within the same cluster are assigned the same color. There is a clear division between the clusters on the top half of the graph (correpsonding to drugs) and the clusters on the bottom half (corresponding to non-drugs, i.e. weapons/hacking/credit cards/etc.). This suggests that vendors who sold drugs were not as likely to sell non-drugs and vice versa.
 
 {% endexcerpt %}
 
-I used a short python script to parse the scraped html and remove duplicate data, its available [here]({{ site.url }}/assets/darknet-market-basket-analysis/parse_evo.py). It takes a while to run it over the whole dataset (which is about 90GB); if you'd like to skip that you can download the results of my parse as a [.tsv file]({{ site.url }}/assets/darknet-market-basket-analysis/products_vendors.zip). The plotting code is available as an [ipython notebook]({{ site.url }}/assets/darknet-market-basket-analysis/draw_evo.html). High-res version of the above plot [here]({{site.url}}/assets/darknet-market-basket-analysis/evo_market_labeled.png).
+I used a short python script to parse the scraped html and remove duplicate data, its available [here]({{ site.url }}/assets/darknet-market-basket-analysis/parse_evo.py). It takes a while to run it over the whole dataset (which is about 90GB); if you'd like to skip that you can download the results of my parse as a [.tsv file]({{ site.url }}/assets/darknet-market-basket-analysis/products_vendors.zip). The plotting code is available as an [ipython notebook]({{ site.url }}/assets/darknet-market-basket-analysis/draw_evo.html). High-res version of the above plot [here]({{site.url}}/assets/darknet-market-basket-analysis/evo_market_labeled_new.png).
 
 
 ###*96.5% of vendors who sold speed, MDMA, and cocaine also sold ecstasy*{: style="color: white"}
