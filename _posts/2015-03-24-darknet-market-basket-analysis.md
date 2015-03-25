@@ -18,20 +18,21 @@ On Evolution there are a few top-level categories ("Drugs", "Digital Goods", "Fr
 I built a graph between products based on vendor co-occurrence relationships, i.e. each node corresponds to a product with edge weights defined by the number of vendors who sell both incident products. So, for example, if there are 3 vendors selling both mescaline and 4-AcO-DMT then my graph has an edge with weight 3 between the mescaline and 4-AcO-DMT nodes. I used [graph-tool's](https://graph-tool.skewed.de/static/doc/community.html#graph_tool.community.minimize_blockmodel_dl) implementation of stochastic block model-based hierarchal edge bundling to generate the below visualization of the Evolution product network:
 
 ![evo_market_labeled_1024]({{site.url}}/assets/darknet-market-basket-analysis/evo_market_labeled_new_1024.png)
+
 The graph is available in graphml format [here.]({{ site.url }}/assets/darknet-market-basket-analysis/evo_product_affinity.xml) It contains 73 nodes and 2,219 edges (I found a total of 3,785 vendors in the data).
 
-Edges with higher weights are drawn more brightly. Node are clustered with a [stochastic block model](http://arxiv.org/abs/1310.4377) and nodes within the same cluster are assigned the same color. There is a clear division between the clusters on the top half of the graph (correpsonding to drugs) and the clusters on the bottom half (corresponding to non-drugs, i.e. weapons/hacking/credit cards/etc.). This suggests that vendors who sold drugs were not as likely to sell non-drugs and vice versa.
+Edges with higher weights are drawn more brightly. Nodes are clustered with a [stochastic block model](http://arxiv.org/abs/1310.4377) and nodes within the same cluster are assigned the same color. There is a clear division between the clusters on the top half of the graph (correpsonding to drugs) and the clusters on the bottom half (corresponding to non-drugs, i.e. weapons/hacking/credit cards/etc.). This suggests that vendors who sold drugs were not as likely to sell non-drugs and vice versa.
 
 {% endexcerpt %}
 
-I used a short python script to parse the scraped html and remove duplicate data, its available [here]({{ site.url }}/assets/darknet-market-basket-analysis/parse_evo.py). It takes a while to run it over the whole dataset (which is about 90GB); if you'd like to skip that you can download the results of my parse as a [.tsv file]({{ site.url }}/assets/darknet-market-basket-analysis/products_vendors.zip). The plotting code is available as an [ipython notebook]({{ site.url }}/assets/darknet-market-basket-analysis/draw_evo.html). High-res version of the above plot [here]({{site.url}}/assets/darknet-market-basket-analysis/evo_market_labeled_new.png).
+I used a short python script to parse the scraped html and remove duplicate data, its available [here]({{ site.url }}/assets/darknet-market-basket-analysis/parse_evo.py). It takes a while to go through the entire dataset (which is about 90GB); if you'd like to skip that you can download the results of my parse as a [.tsv file]({{ site.url }}/assets/darknet-market-basket-analysis/products_vendors.zip). The plotting code is available as an [ipython notebook]({{ site.url }}/assets/darknet-market-basket-analysis/draw_evo.html). High-res version of the above plot [here]({{site.url}}/assets/darknet-market-basket-analysis/evo_market_labeled_new.png).
 
 
-###*96.5% of vendors who sold speed, MDMA, and cocaine also sold ecstasy*{: style="color: white"}
+###*91.7% of vendors who sold speed and MDMA also sold ecstasy*{: style="color: white"}
 
 [Association rule learning](https://en.wikipedia.org/wiki/Association_rule_learning) is a straightforward and popular way to solve problems in [market basket analysis](https://en.wikipedia.org/wiki/Affinity_analysis). The traditional application is to suggest items to shoppers based on what other customers are putting in their carts. For some reason the canonical example is "customers who buy diapers also buy beer".
 
-We don't have customer data from a crawl of the public postings on Evolution. However, we do have data on what each vendor sells which can help us quantify results suggested in the visual analysis done above.
+We don't have customer data from a crawl of the public postings on Evolution. However, we do have data on what each vendor sells which can help us quantify results suggested by the visual analysis done above.
 
 Here's an example of what our database looks like (the complete file has 3,785 rows (one for each vendor)):
 
@@ -58,11 +59,12 @@ Here's an example of what our database looks like (the complete file has 3,785 r
 
 Association rule mining is a huge field within computer science -- hundreds (thousands?) of papers have been published over the past two decades. The necessary algorithms are very complex but open source implementations are available. My favorite collection (and the one I used for these experiments) is Philippe Fournier Viger's [spmf](http://www.philippe-fournier-viger.com/spmf/).
 
-I ran the FP-Growth algorithm with a minimum allowable support of 40 and a minimum allowable confidence of 0.1. The algorithm learned 12,364 rules. These can be downloaded as a .tsv [here]({{ site.url }}/assets/darknet-market-basket-analysis/learned_rules.tsv]). I've selected a few rules for display below:
+I ran the FP-Growth algorithm with a minimum allowable support of 40 and a minimum allowable confidence of 0.1. The algorithm learned 12,364 rules. These can be downloaded as a .tsv [here]({{ site.url }}/assets/darknet-market-basket-analysis/learned_rules.tsv). I've selected a few rules for display below:
 
 |---
 | antecedent | consequent | support | confidence
 |-|-|-
+|['Speed', 'MDMA'] | ['Ecstasy'] | 155 | 0.91716
 |['Ecstasy', 'Stimulants'] | ['MDMA'] | 310 | 0.768
 |['Speed', 'Weed', 'Stimulants'] | ['Cannabis', 'Ecstasy'] | 68 | 0.623
 |['Fraud', 'Hacking'] | ['Accounts'] | 53 | 0.623
@@ -74,7 +76,7 @@ I ran the FP-Growth algorithm with a minimum allowable support of 40 and a minim
 
 ###*Other Remarks*
 
-I think I've only scratched the surface of what's possible with this data. There are much more detailed product descriptions for each listing in the .tsv. That text is harder to work with so it will take some time to figure out what makes sense. Until then, here's some [wordles](http://www.wordle.net):
+I think I've only scratched the surface of what's possible with this data. There are much more detailed product descriptions for each listing in the .tsv. That text is harder to work with so it will take some time to figure out what makes sense. Until then, here are some [wordles](http://www.wordle.net):
 
 Descriptions in the "Steroids" category:
 ![ster]({{site.url}}/assets/darknet-market-basket-analysis/ster.png)
