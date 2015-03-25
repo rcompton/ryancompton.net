@@ -29,7 +29,9 @@ I used a short python script to parse the scraped html and remove duplicate data
 
 ###*96.5% of vendors who sold speed, MDMA, and cocaine also sold ecstasy*{: style="color: white"}
 
-[Association rule learning](https://en.wikipedia.org/wiki/Association_rule_learning) is a straightforward and popular way to solve problems in [market basket analysis](https://en.wikipedia.org/wiki/Affinity_analysis). The traditional application is to suggest items to shoppers based on what other customers are putting in their carts. For some reason the canonical example is "customers who buy diapers also buy beer". Obviously we don't have customer data from a crawl of the public postings on Evolution. However, we do have data on what each vendor sells which can help us quantify results suggested by the visual analysis done above.
+[Association rule learning](https://en.wikipedia.org/wiki/Association_rule_learning) is a straightforward and popular way to solve problems in [market basket analysis](https://en.wikipedia.org/wiki/Affinity_analysis). The traditional application is to suggest items to shoppers based on what other customers are putting in their carts. For some reason the canonical example is "customers who buy diapers also buy beer".
+
+We don't have customer data from a crawl of the public postings on Evolution. However, we do have data on what each vendor sells which can help us quantify results suggested in the visual analysis done above.
 
 Here's an example of what our database looks like (the complete file has 3,785 rows (one for each vendor)):
 
@@ -49,7 +51,7 @@ Here's an example of what our database looks like (the complete file has 3,785 r
 |===
 
 
- Quick glossary of terms:
+ Before saying anything more about association rule learning here's a quick glossary of terms:
 
 + The **support**, $supp(X)$, of an itemset, $X$, is defined as the proportion of transactions in the data set which contain $X$. In the table above, the support of 'Cocaine' is 2 because it appears in two vendors' storefronts (MrHolland and Spinifex)
 + The **confidence** of a rule is defined $\mathrm{conf}(X \Rightarrow Y) = \mathrm{supp}(X \cup Y) / \mathrm{supp}(X)$. In our example the confidence of the rule 'Cannabis' ==> 'Cocaine' is 2/3 because out the 3 vendors who sell 'Cannabis' 2 of them sell 'Cocaine'. The support of this rule is 2.
