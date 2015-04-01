@@ -28,6 +28,13 @@ edu = ['PhD, UCLA, Mathematics, 2012',
 'BA, New College of Florida, Mathematics/Physics, 2006']
 resume['education'] = edu
 
+code = collections.OrderedDict()
+code['Python'] = 'Five years, used for machine learning, numerical methods, and visualization.'
+code['Java'] = 'Two years, used for the Hadoop stack, Android, and various web apis.'
+code['Scala'] = 'One year, used for Apache Spark.'
+code['C++'] = 'Three years, used for numerical methods.'
+code['Matlab'] = 'Three years, used for linear algebra and optimization.'
+resume['code'] = code
 
 pubs = collections.OrderedDict()
 pubs['first-authored'] = ['Compton, Ryan, Matthew S. Keegan, and Jiejun Xu. "Inferring the geographic focus of online documents from social media sharing patterns." Computational Approaches to Social Modeling (ChASM), 2014.',
@@ -38,21 +45,12 @@ pubs['first-authored'] = ['Compton, Ryan, Matthew S. Keegan, and Jiejun Xu. "Inf
 'Compton, Ryan, Hankyu Moon, and Tsai-Ching Lu, "Catastrophe prediction via estimated network autocorrelation." Workshop on Information in Networks, 2011.'
 ]
 pubs['coauthored'] = [
-'Park, Patrick, Ryan Compton and Tsai-Ching Lu. "Network-Based Group Account Classification." Social Computing, Behavioral-Cultural Modeling and Prediction (SBP), 2015.',
+'Park, Patrick, Ryan Compton and Tsai-Ching Lu. "Network-Based Group Account Classification." Social Computing, Behavioral-Cultural Modeling and Prediction (SBP), 2015. (winner of best paper award)',
 'de Silva, Brian, and Ryan Compton. "Prediction of Foreign Box Office Revenues Based on Wikipedia Page Activity." Computational Approaches to Social Modeling (ChASM), 2014.',
 'Xu, Jiejun, et al. "Quantifying cross-platform engagement through large-scale user alignment." Proceedings of the 2014 ACM conference on Web science. ACM, 2014.',
 'Xu, Jiejun, et al. "Rolling through Tumblr Characterizing behavioral patterns of the microblogging platform." Proceedings of the 2014 ACM conference on Web science. ACM, 2014.'
 ]
 resume['publications'] = pubs
-
-
-code = collections.OrderedDict()
-code['Python'] = 'Five years, used for machine learning, numerical methods, and visualization.'
-code['Java'] = 'Two years, used for the Hadoop stack, Android, and various web apis.'
-code['Scala'] = 'One year, used for Apache Spark.'
-code['C++'] = 'Three years, used for numerical methods.'
-code['Matlab'] = 'Three years, used for linear algebra and optimization.'
-resume['code'] = code
 
 
 def main():
@@ -64,8 +62,6 @@ def main():
     resume_str = resume_str.replace('\nemployment', '\n\nemployment')
     resume_str = resume_str.replace('\npublications', '\n\npublications')
     resume_str = resume_str.replace('\ncode', '\n\ncode')
-
-
 
     with open('ryan_compton_resume.txt','w') as fout:
         fout.write(resume_str)
