@@ -11,6 +11,8 @@ tags: ["papers"]
 
 *Update 2015-04-01: We won best paper!*{: style="color: white"}
 
+![sbp15]({{ site.url }}/assets/sbp15_best_tweet.jpg)
+
 <blockquote class="twitter-tweet" lang="en"><p><a href="https://twitter.com/HRLLaboratories">@HRLLaboratories</a> <a href="https://twitter.com/shishong">@shishong</a> <a href="https://twitter.com/rycpt">@rycpt</a> <a href="https://twitter.com/tsaichinglu">@tsaichinglu</a> Congrats again on winning the best paper award!</p>&mdash; SBP Conference (@SBP_Conference) <a href="https://twitter.com/SBP_Conference/status/583384040390152192">April 1, 2015</a></blockquote>
 <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
 
