@@ -10,7 +10,7 @@ I am a postdoc at Howard Hughes Research Laboratories in Malibu, CA. My work foc
 
 + Contact: <ryan@ryancompton.net>
 
-+ [Resume]({{ site.url }}/assets/resume/ryan_compton_resume.txt)
++ [Resume]({{ site.url }}/assets/resume/ryan_compton_resume.txt)  ([pdf]({{ site.url }}/assets/resume/ryan_compton_resume.pdf)
 
 + [Photo]({{ site.url }}/assets/resume/IMG_6683_small.jpg)
 
