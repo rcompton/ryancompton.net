@@ -18,6 +18,7 @@ tags: ["papers"]
 + [Daily Caller](http://dailycaller.com/2015/03/06/how-your-tweets-can-reveal-your-real-location/)
 + [Komando](http://www.komando.com/happening-now/299085/forget-gps-hackers-can-pinpoint-your-exact-location-using-social-media/all)
 + [UCLA math website](https://www.math.ucla.edu/news/recent-ucla-math-grads-research-makes-news)
++ [MIT Tech Review junior varsity](http://www.technologyreview.com/view/527246/other-interesting-arxiv-papers-week-ending-may-10-2014/)
 
 ***
 
