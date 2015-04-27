@@ -1,0 +1,387 @@
+\documentclass[11pt]{article}
+%use these all the time
+\usepackage[cmex10]{amsmath}
+\usepackage{amssymb,amsthm,graphicx}
+\usepackage[lofdepth,lotdepth]{subfig}
+\graphicspath{{pix/}}	% Root directory of the pictures
+
+%cleverref
+\usepackage{cleveref}
+\crefname{algocf}{alg.}{algs.}
+\Crefname{algocf}{Algorithm}{Algorithms}
+
+%habits
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\specialcell}[2][c]{%
+  \begin{tabular}[#1]{@{}c@{}}#2\end{tabular}}
+
+\title{Mapping the online structure of darknet markets}
+\author{Ryan Compton \thanks{ryan@ryancompton.net}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+
+In this paper we describe interactions betwen vendors on online darknet marketplaces and identify frequently occruing patterns of activity.
+
+We use a 15-month public crawl of the Evolution marketplace and build relationships from vendor/product pairings.
+
+Using only a vendor co-occurence network, we demonstrate that standard unsupervised machine learning techniques are capable of building product clusters which distinguish products into intuitive groups. In the case of psychoactive drugs, we further show that the learned groupings often share common psychiatric applications.
+
+Motivated by the high clustering coefficient of data, we build a product recommendation system to assist blackmarket shoppers who are trying to predict what other products their vendors may have available.
+
+We argue that the existence of darknet markets allows one to validate insights into addiction research at previously unreachable scales.
+
+\end{abstract}
+
+\begin{keywords}
+drugs
+\end{keywords}
+
+\section{Introduction}
+\label{sec:intro}
+
+
++ about darknet markets and tor
+
+Tor hidden services are hosted within the tor network in such a way that neither the host nor the client's identify be known (durh). This makes it possible for blackmarkets to maintain publicly-visible digital storefronts which pair buyers with sellers mediate escrow the purchase of goods with cryptocurrencies. The original example of such a 'darknet market' is the Silk Road, which existed from 2009-? and processed over 9000 dollars in bitcoin transactions. Since 2009, over 124312 darknet markets have come into existence.
+
+In this work we study the Evolution Marketplace, which operated from January 2014 until Wednesday of last week when it suddenly disappeared. A daily wget crawl, started in January 2014 and ending on March ?, provides us with all the public html and images which were displayed on Evolution during its existence. We build product/vendor relationships from simple html parsing.
+
+We describe the data in depth using techniques commonly found in literature on recommendation systems. Complete analysis in []. To construct the item similarity and buyer similarity matrices we parse each day's listings... no you need to say how it works..
+
+Several other researchers from the ? field have built similar vendor/product networks. For examples,..... . The present work is the first to reconstruct such databases from public data in an automated fashion. The scale of our results dwarfs all previous studies by several orders of magnitude. For this reason, we argue that the existence of darknet markets may provide unexpected benefits to addiction researchers and other blackmarket scholars.
+
+
+
+
+
+
+
++ about recommendation systems already exist for Amazon
+
++ about other data description papers
+
++ about med relevance?
+
++ blow the f out of other papers who studied what dealers sell. Do these papers exist?
+
+
+
+
+
+Reconstructing NMR spectra from noisy, nonuniformly sampled, time domain signals allows one to drastically reduce experiment time on existing magnetic hardware.
+
+Classically, NMR spectra are reconstructed from an observed free induction decay (FID) via a discrete Fourier transform. Direct use of the discrete Fourier transform, however, imposes strict requirements on the amount of FID data collected and neglects any prior knowledge one has of spectral structure. Uncertainty principles place limitations on the collected FID data in two ways: resolving closely spaced peaks requires the FID be recorded to a high final acquisition time, $T$, and obtaining the entire spectral range of interest requires that the spacing between points in the time domain, $\Delta t$, is small.
+
+Taking into account the fact that the number of peaks in an NMR spectra is often much smaller than the number of frequency bins makes it possible to avoid these constraints and obtain accurate NMR spectra from undersampled FID data. Overcoming the constraint on $T$ is possible when a desired spectral range is known in advance and measurements can be taken at high SNR by employing the method of filter-diagonalization \cite{Wall1995} \cite{Mandelshtam2001}. Outside of this situation, one may opt to record an FID for large $T$ while keeping the number of recorded points small by nonuniformly varying $\Delta t$. Reconstruction of NMR spectra from noisy, nonuniformly sampled, FID data has been researched for several years now \cite{Maciejewski2008}. Approaches based on maximum entropy regularization \cite{Mobli2008}, multidimensional decomposition \cite{Jaravine2006}, and, recently, compressed sensing \cite{Stern2007} have been employed.
+
+While the original theory of compressed sensing guarantees exact reconstruction of a signal which is sparse in an orthonormal basis, NMR signals are not properly sparse in any orthonormal basis as they are most accurately modeled as a linear combination of a few damped sinusoids \cite{Hoch1996}. In order to compensate for the damping factors when seeking a sparse representation, one must relax the orthogonality constraint and work with redundant dictionaries. Extensions of compressed sensing to redundant dictionaries exist \cite{Rauhut2008} \cite{Cand2010b}. However, these methods are not immediately applicable as the damping factors (ie. the choice dictionary) are also unknown prior to the reconstruction process.
+
+A well-known analogous problem occurs in field-corrected MRI \cite{Fessler2010}. During MRI acquistion, static magnetic field inhomogeneities cause the recorded $k$-space data to be scaled undesireably. Images reconstructed from the corrupted $k$-space data are thus blurred and distorted. Modeling the inhomogeneities and iteratively solving a deconvolution in addition to the reconstruction problem leads to sharper final images \cite{Compton2012}.
+
+In NMR, acquisition is done in the time domain and sparsity is often enforced in the frequency domain \cite{Qu2011}, or in a wavelet domain \cite{Drori2007a}. The time domain signal model is:
+\begin{equation}\label{eq:nmrmodel}
+f(t) = \sum_{k=1}^{n_s} a_k e^{-t/T_{2,k}}e^{-i \gamma_k t}+ \sigma(t)
+\end{equation}
+The unknown quantities in \cref{eq:nmrmodel} are: the relative complex amplitudes, $a_k$, the decoherence times, $T_{2,k}$, and $\gamma_k$, which is proportional to the magnitude of the background field, the gyromagnetic ratio, and the chemical shift of the $k$th nucleus \cite{Granwehr2007}. The additive noise, $\sigma(t)$, is assumed to be white and Gaussian.
+
+Intuitively, one would expect the spectrum to be sparse as the number of terms, $n_s$, is small and the acquisition time, $T$, is chosen so that the decoherence times, $T_{2,k}$, are relatively large. The resulting optimization problem for spectrum reconstruction is:
+\begin{equation}\label{eq:oldcs}
+\underset{u}{\operatorname{argmin}} \; |u|_1 \; subject\;to \; \| R\mathcal{F}^{-1}u - f \| \leq \mu
+\end{equation}
+where $R$ accounts for random undersampling \cite{Candes2006}.
+
+The problem with \cref{eq:oldcs} on NMR data is that the $l1$-norm will seek sparse approximations to Lorentzian lines and much of the effort in solving the optimization will go towards approximating side lobes. Current approaches to compressed sensing NMR take this approach \cite{Kazimierczuk2011} \cite{Hyberts2012} \cite{Drori2007a} \cite{Shrot2011} \cite{Hu} \cite{Qu2011}.
+
+Reconstructing using a basis of damped sinusoids, as in \cref{eq:lorentzcs}, remedies this problem and leads to sparser solutions. The drawback to \cref{eq:lorentzcs} is increased computational cost and loss of convexity as both $a$ and $u$ must be solved for. In the following sections, we will compare NMR signal reconstruction using \cref{eq:lorentzcs} and \cref{eq:oldcs}. Our results indicate that compressed sensing approaches to NMR may be improved by including the damping factor in \cref{eq:lorentzcs} in the reconstruction.
+
+\section{Data}
+
+\subsection{Evo}
+
+%We begin by focusing on one-dimensional signals.
+Our goal is to reconstruct a complex-valued $n$-point NMR spectrum, $u(\xi)$, at high resolution from $m < n$ noisy measurements of an FID, $f(t)$. We draw $m$ points from the time axis uniformly at random as this gives us a high probability of success when $l1$-based procedures are employed \cite{Candes2005}.
+
+The applicability of compressed sensing relies on how accurately we can approximate the spectra with a sparse signal. In the spectral domain, NMR signals are convolutions of delta functions with Lorentzians. The decay rate of the coefficients is thus asymptotically power-law with exponent $2$,
+\begin{equation}\label{eq:powerlaw}
+|u|_{(k)} \leq C_{T_2} k^{-2}
+\end{equation}
+where $|u|_{(k)}$ is the $k$th largest coefficient of $|u|$ and the coefficient depends on the decoherence time. The NMR spectra is thus {\it compressible} and by \cite{Candes2005a} we have the sparse approximation estimate for the solution, $u^\sharp$, to \cref{eq:oldcs}:
+\begin{equation}\label{eq:taoerror}
+\|u^\sharp - u_0\|_2 \leq C_{1,n_s}\mu + C_{2,n_s} C_{T_2}^'n_s^{-3/2}
+\end{equation}
+where $u_0$ is the exact, $n_s$-sparse, signal.
+
+While this guarantees that compressed sensing NMR is possible, the coefficient $C_{T_2}$ (which grows as the decoherence times shrink) may be so large that the error in \cref{eq:taoerror} is unacceptable. Empirically, we find that the line broadening can be so severe that a direct sparse approximation is inappropriate. A similar situation occurs in image processing where it has been observed that the wavelet coefficients of natural images decay according to a power law unless the resolution is exceedingly high \cite{Gousseau2001}.
+
+Sharpening the Lorentzian lines is possible by solving a semi-blind sparse deconvolution problem in addition to the reconstruction. In its most general form, we must solve
+\begin{equation}\label{eq:lorentzcs2}
+\underset{u,a(t)}{\operatorname{argmin}} \; |u|_1 + \phi(a) \; subject\;to \; \| diag(e^{-t/a(t)})R\mathcal{F}^{-1}u - f \| \leq \mu
+\end{equation}
+where $\phi$ takes into account prior knowledge on the decoherence times. The deconvolution in \cref{eq:lorentzcs2} is highly ill-posed as we are required to learn the deconvolution kernel in addition to the spectrum from undersampled data. Reconstructing $a(t)$ as well as $u$ thus requires more time domain data than solving for $u$ alone. We have found that the simplification of homogeneous line broadening, $a(t) = const.$, allows us to sharpen reconstructed spectra and avoids many of the difficulties present when one is solving for a more general $a(t)$.
+
+This leads us to the optimization
+\begin{equation}\label{eq:lorentzcs_revise}
+\underset{u,a}{\operatorname{argmin}} \; |u|_1 \; subject\;to \; \| e^{-t/a}R\mathcal{F}^{-1}u - f \| \leq \mu
+\end{equation}
+ which we solve by alternating between minimizations on $u$ and $a$ in \cref{alg:altmin}.
+\begin{algorithm}[h!]
+\caption{Alternating minimization for simultaneous reconstruction/deconvolution}
+\KwInit{$u_{0} = \vec{0}$, $a_0 > T$}
+\label{alg:altmin}
+\While{$\frac{|a_{k} - a_{k-1}|}{|a_k|} > tol$}{
+$u_{k+1} = \underset{u}{\operatorname{argmin}} \; |u|_1 \; subject\;to \; \| e^{-t/a_k}R\mathcal{F}^{-1}u - f \| \leq \mu $ \\
+$a_{k+1} = \underset{a}{\operatorname{argmin}} \; \| e^{-t/a}R\mathcal{F}^{-1}u_{k+1} - f \| \leq \mu$
+}
+\end{algorithm}
+
+While the $a_{k+1}$ update is a differentiable single variable optimization problem, the $u_{k+1}$ update is nontrivial. Several methods are available for solving the basis pursuit problem in the $u_{k+1}$ update of \cref{alg:altmin} [?] [?] [?]. The computational bottleneck is often finding the solution of a linear system involving the system matrix, $e^{-t/a}\mathcal{F}^{-1}$. This matrix has condition number $\kappa = e^{T/a}$ which may be large enough to be problematic. Recent work on conjugate-gradient based approaches to basis pursuit problems has led to methods which are insensitive to the condition number of the system matrix \cite{Goldsteina}. These newer optimization algorithms markedly reduce computation time when compared against the standard iterative soft threholding approach that is commonly found in the compressed sensing NMR literature \cite{Goldsteina}.
+
+\subsubsection{CGIST for basis pursuit}
+
+A standard method for solving the basis pursuit problem,
+\begin{equation}\label{eq:basispursuit}
+\mu |u| + \frac{1}{2}\|Au-f\|^2
+\end{equation}
+is ``forward-backward splitting'' (FBS) [Lions], also referred to in the literature as ``iterative shrinkage/thresholding''. While minimizing only the quadratic term in \cref{eq:basispursuit} is straightforward, adding in the $l1$ term in \cref{eq:basispursuit} leads to a non-differentiable optimization. FBS handles this by alternately taking a gradient descent step on the quadratic term and then seeking a sparse approximation to the result of the gradient update.
+\begin{algorithm}[h!]
+\caption{FBS for basis pursuit}
+\KwInit{$u_{0} = \vec{0}$}
+\label{alg:FBS}
+\While{$\frac{|u_{k+1} - u_{k}|}{|u_k|} > tol$}{
+$\bar{u}_k = u_k + t A^T(Au_k-f)$\\
+$u_{k+1} = \underset{u}{\operatorname{argmin}} \; \mu |u| + \frac{1}{2t}\|u - \bar{u}_k\|$
+}
+\end{algorithm}
+
+As the matrix $A$ has been removed from the update in line 2 of \cref{alg:FBS} the problem becomes separable in each index of $u$ and we have the closed form solution for $u_{k+1}$:
+\begin{equation}\label{eq:shrinkdef}
+u_{k+1} = \frac{\bar{u}_k}{|\bar{u}_k|}\max\{\bar{u}_k-t\mu,0\} = shrink(\bar{u}_k,t\mu).
+\end{equation}
+
+When $sign(u_k) = sign(u_{k+1})$ it can be shown that one step of FBS is equivalent to a gradient descent step of \cref{eq:basispursuit} \cite{Goldsteina}. This is problematic as gradient descent may require many applications of $A$ to converge when $A$ is poorly conditioned. However, when the signs of $u_k$ and $u_{k+1}$ agree we can rewrite the non-differentiable optimization \cref{eq:basispursuit} as a constrained differentiable problem,
+\begin{equation} \label{eq:diffconstrained}
+u_{k+1} =  \underset{u}{\operatorname{argmin}} \; \frac{1}{2} \|Au -f\|^2 + \langle u, s \rangle \;subject \; to \; Du=0
+\end{equation}
+where $D$ is a diagonal matrix such that $D_{ii} = 1$ if $u_{k,i} \neq 0$, and $D_{ii}=0$ otherwise and $s=\mu sign(u_k)$. When the constraint in \cref{eq:diffconstrained} is satisfied we have $Du=u$ and we can rewrite the optimization as the unconstrained problem:
+\begin{equation}\label{eq:constraintgone}
+u_{k+1} =  \underset{u}{\operatorname{argmin}} \; \frac{1}{2} \|ADu -f\|^2 + \langle u, s \rangle.
+\end{equation}
+
+The optimization \cref{eq:constraintgone} is differentiable and, since $u$ is expected to be sparse, has a low-rank system matrix. The format of \cref{constraintgone} is amenable to the ``conjugate gradient partan'' method of [Partan]. This method is guaranteed to converge when the number of iterations reaches the rank of $AD$ leading to fast updates.
+
+When the signs of $u_k$ and $u_{k+1}$ are not equal we update using FBS with an optimally chosen step size.
+
+\begin{algorithm}[h!]
+\caption{CGIST for basis pursuit}
+\KwInit{$u_{0} = \vec{0}$, $e_0 = Au_0 -f$, $g_0 = A^Te_0$, $D_0 = (u_0 \neq 0)$, $r_0 D_0g_0 + \mu sign(u_0) + (1-D_0)shrink(g_0, \mu)$, $r_1 = \frac{\| r_0 \|^2}{\| A r_0 \|}$ and $u_1,e_1,g_1,D_1,r_1,\alpha_1$ from one iteration of FBS.}
+\label{alg:CGIST}
+\While{$\frac{|u_{k+1} - u_{k}|}{|u_k|} > tol$}{
+
+    Compute the step size:\\
+        $r_k = D_kg_k + \mu sign(u_k) + (1-D_k)shrink(g_k,\mu)$\\
+        $\alpha_k = \frac{\|r_k\|^2}{\|Ar^k\|^2}$\\
+        Make one proximal step on $u$:\\
+        $\bar{u}_k = shrink(u_k - \alpha_kg_k, \alpha \mu)$\\
+
+        \If{$sign(\bar{u}_k) == sign(u_k) == sign(u_{k-1})$}{
+            Update $u_k$ with conjugate gradient partan:\\
+            $\bar{e}_k = e_k - \alpha A r_k$\\
+            $\bar{g}_k = A^T \bar{e}_k$\\
+            $\bar{r}_k = r_k + D_k(\bar{g}_k + g_k)$\\
+            $\bar{\beta}_k = \frac{\langle \bar{r}_k, r_{k-1} \rangle}{\|r_{k-1}\|^2}$\\
+            $\beta_k = \min(\bar{\beta}_k, D_k \bar{u}_k/u_{k-1})$\\
+            $u_{k+1} = \frac{\bar{u}_k - \beta_ku_{k-1}}{1-\beta_k}$\\
+            $e_{k+1} = \frac{\bar{e}_k - \beta_k e_{k-1}}{1-\beta_k}$\\
+            $D_{k+1} = (u_{k+1} \neq 0)$\\
+            $g_{k+1} = \frac{\bar{g}_k - \beta_k g_{k-1}}{1-\beta_k}$\\
+            $r_{k+1} = \frac{\bar{r}_k -\beta_k r_{k-1}}{1-\beta_k}$
+        }
+    \Else{
+    FBS update:\\
+    $u_{k+1} = \bar{u}_k$\\
+    $D_{k+1} = (u_k \neq 0)$\\
+    $e_{k+1} = Au_{k+1} - f$\\
+    $g_{k+1} = A^Te_{k+1}$\\
+    $r_{k+1} = D_{k+1}g_{k+1} + \mu sign(u_{k+1}) + (1-D_{k+1})shrink(g_{k+1},\mu)$\\
+
+    }
+}
+%$\bar{u}_k = u_k + t A^T(Au_k-f)$\\
+%$u_{k+1} = \underset{u}{\operatorname{argmin}} \; \mu |u| + \frac{1}{2t}\|u - \bar{u}_k\|$
+\end{algorithm}
+
+\subsection{2D nonuniform sampling}
+
+The design of 2D NMR experiments makes it possible to reduce acquisition time by reducing the sampling rate in the indirect dimension only. The time required to collect data in the direct  dimension is independent of the sampling rate.
+
+Recall that a 2D NMR experiment is composed of repetitions of 1D experiments. Each 1D experiment can be broken down into four stages: excitation, evolution, mixing, and acquisition. During excitation, all nuclei are simultaneously tipped into the $x$-$y$ plane with a $90^\circ$ pulse. The nuclei are allowed to evolve for a period of time, $t_1$, until the mixing pulse is applied. Variations in the mixing stage account for type of NMR experiment (e.g. COSY, NOESY, etc.). Following the mixing pulse, the FID is recorded at $n_2$ points with sampling rate $\Delta t_2$. Repeating this experiment $n_1$ times provides us with a matrix, $f(t_1,t_2) \in \R^{n_1 \times n_2}$, whose DFT is composed of Lorentzian peaks and noise.
+
+Assuming homogeneous line broadening, our 2D signal model is
+\begin{equation}\label{eq:2Dmodel}
+f(t_1,t_2) = e^{-t_1/a_1}e^{-t_2/a_2}u(t_1,t_2)\mu(t_1) + \sigma(t_1,t_2)
+\end{equation}
+where $u$ is a sum of complex sinusoids and $\mu$ is $t_1$ noise. The $t_1$ noise is multiplicative in the time domain and thus convolutive in the spectral domain; it is also non-white and non-Gaussian \cite{Granwehr2007}. This bodes poorly for compressed sensing as the spectral domain blurring induced by $\mu(t_1)$ reduces sparsity. Furthermore, we have no parametric form for $\mu(t_1)$ so we can not include this information in our dictionary as was possible with the Lorentzian line broadening. We compensate for this by requiring more measurements than the original papers on compressed sensing advocated \cite{Candes2005}.
+
+We propose a reduction in acquisition time by selecting points from the $t_1$ dimension of $f(t_1,t_2)$ uniformly at random. The reconstruction procedure is then:
+\begin{equation}\label{eq:lorentzcs2D}
+\underset{u,a_1, a_2}{\operatorname{argmin}} \; |u|_1 \; subject\;to \; \| e^{-t_1/a_1}e^{-t_2/a_2}R\mathcal{F}^{-1}u - f \| \leq \mu
+\end{equation}
+which can be solved with an alternating directions method as in \cref{alg:altmin}. It should be noted that, in principle, we can reconstruct the spectrum by taking a DFT in $t_2$ and then solving $n_2$ one-dimensional compressed sensing problems to fill in the missing $t_1$ data. However, since the spectrum is approximately sparse in both $t_1$ and $t_2$ an $l_1$ penalty on all dimensions is appropriate and leads to higher quality results as $t_2$-sparsity is completely neglected in the one-dimensional approach.
+
+
+\section{Numerical Results}
+
+    Our reconstruction method is tested on real and simulated NMR datasets.
+
+    The CGIST library \cite{Goldsteina} was used to solve \cref{eq:oldcs} and \cref{eq:lorentzcs_revise} in all experiments. We set $\mu = 0.2 \|f\|$ and stopped the outer loop of \cref{alg:altmin} with $tol=.05$. We accelerate each $u_{k+1}$ update by making an initial guess for the solution using $u_k$.
+
+   Numerical experiments were run in 64-bit Matlab on twelve cores of a dual hex core system compromised of two 2.67 GHz Intel Xeon CPUs (each with 12 MB of level 2 cache) and 50 GB of RAM. Before plotting, all data is set to unit norm in order to make the comparisons clear.
+
+    \subsection{1D experiments}
+
+    Our simulated 1D dataset consisted of a $5$-peak $1182$-point spectra with unit time increments (i.e. $T=1182$). The homogeneous decoherence time was $a=236.4$. Uniform random downsampling to $20\%$ of time domain data was performed before reconstruction. Computation time for a CS-based reconstruction was $0.2342$ seconds, computation time for \cref{eq:lorentzcs_revise} was $0.2943$ seconds.
+
+    Our real 1D dataset consisted of a $49020$-point C13 MERCAPTO 24C DMSO signal retrospectively downsampled to $10\%$ of time domain data. Computation time for a CS-based reconstruction was $11.6120$ seconds, computation time for \cref{eq:lorentzcs_revise} was $82.7267$ seconds.
+
+
+\begin{figure}
+\centering
+\subfloat[Complete time domain data, real part]{\includegraphics[width=0.4\textwidth]{fourpeaks_exact_time}\label{fig:fourpeaks_exact_time}}
+\qquad
+\subfloat[FFT from complete data, magnitude]{\includegraphics[width=0.4\textwidth]{fourpeaks_exact}\label{fig:fourpeaks_exact}}
+\qquad
+\subfloat[Undersampled time domain data, real part]{\includegraphics[width=0.4\textwidth]{fourpeaks_downsamp_time}\label{fig:fourpeaks_downsamp_time}}
+\qquad
+\subfloat[FFT from undersampled data, magnitude]{\includegraphics[width=0.4\textwidth]{fourpeaks_downsamp_fft}\label{fig:fourpeaks_downsamp_fft}}
+\qquad
+\caption{Simulated data used in our reconstruction experiment. The FID in \cref{fig:fourpeaks_exact_time} decays slowly enough that the spectrum in \cref{fig:fourpeaks_exact} is compressible. We downsample by $5$x in \cref{fig:fourpeaks_downsamp_time} by setting unrecorded coefficients to zero. An FFT of the undersampled data produced poor results, \cref{fig:fourpeaks_downsamp_fft}}
+\label{fig:simulated_data}
+\end{figure}
+
+\begin{figure}
+\centering
+\subfloat[Complete time domain data, real part]{\includegraphics[width=0.4\textwidth]{mercapto_exact_time}\label{fig:mercapto_exact_time}}
+\qquad
+\subfloat[FFT from complete data, magnitude]{\includegraphics[width=0.4\textwidth]{mercapto_exact_fft}\label{fig:mercapto_exact_fft}}
+\qquad
+\subfloat[Undersampled time domain data, real part]{\includegraphics[width=0.4\textwidth]{mercapto_downsamp_time}\label{fig:mercapto_downsamp_time}}
+\qquad
+\subfloat[FFT from undersampled data, magnitude]{\includegraphics[width=0.4\textwidth]{mercapto_downsamp_fft}\label{fig:mercapto_downsamp_fft}}
+\qquad
+\caption{Actual data used in our reconstruction experiment. The FID in \cref{fig:mercapto_exact_time} decays rather quickly, however the spectrum in \cref{fig:mercapto_exact_fft} still appears to be compressible. We downsample by $10$x in \cref{fig:mercapto_downsamp_time} by setting unrecorded coefficients to zero. An FFT of the undersampled data produced poor results, \cref{fig:mercapto_downsamp_fft}.}
+\label{fig:real_data}
+\end{figure}
+
+\begin{figure}
+\centering
+\subfloat[Complete time domain data, real part]{\includegraphics[width=0.4\textwidth]{fourpeaks}\label{fig:fourpeaks}}
+\qquad
+\subfloat[FFT from complete data, magnitude]{\includegraphics[width=0.4\textwidth]{fourpeaks_zoom}\label{fig:fourpeaks_zoom}}
+\qquad
+\caption{Reconstructions from undersampled data using \cref{eq:oldcs} (red) and \cref{eq:lorentzcs_revise} (black). Due to low SNR and line broadening, the exact signal (blue) rarely reaches $0$. Approximating this noise and broadening leads to poor signal reconstruction \cref{fig:fourpeaks}. Zooming in on clustered peaks at the right side of the spectrum makes it easier to see how the standard compressed reconstruction approximates the side lobes while \cref{eq:lorentzcs_revise} avoids this problem.}
+\label{fig:fourpeaks}
+\end{figure}
+
+\begin{figure}
+\centering
+\subfloat[Complete time domain data, real part]{\includegraphics[width=0.4\textwidth]{mercapto}\label{fig:mercapto_sub}}
+\qquad
+\subfloat[FFT from complete data, magnitude]{\includegraphics[width=0.4\textwidth]{mercapto_zoom}\label{fig:mercapto_zoom}}
+\caption{Reconstruction experiment on real C13 MERCAPTO 24C DMSO NMR data. Line broadening on this data is more severe than in the simulated example of \cref{fig:fourpeaks} and both algorithms struggle away from the peaks (\cref{fig:mercapto_sub}). The clustered peaks on the right side of the spectrum are well approximated by \cref{eq:lorentzcs_revise} while standard compressed sensing approximates the side lobes (\cref{fig:mercapto_zoom}). Both methods produce passable results from $10\%$ of the time domain data.}
+\label{fig:mercapto}
+\end{figure}
+
+
+\subsection{2D experiments}
+
+    Our simulated 2D dataset consisted of a $10$-peak $600 \times 600$-point spectra with unit time increments. The homogeneous decoherence times were $a_1=190$ and $a_2 = 600$ leading to a significantly blurred spectrum \cref{2D_sim}. Data was undersampled by a factor of $3$ in the indirect dimension before reconstruction cf. \cref{fig:2D_sampleplan3x}.
+
+     For real data, we acquired a 2D COSY NMR spectrum of 2-ethyl-1-indanone at $2048 \times 957$ resolution and retrospectively downsampled the $t_1$-axis prior to our reconstruction experiments.
+
+     This data is contaminated with $t_1$-noise which is multiplicative in the time domain and thus convolutive in the spectral domain \cite{Granwehr2007}. The convolution leads to line broadening beyond what can be captured with an exponentially damped basis of sinusoids. In \cref{fig:2D_real} we can see that both reconstruction methods have a tendency to overestimate the $t_1$-noise. This worsens as we remove more data. Incorporating some form $t_1$-noise reduction into the reconstruction process is a direction for future work.
+
+    Our real spectrum is highly sparse and has a high dynamic range cf. \cref{fig:real_exact}. The shortest peaks of interest are roughly $10^7$ times shorter than the tallest. In this setting, both methods are able to accurately identify peaks as the Lorentizian line broadening is minimal cf. \cref{2D_real_slice}. Reconstructing with a damped sinusoid basis, however, requires more computation time. Due to the increase in computational cost of the damped sinusoidal basis it may be advisable to reconstruct spectra with standard compressed sensing when prior knowledge of line broadening is available.
+
+
+\begin{figure}
+\centering
+\subfloat[$3x \; t_1$ undersampling used in simulated data reconstruction experiment]{\includegraphics[width=0.4\textwidth]{R_sim_3x}\label{fig:2D_sampleplan3x}}
+\qquad
+\subfloat[$10x \; t_1$ undersampling used in real data reconstruction experiment]{\includegraphics[width=0.4\textwidth]{R_real_10x}\label{fig:2D_sampleplan10x}}
+\qquad
+\caption{Sampling schedules for undersampled reconstruction. Collecting fewer FIDs reduces acquisition time and leads to an undersampled $t_1$-axis. Reducing the number of points recorded along the $t_2$-axis does not lead to a faster experiment as each FID must be recorded until time $T$.}
+\label{fig:2D_sampleplan}
+\end{figure}
+
+\begin{figure}
+\centering
+\subfloat[Complete spectra with peak broadening.]{\includegraphics[width=0.4\textwidth]{fxact_sim}\label{fig:fxact_sim}}
+\qquad
+\subfloat[Reconstruction from $33\% \; t_1$ data using standard compressed sensing. Computation time: $1.4288$ seconds.]{\includegraphics[width=0.4\textwidth]{cs_3x_sim}\label{fig:cs_3x_sim}}
+\qquad
+\subfloat[Reconstruction from $33\% \; t_1$ data using a damped sinusoid basis. Computation time: $76.3435$ seconds.]{\includegraphics[width=0.4\textwidth]{exp_3x_sim}\label{fig:exp_3x_sim}}
+\qquad
+\subfloat[Comparison of results at fixed $t_2$.]{\includegraphics[width=0.4\textwidth]{2dslice_zoom_sim}\label{fig:2d_slice_zoom_sim}}
+\qquad
+\caption{2D simulated data reconstruction. In this test, severe line broadening leads to a non-sparse spectrum which is less amenable to traditional compressed sensing methods. In \cref{fig:2d_slice_zoom_sim} we can see that the true spectrum never reaches $0$ and is difficult to approximate with sparsity promoting method. The damped sinusoid basis handles this situation better but has a higher computational cost. }
+\label{fig:2D_sim}
+\end{figure}
+
+
+\begin{figure}
+\centering
+\includegraphics{real_exact}
+\caption{Real data used in reconstruction experiments}
+\label{fig:real_exact}
+\end{figure}
+
+\begin{figure}
+\centering
+\subfloat[Reconstruction from $33\% \; t_1$ data using standard compressed sensing. Computation time: $12.4488$ seconds.]{\includegraphics[width=0.4\textwidth]{real_ucs_3x}\label{fig:real_ucs_3x}}
+\qquad
+\subfloat[Reconstruction from $33\% \; t_1$ data using a damped sinusoid basis. Computation time: $147.9138$ seconds.]{\includegraphics[width=0.4\textwidth]{real_unp1_3x}\label{fig:real_unp1_3x}}
+\qquad\\
+\subfloat[Reconstruction from $20\% \; t_1$ data using standard compressed sensing. Computation time: $16.4423$ seconds.]{\includegraphics[width=0.4\textwidth]{real_ucs_5x}\label{fig:real_ucs_5x}}
+\qquad
+\subfloat[Reconstruction from $20\% \; t_1$ data using a damped sinusoid basis. Computation time: $35.4590$ seconds.]{\includegraphics[width=0.4\textwidth]{real_unp1_5x}\label{fig:real_unp1_5x}}
+\qquad\\
+\subfloat[Reconstruction from $10\% \; t_1$ data using standard compressed sensing. Computation time: $25.5009$ seconds.]{\includegraphics[width=0.4\textwidth]{real_ucs_10x}\label{fig:real_ucs_10x}}
+\qquad
+\subfloat[Reconstruction from $10\% \; t_1$ data using a damped sinusoid basis. Computation time: $47.6557$ seconds.]{\includegraphics[width=0.4\textwidth]{real_unp1_10x}\label{fig:real_unp1_10x}}
+
+\caption{2D real data reconstruction. In this test, our primary difficulties are $t_1$-noise and a high dynamic range of interest. The exponential damping factor alone is not enough to compensate for the level of $t_1$-noise and thus a sparse approximation to this noise is sought by the reconstruction algorithm. Further work is needed to address the problem of $t_1$ in compressed sensing reconstruction.}
+\label{fig:2D_real}
+\end{figure}
+
+\begin{figure}
+\centering
+\subfloat[Slice at $t_2 = 334$, both methods accurately recover peaks from a sparse spectrum]{\includegraphics[width=0.4\textwidth]{real_slice_3x}\label{fig:real_slice_3x}}
+\qquad\\
+\subfloat[Zoom of \cref{fig:real_slice_3x} near a peak]{\includegraphics[width=0.4\textwidth]{real_slice_3x_zoom}}
+\qquad
+\subfloat[Zoom of \cref{fig:real_slice_3x} away from peaks, both methods have difficulty in the presence of $t_1$-noise ]{\includegraphics[width=0.4\textwidth]{t1_noise_zoom}}
+\caption{Slice along constant $t_2$ of real data reconstruction experiments from $33\%$ data.}
+\label{fig:2D_real_slice}
+\end{figure}
+
+
+
+
+
+\section{Conclusion}
+We have presented a methodology for improving resolution in compressed sensing NMR. By taking into account the peak broadening that is inherent in all NMR spectra, we have produced an algorithm for NMR spectra reconstruction which simultaneously deconvolves Lorentzian lines and accounts for missing data in a measured FID. While our method is significantly more expensive computationally than a traditional compressed sensing reconstruction, numerical results indicate that modeling the damping factors can lead to much sharper final peaks from the same FID data. How well our method compares against approaches based on maximum entropy or multidimensional decomposition as well as combining the $l1$-term with a entropy promoting term are directions for future work.
+
+
+
+
+
+%\begin{smaller}
+\bibliographystyle{plain}
+%\bibliography{strings,refs}
+\bibliography{thebib}
+%\end{smaller}
+\end{document}
