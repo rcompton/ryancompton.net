@@ -17,9 +17,9 @@ The methods discussed are:
 + K-nearest neighbors
 + Naive Bayes
 
-To see how different classifiers perform on datasets of varying quality I've plotted empirical decisions boundaries after training each classifier on "two moons". For example, here's what happens to K-nearest neighbors at different noise levels and training sizes:
+To see how different classifiers perform on datasets of varying quality I've plotted empirical decisions boundaries after training each classifier on "two moons". For example, here's what happens to scikit-learn's decision tree (which uses a version of the CART algorithm) at different noise levels and training sizes:
 
-![knn]({{site.url}}/assets/ml_cheat_sheet/knn.png)
+![tree]({{site.url}}/assets/ml_cheat_sheet/tree.png)
 
 Here's the notebook:
 <http://ryancompton.net/assets/ml_cheat_sheet/supervised_learning.html>
