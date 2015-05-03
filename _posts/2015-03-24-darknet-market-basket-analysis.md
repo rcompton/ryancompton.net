@@ -76,13 +76,4 @@ I ran the FP-Growth algorithm with a minimum allowable support of 40 and a minim
 
 ###*Other Remarks*
 
-I think I've only scratched the surface of what's possible with this data. There are much more detailed product descriptions for each listing in the .tsv. That text is harder to work with so it will take some time to figure out what makes sense. Until then, here are some [wordles](http://www.wordle.net):
-
-Descriptions in the "Steroids" category:
-![ster]({{site.url}}/assets/darknet-market-basket-analysis/ster.png)
-
-Descriptions in the "Prescriptions" category:
-![scrip]({{site.url}}/assets/darknet-market-basket-analysis/scrip.png)
-
-Descriptions in the "Opioids" category:
-![opioids]({{site.url}}/assets/darknet-market-basket-analysis/opioids.png)
+I think I've only scratched the surface of what's possible with this data. There are much more detailed product descriptions for each listing in the .tsv. That text is harder to work with so it will take some time to figure out what makes sense.
