@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Machine Learning Superstitions Cheat Sheet"
+title: "Supervised Learning Superstitions Cheat Sheet"
 description: ""
 category:
 tags: ["coding", "machine learning"]
@@ -9,11 +9,19 @@ tags: ["coding", "machine learning"]
 
 This notebook contains notes and beliefs about several commonly-used supervised learning algorithms. My dream is that it will be useful as a quick reference or for people who are irrational about studying for machine learning interviews.
 
-After some setup code, the methods discussed are:
+The methods discussed are:
+
 + Logistic regression
 + Decision trees
 + Support vector machines
-+ K Nearest neighbors
++ K-nearest neighbors
 + Naive Bayes
 
-http://ryancompton.net/assets/ml_cheat_sheet/supervised_learning.html
+To see how different classifiers perform on datasets of varying quality I've plotted empirical decisions boundaries after training each classifier on "two moons". For example, here's what happens to K-nearest neighbors at different noise levels and training sizes:
+
+![knn]({{site.url}}/assets/ml_cheat_sheet/knn.png)
+
+Here's the notebook:
+<http://ryancompton.net/assets/ml_cheat_sheet/supervised_learning.html>
+
+(as a .ipynb file: <http://ryancompton.net/assets/ml_cheat_sheet/supervised_learning.ipynb>)
