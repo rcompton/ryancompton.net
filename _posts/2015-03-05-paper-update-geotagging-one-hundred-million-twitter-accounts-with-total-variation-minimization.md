@@ -9,7 +9,7 @@ tags: ["papers"]
 
 ***
 
-###*Press coverage (updated 2015-03-14):*{: style="color: white"}
+###*Press coverage (updated 2015-05-02):*{: style="color: white"}
 
 + [Forbes](http://www.forbes.com/sites/thomasbrewster/2015/03/07/twitter-location-can-be-determined-through-friends/)
 + [Business Insider](http://www.businessinsider.com/twitter-location-research-at-mentions-cornell-2015-3)
@@ -19,6 +19,11 @@ tags: ["papers"]
 + [Komando](http://www.komando.com/happening-now/299085/forget-gps-hackers-can-pinpoint-your-exact-location-using-social-media/all)
 + [UCLA math website](https://www.math.ucla.edu/news/recent-ucla-math-grads-research-makes-news)
 + [MIT Tech Review junior varsity](http://www.technologyreview.com/view/527246/other-interesting-arxiv-papers-week-ending-may-10-2014/)
++ [Serene Risc Quarterly Digest](http://ryancompton.net/assets/resume/Serene_Risc_Digest_2015_Spring.pdf)
+
+Altmetric link:
+
+[![altmetrix]({{site.url}}/assets/pix/altmetric-badges.a.ssl.fastly.net.png)](http://www.altmetric.com/details.php?citation_id=2314147)
 
 ***
 
