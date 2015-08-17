@@ -263,7 +263,7 @@ def main():
     wednesday = isoweek.Week(2015,0).thisweek().wednesday()
     if today == wednesday:
         #the subreddits I've already posted on
-        allowed_subreddits = ['futurebeats', 'hiphopheads', 'treemusic']
+        allowed_subreddits = ['futurebeats', 'hiphopheads', 'treemusic', 'trap']
         if (subreddit in allowed_subreddits) and (new_soundcloud_list_url is not None):
             link_title='Soundcloud playlist for '+playlist_name
             logger.info('posting '+link_title+' to '+subreddit+' url: '+new_soundcloud_list_url)
