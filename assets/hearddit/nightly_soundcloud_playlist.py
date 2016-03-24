@@ -91,7 +91,8 @@ def create_soundcloud_playlist_from_urls(urls, playlist_name):
                 tracks.append(client.get('/resolve', url=url))
             except requests.exceptions.HTTPError:
                 logger.warning('soundcloud url not resolved: '+url)
-    track_ids = [x.id for x in tracks]
+    track_ids = [x.id for x in tracks if isinstance(x,soundcloud.resource.Resource)]
+    #track_ids = [x.id for x in tracks]
     track_dicts = list(map(lambda id: dict(id=id), track_ids))
     logger.info("soundcloud track_dicts: {}".format(track_dicts))
 
@@ -179,7 +180,13 @@ def create_spotify_playlist_from_titles(todays_titles, playlist_name):
     sp = spotify_login()
 
     #try to map the submission titles to spotify tracks
-    search_results = [search_spotify_for_a_title(x,sp) for x in todays_titles]
+    search_results = []
+    for x in todays_titles:
+        try:
+            res = search_spotify_for_a_title(x,sp)
+            search_results.append(res)
+        except:
+            pass
     search_results = [x for x in search_results if x and (len(x['tracks']['items']) > 0)]
     hits = [x['tracks']['items'][0] for x in search_results]
 
