@@ -17,7 +17,10 @@ contact['email'] = 'ryan@ryancompton.net'
 contact['website'] = 'http://ryancompton.net/'
 resume['contact'] = contact
 
-resume['employment'] = 'Howard Hughes Research Laboratories, June 2012-present. Work on large-scale social media data mining for early detection of newsworthy events.'
+employment = collections.OrderedDict()
+employment['current'] = "Data Scientist, Clarifai, Designed and constructed datasets in order to improve the performance of deep learning-powered image recognition systems"
+employment['2012-2015'] = "Research Staff, Howard Hughes Research Laboratories, Worked on social media data mining for early detection of newsworthy events."
+resume['employment'] = employment
 
 edu = collections.OrderedDict()
 edu['PhD'] = ['UCLA, Mathematics, 2012', 'Advised by Chris Anderson', 'Thesis title "Sparsity Promoting Optimization in Quantum Mechanical Signal Processing"']

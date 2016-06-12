@@ -3,8 +3,11 @@ contact:
     email: ryan@ryancompton.net
     website: http://ryancompton.net/
 
-employment: Howard Hughes Research Laboratories, June 2012-present. Work on large-scale
-    social media data mining for early detection of newsworthy events.
+employment:
+    current: Data Scientist, Clarifai, Designed and constructed datasets in order
+        to improve the performance of deep learning-powered image recognition systems
+    2012-2015: Research Staff, Howard Hughes Research Laboratories, Worked on social
+        media data mining for early detection of newsworthy events.
 
 education:
 - PhD, UCLA, Mathematics, 2012
