@@ -27,6 +27,8 @@ To make things more human readable, I used the [geonames api](http://www.geoname
 
 ## Results
 
+The 999th quantile is 49.4289 mph
+
 
 {% highlight sql %}
 SELECT
