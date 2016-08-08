@@ -11,6 +11,8 @@ tags: ["coding", "machine learning"]
 
 Last week at Clarifai we [formally](http://blog.clarifai.com/moderate-filter-or-curate-adult-content-with-clarifais-nsfw-model/) [announced](http://blog.clarifai.com/how-to-use-clarifai-to-protect-your-eyes-from-seeing-something-they-cant-unsee/) our Not Safe for Work (NSFW) adult content recognition model. Automating the discovery of nude pictures has been a central problem in computer vision for over two decades now and, because of it's rich history and straightforward goal, serves as a great example of how the field has evolved. In this blog post, I'll use the problem of nudity detection to illustrate how training modern convolutional neural networks (convnets) differs from research done in the past.
 
+![Lenna heatmap](https://clarifai-img.s3.amazonaws.com/blog/lena_heatmap.png)
+
 (**Warning & Disclaimer**: This post contains visualizations of nudity for scientific purposes. Read no further if you are under the age of 18 or if you are offended by nudity.)
 
 {% endexcerpt %}
@@ -49,9 +51,7 @@ Understanding the operation of a convnet requires interpreting the feature activ
 
 ### Occulsion Sensitivity
 
-The image below shows photos of [Lena](https://en.wikipedia.org/wiki/Lenna) [Söderberg](http://www.cs.cmu.edu/~chuck/lennapg/lenna.shtml) after 64x64 sliding windows with a stride of 3 have applied of our nsfw model to cropped/occuluded versions of the raw image.
-
-![Lenna heatmap](https://clarifai-img.s3.amazonaws.com/blog/lena_heatmap.png)
+The image at the top of the post shows photos of [Lena](https://en.wikipedia.org/wiki/Lenna) [Söderberg](http://www.cs.cmu.edu/~chuck/lennapg/lenna.shtml) after 64x64 sliding windows with a stride of 3 have applied of our nsfw model to cropped/occuluded versions of the raw image.
 
 To build the heatmap on the left we send each window to our convnet and average the "NSFW" scores over each pixel. When the convnet sees a crop filled with skin it tends to predict "NSFW" which leads to large red regions over Lena's body. To create the heatmap on the right we systematically occlude parts of the raw image and report 1 minus the average "NSFW" scores (i.e. the "SFW" score). When the most NSFW regions are occluded the "SFW" scores increase and we see higher values in the heatmap. To be clear, the below figures have examples of what kind of images were fed into the convnet for each of two experiments above:
 
