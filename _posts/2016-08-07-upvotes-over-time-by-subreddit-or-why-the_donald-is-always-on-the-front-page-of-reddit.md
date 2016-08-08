@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Upvotes over time by subreddit or: Why The_Donald is always on the front page of reddit"
+title: "Upvotes over time by subreddit or: Why /r/The_Donald is always on the front page of reddit"
 description: ""
 category:
 tags: ["coding"]
