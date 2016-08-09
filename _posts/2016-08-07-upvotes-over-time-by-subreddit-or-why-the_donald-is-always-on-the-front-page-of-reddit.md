@@ -20,7 +20,7 @@ The data was collected by polling `/new/` every 2 minutes for each subreddit ove
 
 ![raw-votes]({{ site.url }}/assets/reddit_scrape/ups_per_subreddit_raw.jpg){: height="389px" width="480px"}
 
-Ranking on reddit is determined using a combination of upvotes, downvotes, and the age of the post at the time of each vote (cf. [here](https://medium.com/hacking-and-gonzo/how-reddit-ranking-algorithms-work-ef111e33d0d9#.2t9s2cn3k), [here](http://scienceblogs.com/builtonfacts/2013/01/16/the-mathematics-of-reddit-rankings-or-how-upvotes-are-time-travel/), and [here](https://web.archive.org/web/20160407110929/http://www.redditblog.com/2009/10/reddits-new-comment-sorting-system.html) for some good explanations). In short, the ranking of a submission is determined by the rating function
+Ranking on reddit is determined using a combination of upvotes, downvotes, and the age of the post at the time of each vote (cf. [here](https://medium.com/hacking-and-gonzo/how-reddit-ranking-algorithms-work-ef111e33d0d9#.2t9s2cn3k), [here](http://scienceblogs.com/builtonfacts/2013/01/16/the-mathematics-of-reddit-rankings-or-how-upvotes-are-time-travel/), and [here](https://web.archive.org/web/20160407110929/http://www.redditblog.com/2009/10/reddits-new-comment-sorting-system.html) for some good explanations). In short, the ranking of a submission is set by the rating function
 
 $$
 \begin{equation*}
