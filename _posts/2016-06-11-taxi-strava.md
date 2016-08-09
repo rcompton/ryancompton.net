@@ -9,15 +9,13 @@ tags: ["coding"]
 
 {% excerpt %}
 
-Last year @? used a FOIA request to obtain a dataset with information on the locations, times, and medallions for 173 million NYC cab rides. In this blog post we'll look through this data to see which cabs are fastest cabs are and how quickly they can get between various parts of the city.
-
-As someone who loves biking to work but hates how taxi drivers are always trying to race (kill?) me
+Last year [Chris Whong](http://chriswhong.com/) used a [foil](http://www.dos.ny.gov/coog/foil2.html) request to obtain a dataset with information on the locations, times, and medallions for 173 million NYC cab rides. I'm interested is determining which cabs are the fastest cabs are and how quickly they can get between various parts of the city.
 
 {% endexcerpt %}
 
 ## Data
 
-Reddit users imjasonh and fhoffa parsed the FOIA'd data and loaded it into [a public BigQuery table]( https://bigquery.cloud.google.com/table/imjasonh-storage:nyctaxi.trip_fare ) ([another version](https://bigquery.cloud.google.com/table/nyc-tlc:yellow.trips) is also available from the NYC Taxi and Limousine Commission) The schema looks like:
+Reddit users imjasonh and fhoffa parsed the raw data and loaded it into [a public BigQuery table]( https://bigquery.cloud.google.com/table/imjasonh-storage:nyctaxi.trip_fare ) ([another version](https://bigquery.cloud.google.com/table/nyc-tlc:yellow.trips) is also available from the NYC Taxi and Limousine Commission) The schema looks like:
 
 ![schema]({{site.url}}/assets/taxi-strava/schema.png)
 
