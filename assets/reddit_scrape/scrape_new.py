@@ -27,23 +27,6 @@ def login():
   r.login(username=username,password=passw)
   return r
 
-def table_init():
-  r = login()
-  subreddit = r.get_subreddit('news')
-  submissions = subreddit.get_new(limit=1000)
-  sub_dics = [s.__dict__ for s in submissions]
-  df = pd.DataFrame(sub_dics)
-  df2 = df[cols].copy()
-  df2['subreddit'] = df2['subreddit'].map(str)
-  df2['user_reports'] = df2['user_reports'].map(str)
-  df2['report_reasons'] = df2['report_reasons'].map(str)
-  df2['author'] = df2['author'].map(str)
-  df2['approved_by'] = df2['approved_by'].map(str)
-  df2['mod_reports'] = df2['mod_reports'].map(str)
-  df2['edited'] = df2['edited'].map(bool) #ignore time of edit
-  df2['fetch_time'] = df.index.map(lambda x:datetime.datetime.now())
-  #df2.to_sql('submissions', conn, if_exists='append')
-  df2.to_gbq('reddit_scores.submissions', 'bigquery-reddit-1003', if_exists='append')
 
 def main():
   r = login()
@@ -63,19 +46,21 @@ def main():
         df2 = df[cols].copy()
         df2['subreddit'] = df2['subreddit'].map(str)
         df2['user_reports'] = df2['user_reports'].map(str)
-        df2['report_reasons'] = df2['report_reasons']#.map(str)
+        df2['report_reasons'] = df2['report_reasons'].map(str)
         df2['author'] = df2['author'].map(str)
         df2['approved_by'] = df2['approved_by'].map(str)
         df2['mod_reports'] = df2['mod_reports'].map(str)
         df2['fetch_time'] = df.index.map(lambda x:datetime.datetime.now())
-        df2['edited'] = df2['edited']#.map(bool) #ignore time of edit
+        df2['edited'] = df2['edited'].map(int)
         df2.to_gbq('reddit_scores.submissions', 'bigquery-reddit-1003', if_exists='append')
         #df2.to_sql('submissions', conn, if_exists='append')
         #cnt = conn.execute('SELECT COUNT(*) FROM submissions;').fetchall()[0][0]
-        logging.info('inserted {0} rows from {1}. Total rows: {2}'.format(len(df2),subreddit_name,'?'))
+      except (KeyboardInterrupt, SystemExit):
+        raise
       except:
+        import ipdb;ipdb.set_trace()
         logging.exception('meh')
-    time.sleep(120)
+    time.sleep(1)
 
 
 if __name__=='__main__':
