@@ -1,5 +1,6 @@
 
-import time
+import os
+import timei
 import datetime
 import logging
 
@@ -9,8 +10,8 @@ import sqlalchemy
 
 logging.basicConfig(level=logging.DEBUG)
 
-conn = sqlalchemy.create_engine('sqlite:////home/aahu/Dropbox/ryancompton.net/assets/reddit_scrape/scores.db')
-conn.connect()
+#conn = sqlalchemy.create_engine('sqlite:////home/aahu/Dropbox/ryancompton.net/assets/reddit_scrape/scores.db')
+#conn.connect()
 
 cols = sorted(set(['subreddit', 'title', 'ups', 'score', 'downs', 'domain', 'url', 'num_reports', 'stickied',
           'permalink', 'over_18', 'mod_reports', 'locked', 'hidden', 'distinguished', 'banned_by','created',
@@ -20,8 +21,8 @@ cols = sorted(set(['subreddit', 'title', 'ups', 'score', 'downs', 'domain', 'url
           'removal_reason', 'report_reasons', 'thumbnail', 'quarantine', 'name', 'num_comments']))
 
 def login():
-  username = ''
-  passw = ''
+  username = os.environ['RUSER']
+  passw = os.environ['RPASS']
   r = praw.Reddit(user_agent='get new submissions')
   r.login(username=username,password=passw)
   return r
@@ -41,11 +42,12 @@ def table_init():
   df2['mod_reports'] = df2['mod_reports'].map(str)
   df2['edited'] = df2['edited'].map(bool) #ignore time of edit
   df2['fetch_time'] = df.index.map(lambda x:datetime.datetime.now())
-  df2.to_sql('submissions', conn, if_exists='append')
+  #df2.to_sql('submissions', conn, if_exists='append')
+  df2.to_gbq('reddit_scores.submissions', 'bigquery-reddit-1003', if_exists='append')
 
 def main():
   r = login()
-  subreddit_names = ['news', 'politics', 'worldnews',
+  subreddit_names = ['news', 'politics', 'worldnews', 'aww', 'askreddit',
                      'the_donald', 'PoliticalDiscussion', 'Conservative',
                      'WikiLeaks','DNCLeaks', '4chan', 'pics',
                      'funny', 'hillaryclinton', 'enoughtrumpspam']
@@ -60,15 +62,16 @@ def main():
         df2 = df[cols].copy()
         df2['subreddit'] = df2['subreddit'].map(str)
         df2['user_reports'] = df2['user_reports'].map(str)
-        df2['report_reasons'] = df2['report_reasons'].map(str)
+        df2['report_reasons'] = df2['report_reasons']#.map(str)
         df2['author'] = df2['author'].map(str)
         df2['approved_by'] = df2['approved_by'].map(str)
         df2['mod_reports'] = df2['mod_reports'].map(str)
         df2['fetch_time'] = df.index.map(lambda x:datetime.datetime.now())
-        df2['edited'] = df2['edited'].map(bool) #ignore time of edit
-        df2.to_sql('submissions', conn, if_exists='append')
-        cnt = conn.execute('SELECT COUNT(*) FROM submissions;').fetchall()[0][0]
-        logging.info('inserted {0} rows from {1}. Total rows: {2}'.format(len(df2),subreddit_name,cnt))
+        df2['edited'] = df2['edited']#.map(bool) #ignore time of edit
+        df2.to_gbq('reddit_scores.submissions', 'bigquery-reddit-1003', if_exists='append')
+        #df2.to_sql('submissions', conn, if_exists='append')
+        #cnt = conn.execute('SELECT COUNT(*) FROM submissions;').fetchall()[0][0]
+        logging.info('inserted {0} rows from {1}. Total rows: {2}'.format(len(df2),subreddit_name,'?'))
       except:
         logging.exception('meh')
     time.sleep(120)
