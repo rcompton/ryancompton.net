@@ -1,6 +1,6 @@
 
 import os
-import timei
+import time
 import datetime
 import logging
 
@@ -47,10 +47,11 @@ def table_init():
 
 def main():
   r = login()
-  subreddit_names = ['news', 'politics', 'worldnews', 'aww', 'askreddit',
-                     'the_donald', 'PoliticalDiscussion', 'Conservative',
-                     'WikiLeaks','DNCLeaks', '4chan', 'pics',
-                     'funny', 'hillaryclinton', 'enoughtrumpspam']
+  subreddit_names = ['news', 'politics', 'worldnews', 'aww', 'askreddit', 'todayilearned', 'science', 'IAmA', 'music', 'gifs',
+                     'the_donald', 'PoliticalDiscussion', 'Conservative', 'announcements', 'videos', 'gaming', 'movies', 'art',
+                     'WikiLeaks','DNCLeaks', '4chan', 'pics', 'worldpolitics', 'television', 'space', 'food', 'listentothis','inthenews',
+                     'funny', 'hillaryclinton', 'enoughtrumpspam', 'europe', 'games', 'conspiracy', 'Protectandserve','Socialism']
+  subreddit_names = set(subreddit_names)	
   while True:
     for subreddit_name in subreddit_names:
       try:
