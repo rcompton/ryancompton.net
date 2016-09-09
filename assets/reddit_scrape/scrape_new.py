@@ -58,7 +58,6 @@ def main():
       except (KeyboardInterrupt, SystemExit):
         raise
       except:
-        import ipdb;ipdb.set_trace()
         logging.exception('meh')
     time.sleep(1)
 
