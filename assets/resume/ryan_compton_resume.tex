@@ -6,6 +6,8 @@
 \itemsep=0in
 \parsep=0in
 
+\vspace*{-15mm}
+
 \newenvironment{list1}{
   \begin{list}{\ding{113}}{%
       \setlength{\itemsep}{0.0in}
@@ -26,8 +28,9 @@
   colorlinks = true,
 }
 
-\def\baselinestretch{0.9}
-\sectionskip=1.5ex plus 0.7ex minus -.2ex
+%\sectionskip=1.5ex plus 0.7ex minus -.2ex
+\linespread{0.95}
+
 
 \begin{document}
 
@@ -42,7 +45,7 @@
 \end{tabular}
 
 \section{\sc Employment}
-    {\bf Head of Applied Machine Learning, Clarifai.} June 2015-present. First data scientist and defined the role for the company - ``improving our machine learning products by designing better training datasets''. Built, fine-tuned, and deployed convnets to solve computer vision problems for some of our most important verticals as well as our largest customers. Implemented multiple active learning pipelines of varying complexity to automate data cleaning tasks. With company expansion took on management responsibilities and oversaw team growth from scratch to 10 direct reports.
+    {\bf Head of Applied Machine Learning, Clarifai.} June 2015-present. First data scientist and defined the role for the company - ``improving our machine learning products by designing better training datasets''. Built, fine-tuned, and deployed convnets to solve computer vision problems for some of our most important verticals and largest customers. With company expansion took on management responsibilities and oversaw team growth from scratch to 10 direct reports.
 
     {\bf Research Staff Member, Howard Hughes Research Laboratories.} June 2012-June 2015. Developed algorithms for mining massive modern datasets and predictive analytics. Conceived of and implemented a system which accurately inferred home locations for over one hundred million Twitter users and combined it with multilingual natural language processing tools to generate forecasts for thousands of international events.
 
@@ -70,28 +73,29 @@ Ryan Compton, Stanley Osher and Louis Bouchard, ``Hybrid regularization for MRI 
 
 \section{\sc Selected talks}
 
-{\it What Convnets Look at When They Look at Nudity.}
+{\it What Convnets Look at When They Look at Nudity}
 \begin{list1}
-\item [] Summary: Overview of how deconvnets can be used to visualize representations learned by a convnet trained to filter nsfw photos.
-\item [] Details: \href{http://blog.clarifai.com/what-convolutional-neural-networks-see-at-when-they-see-nudity/}{Blog}. \href{http://ryancompton.net/2016/12/06/my-talk-at-the-nyc-machine-learning-meetup/}{Video and deck}.
+\item [] Summary: Overview of how deconvnets can be used to visualize representations learned by a convolutional neural network trained to filter nude photos.
+\item [] Details: \href{http://blog.clarifai.com/what-convolutional-neural-networks-see-at-when-they-see-nudity/}{Blog}, \href{https://www.youtube.com/watch?v=dWgXPKMvxDg}{video} and \href{https://docs.google.com/presentation/d/14SNvMFqyqd3qlKvibc06GkB1lLmDutzcr04uJ_LnX4s/edit#slide=id.g1525123836_1_870}{deck}.
 \item [] Venues: \href{https://www.meetup.com/NYC-Machine-Learning/events/235535192/}{NYC ML}, \href{https://www.meetup.com/gdgnyc/events/231372185/}{GDG NYC}, \href{https://www.meetup.com/bostonml/events/235419742/}{Boston ML}, \href{https://www.odsc.com/training/portfolio/convolutional-neural-networks-look-look-nudity}{ODSC 2017}, \href{http://www.devfestdc.org/speakers/ryan-compton/}{DevFest DC 2017 (keynote)}
 \end{list1}
 
 {\it Geotagging One Hundred Million Twitter Accounts with Total Variation Minimization}
 \begin{list1}
-\item [] Summary: Technical presentation of a social network analysis method which can geolocate the overwhelming majority of active Twitter users, independent of their location sharing preferences, using only publicly-visible Twitter data.
-\item [] Paper: \href{https://arxiv.org/abs/1404.7152}{arXiv:1404.7152}
+\item [] Summary: Technical presentation of a social network analysis method which can geolocate the overwhelming majority of active Twitter users, independent of their location sharing preferences, using only publicly-visible data.
+\item [] Details: \href{https://arxiv.org/abs/1404.7152}{Paper} and \href{http://ryancompton.net/assets/resume/geolocation_slides_2.pdf}{deck}.
 \item [] Venues: \href{http://cci.drexel.edu/bigdata/bigdata2014/}{IEEE BigData}, \href{http://papyrus.math.ucla.edu/seminars/display.php?&id=831425}{UCLA Level Set}, \href{http://calendar.ics.uci.edu/event.php?calendar=1&category=&event=1386&date=2015-01-16}{UCI ISG}, \href{http://wwwcontent.cs.ucr.edu/department/eventlookup/491}{UCR CS}, \href{http://myweb.lmu.edu/yma/LMUMathSeminar.htm}{LMU}
 \end{list1}
 
 \section{\sc Computer Skills}
-
-{\bf Python}: Seven years, used for machine learning, numerical methods, and visualization.
-{\bf Java}: Two years, used for the Hadoop stack and Android.
-{\bf Scala}: One year, used for Apache Spark.
-{\bf C/C++}: Two years implementing numerical methods.
-{\bf Matlab}: Three years, used for linear algebra and optimization.
-{\bf Linux}: Previously administered a 24-node Hadoop cluster. Home Linux user since 2002.
+\begin{list2}
+\item[]{\bf Python}: Seven years, used for machine learning, numerical methods, and visualization.
+\item[]{\bf Java}: Two years, used for the Hadoop stack and Android.
+\item[]{\bf Scala}: One year, used for Apache Spark.
+\item[]{\bf C/C++}: Two years implementing numerical methods.
+\item[]{\bf Matlab}: Three years, used for linear algebra and optimization.
+\item[]{\bf Linux}: Previously administered a 24-node Hadoop cluster. Home Linux user since 2002.
+\end{list2}
 
 \section{\sc Citizenship}
 United States and Italy
