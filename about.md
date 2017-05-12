@@ -10,7 +10,7 @@ I am currently a data scientist at [Clarifai](http://www.clarifai.com/) in New Y
 
 + Contact: <ryan@ryancompton.net>
 
-+ [Resume]({{ site.url }}/assets/resume/ryan_compton_resume.txt)  ([pdf]({{ site.url }}/assets/resume/ryan_compton_resume.pdf))
++ [Resume]({{ site.url }}/assets/resume/ryan_compton_resume.pdf)
 
 + [Photo]({{ site.url }}/assets/resume/IMG_6683_small.jpg)
 
@@ -20,7 +20,5 @@ You can find me elsewhere on the web:
 + [scholar.google.com](http://scholar.google.com/citations?user=YcJNT5AAAAAJ&hl=en)
 
 + <https://github.com/rcompton>
-
-+ <https://news.ycombinator.com/user?id=rcpt>
 
 + <a href="http://stackexchange.com/users/186936/dranxo"><img src="http://stackexchange.com/users/flair/186936.png?theme=dark" width="208" height="58" alt="profile for dranxo on Stack Exchange, a network of free, community-driven Q&amp;A sites" title="profile for dranxo on Stack Exchange, a network of free, community-driven Q&amp;A sites" /></a>
