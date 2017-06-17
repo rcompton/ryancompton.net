@@ -34,10 +34,10 @@ logger.setLevel(logging.INFO)
 
 def get_submissions(subreddit='electronicmusic',limit=100,session=None):
     if not session:
-        r = praw.Reddit(user_agent='get_top; subreddit={0}'.format(subreddit))
+        r = praw.Reddit('hearddit', user_agent='get_top; subreddit={0}'.format(subreddit))
     else:
         r = session
-    sr = r.get_subreddit(subreddit).get_hot(limit=limit)
+    sr = r.subreddit(subreddit).hot(limit=limit)
     return sr
 
 def add_url_to_submissions_db(url, dbfname='/home/ubuntu/hearddit_submitted_links.txt'):
@@ -53,7 +53,7 @@ def url_was_already_submitted(url, dbfname='/home/ubuntu/hearddit_submitted_link
 def check_reposts_and_submit_url(creds_file, subreddit, title, playlist_url, username='heardditbot'):
     with open(creds_file,'r') as fin:
         d = dict( l.rstrip().split('=') for l in fin)
-    r = praw.Reddit(user_agent='post_link; subreddit={0}'.format(subreddit))
+    r = praw.Reddit('hearddit', user_agent='post_link; subreddit={0}'.format(subreddit))
     r.login(username=username,password=d[username])
     assert r.is_logged_in()
 
@@ -73,7 +73,7 @@ def soundcloud_login():
     client = soundcloud.Client(client_id=d['client_id'],
                             client_secret=d['client_secret'],
                             username=d['username'],
-                           password=d['password'])
+                            password=d['password'])
     return client
 
 def create_soundcloud_playlist_from_urls(urls, playlist_name):
@@ -255,6 +255,8 @@ def main():
         #logger.warning("NO SOUNDCLOUD!!!")
         new_soundcloud_list_url = create_soundcloud_playlist_from_urls(todays_urls, playlist_name)
         logger.info("new_soundcloud_list_url:  {}".format(new_soundcloud_list_url))
+    except (KeyboardInterrupt, SystemExit):
+        raise
     except:
         logger.exception('create_soundcloud_playlist_from_urls exception...')
 
@@ -262,6 +264,8 @@ def main():
     try:
         new_spotify_list_url = create_spotify_playlist_from_titles(todays_titles, playlist_name)
         logger.info("new_spotify_list_url:  {}".format(new_spotify_list_url))
+    except (KeyboardInterrupt, SystemExit):
+        raise
     except:
         logger.exception("create_spotify_playlist_from_titles exception...")
 
