@@ -7,7 +7,7 @@ tags: ["coding", "machine learning"]
 ---
 {% include JB/setup %}
 {% excerpt %}
-*Originally published on the Clarifai blog at [https://blog.clarifai.com/one-thousand-captcha-photos-organized-with-a-neural-network-2/](https://blog.clarifai.com/one-thousand-captcha-photos-organized-with-a-neural-network-2/)*
+*Coauthored with Habib Talavati. Originally published on the Clarifai blog at [https://blog.clarifai.com/one-thousand-captcha-photos-organized-with-a-neural-network-2/](https://blog.clarifai.com/one-thousand-captcha-photos-organized-with-a-neural-network-2/)*
 
 The below image shows 1024 of the captcha photos used in "I’m not a human: Breaking the Google reCAPTCHA" by Sivakorn, Polakis, and Keromytis arranged on a 32x32 grid in such a way that visually-similar photos appear in close proximity to each other on the grid.
 
