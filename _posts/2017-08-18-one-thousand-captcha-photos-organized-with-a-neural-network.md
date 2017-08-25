@@ -21,7 +21,7 @@ To get from the collection of captcha photos to the grid above we take three ste
 
 Images are naturally very high-dimensional objects, even a "small" 224x224 image requires 224*224*3=150,528 RGB values. When represented naively as huge vectors of pixels visually-similar images may have enormous vector distances between them. For example, a left/right flip will generate a visually-similar image but can easily lead to a situation where each pixel in the flipped version has an entirely different value from the original.
 
-*Remark:* Code for all of this is available here: https://github.com/Clarifai/public-notebooks/blob/master/gridded_tsne_blog_public.ipynb
+*Remark:* Code for all of this is available here: [https://github.com/Clarifai/public-notebooks/blob/master/gridded_tsne_blog_public.ipynb](https://github.com/Clarifai/public-notebooks/blob/master/gridded_tsne_blog_public.ipynb)
 
 ![captcha_2x2](https://s3.amazonaws.com/imtagco/blog/2x2captcha.png)
 
