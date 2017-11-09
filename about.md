@@ -6,7 +6,7 @@ group: navigation
 ---
 {% include JB/setup %}
 
-I am currently a data scientist at [Clarifai](http://www.clarifai.com/) in New York, NY. I was previously on the research staff at Howard Hughes Laboratories in Malibu, CA. In 2012 I finished a mathematics PhD at UCLA. My graduate work involved [sparsity promoting optimization in quantum mechanical signal processing](http://code.google.com/p/typingstuff/downloads/list).
+I am currently a software enginner at Google working on algorithms for queryless search. Prior to Google I led applied machine learning at [Clarifai](http://www.clarifai.com/) in New York, NY. I was previously on the research staff at Howard Hughes Laboratories in Malibu, CA. In 2012 I finished a mathematics PhD at UCLA. My graduate work involved [sparsity promoting optimization in quantum mechanical signal processing](http://code.google.com/p/typingstuff/downloads/list).
 
 + Contact: <ryan@ryancompton.net>
 
