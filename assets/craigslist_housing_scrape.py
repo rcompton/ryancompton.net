@@ -1,20 +1,16 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import datetime
 import feedparser
 import pandas as pd
+import random
 import requests
 import time
-import random
 import warnings
 
 from bs4 import BeautifulSoup
 
-
-
-# All houses posted today in sfbay
-rssurl = 'https://sfbay.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates'
-posts = feedparser.parse(rssurl)
 
 # Santa Cruz only
 #('https://sfbay.craigslist.org/search/scz/apa?availabilityMode=0&format=rss&hasPic=1&postedToday=1')
@@ -73,16 +69,27 @@ def parse_page(html_soup):
 
 
 def main():
+    # All houses posted today in sfbay
+    #rssurl = 'https://sfbay.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates&format=rss'
+    rssurl = 'https://sfbay.craigslist.org/search/apa?availabilityMode=0&format=rss&housing_type=6&postedToday=1'
+    posts = feedparser.parse(rssurl)
+    print(len(posts.entries))
+    print(posts)
     dics = []
     for post in posts.entries:
         url = post.links[0].href
         time.sleep(random.choice([0,2]))
         response = requests.get(url)
         if response.status_code != 200:
-            warnings.warn('URL: {}; Status code: {}'.format(url, response.status_code))
+            warnings.warn('failed URL: {}; Status code: {}'.format(url, response.status_code))
         html_soup = BeautifulSoup(response.text)
         dics.append(parse_page(html_soup))
+        warnings.warn('fetched URL: {}; successes: {}'.format(url, len(dics)))
+        print('fetched URL: {}; successes: {}'.format(url, len(dics)))
+        if len(dics) > 3:
+            break
     df = pd.DataFrame(dics)
+    #df.to_csv('s3://rycpt-crawls/craigslist/{}.tsv'.format(datetime.datetime.now().isoformat()), index = False, sep = '\t')
 
 
 if __name__ == "__main__":
