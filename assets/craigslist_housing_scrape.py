@@ -3,17 +3,25 @@
 
 import datetime
 import feedparser
+import logging
 import pandas as pd
 import random
 import requests
 import time
-import warnings
 
 from bs4 import BeautifulSoup
 
-
-# Santa Cruz only
-#('https://sfbay.craigslist.org/search/scz/apa?availabilityMode=0&format=rss&hasPic=1&postedToday=1')
+FORMAT = '%(asctime)-15s %(levelname)-6s %(message)s'
+DATE_FORMAT = '%b %d %H:%M:%S'
+formatter = logging.Formatter(fmt=FORMAT, datefmt=DATE_FORMAT)
+handler = logging.StreamHandler()
+handler.setFormatter(formatter)
+fhandler = logging.FileHandler('/home/rycpt/craigslist-data/log2.log')
+fhandler.setFormatter(formatter)
+logger = logging.getLogger(__name__)
+logger.addHandler(handler)
+logger.addHandler(fhandler)
+logger.setLevel(logging.INFO)
 
 
 def parse_divs(html_soup):
@@ -76,26 +84,25 @@ def main():
         rssurl = 'https://sfbay.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates&format=rss&s={}'.format(offset)
         posts = feedparser.parse(rssurl)
         postss.append(posts)
-        warnings.warn('feed URL: {}; hits: {}'.format(rssurl, len(posts.entries)))
+        logger.info('feed URL: {}; hits: {}'.format(rssurl, len(posts.entries)))
 
     # Iterate through the listings and get what you can.
     dics = []
     for posts in postss:
         for post in posts.entries:
             url = post.links[0].href
-            time.sleep(random.choice([0,60]))
+            time.sleep(random.choice([0,20]))
             response = requests.get(url)
             if response.status_code != 200:
-                warnings.warn('failed URL: {}; Status code: {}'.format(url, response.status_code))
+                logger.warning('failed URL: {}; Status code: {}'.format(url, response.status_code))
                 continue
             html_soup = BeautifulSoup(response.text, features='html.parser')
             dics.append(parse_page(html_soup))
-            warnings.warn('fetched URL: {}; successes: {}'.format(url, len(dics)))
+            logger.info('fetched URL: {}; successes: {}'.format(url, len(dics)))
             #if len(dics) > 1:
             #    break
         df = pd.DataFrame(dics)
-    #df.to_csv('/home/rycpt/craigslist-data/{}.tsv'.format(datetime.datetime.now().isoformat()), index = False, sep = '\t')
-    df.to_json('/home/rycpt/craigslist-data/{}.json'.format(datetime.datetime.now().isoformat()), orient='records')
+        df.to_json('/home/rycpt/craigslist-data/{}.json'.format(datetime.datetime.now().isoformat()), orient='records')
 
 
 if __name__ == "__main__":
