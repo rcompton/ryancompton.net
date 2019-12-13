@@ -72,38 +72,68 @@ def parse_metas(html_soup):
     return dic
 
 
+def parse_text(html_soup):
+    return {'text':html_soup.get_text()}
+
+
 def parse_page(html_soup):
-    return {**parse_metas(html_soup), **parse_divs(html_soup) , **parse_spans(html_soup)}
+    return {**parse_metas(html_soup),
+            **parse_divs(html_soup),
+            **parse_spans(html_soup),
+            **parse_text(html_soup)}
+
+def accumulate_feeds(rssurl_base):
+    # Accumulate the day's feeds.
+    postss = []
+    for offset in [25*x for x in range(0,8)]:
+        # All houses posted today in sfbay
+        rssurl = '{0}&s={1}'.format(rssurl_base,offset)
+        posts = feedparser.parse(rssurl)
+        if posts.status != 200:
+            logger.error('feedparser failed: {}; status: '.format(rssurl, posts.status))
+            return
+        postss.append(posts)
+        logger.info('feed URL: {}; hits: {}'.format(rssurl, len(posts.entries)))
+        hits = len(posts.entries)
+        if hits < 25:
+            break
+    return postss
 
 
 def main():
-    # Accumulate the day's feeds.
-    postss = []
-    for offset in [0,25,50,75,100]:
-        # All houses posted today in sfbay
-        rssurl = 'https://sfbay.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates&format=rss&s={}'.format(offset)
-        posts = feedparser.parse(rssurl)
-        postss.append(posts)
-        logger.info('feed URL: {}; hits: {}'.format(rssurl, len(posts.entries)))
-
-    # Iterate through the listings and get what you can.
-    dics = []
-    for posts in postss:
-        for post in posts.entries:
-            url = post.links[0].href
-            time.sleep(random.choice([0,20]))
-            response = requests.get(url)
-            if response.status_code != 200:
-                logger.warning('failed URL: {}; Status code: {}'.format(url, response.status_code))
-                continue
-            html_soup = BeautifulSoup(response.text, features='html.parser')
-            dics.append(parse_page(html_soup))
-            logger.info('fetched URL: {}; successes: {}'.format(url, len(dics)))
-            #if len(dics) > 1:
-            #    break
-        df = pd.DataFrame(dics)
-        df.to_json('/home/rycpt/craigslist-data/{}.json'.format(datetime.datetime.now().isoformat()), orient='records')
-
+    rssurls = [
+               'https://chico.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates&format=rss',
+               'https://miami.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates&format=rss',
+               'https://sfbay.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates&format=rss',
+               'https://losangeles.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates&format=rss',
+               'https://austin.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates&format=rss',
+               'https://seattle.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates&format=rss',
+               'https://chicago.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates&format=rss',
+               'https://portland.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates&format=rss',
+               'https://humboldt.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates&format=rss',
+               'https://fresno.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates&format=rss',
+              ]
+    for rssurl in rssurls:
+        postss = accumulate_feeds(rssurl)
+        # Iterate through the listings and get what you can.
+        dics = []
+        for posts in postss:
+            for post in posts.entries:
+                url = post.links[0].href
+                time.sleep(random.choice([0,20]))
+                response = requests.get(url)
+                if response.status_code != 200:
+                    logger.warning('failed URL: {}; Status code: {}'.format(url, response.status_code))
+                    continue
+                html_soup = BeautifulSoup(response.text, features='html.parser')
+                dics.append(parse_page(html_soup))
+                logger.info('fetched URL: {}; successes: {}'.format(url, len(dics)))
+                #if len(dics) > 1:
+                #    break
+            df = pd.DataFrame(dics)
+            df['date'] = datetime.datetime.now().isoformat()
+            df.to_json('/home/rycpt/craigslist-data/{}.json'.format(datetime.datetime.now().isoformat()), orient='records')
+    return
 
 if __name__ == "__main__":
     main()
