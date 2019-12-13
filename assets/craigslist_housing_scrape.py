@@ -27,10 +27,8 @@ logger.addHandler(handler)
 logger.addHandler(fhandler)
 logger.setLevel(logging.INFO)
 
-proxies = {'http': 'http://open.proxymesh.com:31280',
-           'https': 'http://open.proxymesh.com:31280'}
+proxies = {"http": "http://{}:@proxy.crawlera.com:8010/".format(os.environ["CRAWLERA_API_KEY"]}
 proxy_handler = urllib.request.ProxyHandler(proxies)
-
 
 
 def parse_divs(html_soup):
@@ -97,6 +95,7 @@ def accumulate_feeds(rssurl_base):
     for offset in [25*x for x in range(0,8)]:
         # All houses posted today in sfbay
         rssurl = '{0}&s={1}'.format(rssurl_base,offset)
+        #posts = feedparser.parse(rssurl)
         posts = feedparser.parse(rssurl, handlers=[proxy_handler])
         print(posts)
         if posts.status != 200:
@@ -136,7 +135,7 @@ def main():
             dics = []
             for post in posts.entries:
                 url = post.links[0].href
-                time.sleep(random.choice([0,20]))
+                #time.sleep(random.choice([0,20]))
                 response = requests.get(url, proxies=proxies)
                 if response.status_code != 200:
                     logger.warning('failed URL: {}; Status code: {}'.format(url, response.status_code))
