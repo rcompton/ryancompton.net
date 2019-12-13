@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+import os
+import boto
 import datetime
 import feedparser
 import logging
@@ -8,6 +10,8 @@ import pandas as pd
 import random
 import requests
 import time
+import json
+import urllib
 
 from bs4 import BeautifulSoup
 
@@ -16,12 +20,17 @@ DATE_FORMAT = '%b %d %H:%M:%S'
 formatter = logging.Formatter(fmt=FORMAT, datefmt=DATE_FORMAT)
 handler = logging.StreamHandler()
 handler.setFormatter(formatter)
-fhandler = logging.FileHandler('/home/rycpt/craigslist-data/log2.log')
+fhandler = logging.FileHandler(os.path.join(os.environ['HOME'],'craigslist-data/log.log'))
 fhandler.setFormatter(formatter)
 logger = logging.getLogger(__name__)
 logger.addHandler(handler)
 logger.addHandler(fhandler)
 logger.setLevel(logging.INFO)
+
+proxies = {'http': 'http://open.proxymesh.com:31280',
+           'https': 'http://open.proxymesh.com:31280'}
+proxy_handler = urllib.request.ProxyHandler(proxies)
+
 
 
 def parse_divs(html_soup):
@@ -88,7 +97,8 @@ def accumulate_feeds(rssurl_base):
     for offset in [25*x for x in range(0,8)]:
         # All houses posted today in sfbay
         rssurl = '{0}&s={1}'.format(rssurl_base,offset)
-        posts = feedparser.parse(rssurl)
+        posts = feedparser.parse(rssurl, handlers=[proxy_handler])
+        print(posts)
         if posts.status != 200:
             logger.error('feedparser failed: {}; status: '.format(rssurl, posts.status))
             return
@@ -99,6 +109,12 @@ def accumulate_feeds(rssurl_base):
             break
     return postss
 
+def writes3(dics):
+    outstr = '\n'.join([json.dumps(dic) for dic in dics])
+    s3 = boto3.resource('s3')
+    s3object = s3.Object('rycpt-crawls', 'craigslist-housing/{}.json'.format(datetime.datetime.now().isoformat()))
+    s3object.put(Body=(bytes(json.dumps(json_data).encode('UTF-8'))))
+    return
 
 def main():
     rssurls = [
@@ -116,23 +132,23 @@ def main():
     for rssurl in rssurls:
         postss = accumulate_feeds(rssurl)
         # Iterate through the listings and get what you can.
-        dics = []
         for posts in postss:
+            dics = []
             for post in posts.entries:
                 url = post.links[0].href
                 time.sleep(random.choice([0,20]))
-                response = requests.get(url)
+                response = requests.get(url, proxies=proxies)
                 if response.status_code != 200:
                     logger.warning('failed URL: {}; Status code: {}'.format(url, response.status_code))
                     continue
                 html_soup = BeautifulSoup(response.text, features='html.parser')
-                dics.append(parse_page(html_soup))
+                dic = parse_page(html_soup)
+                dic['crawl_date'] = datetime.datetime.now().isoformat()
+                dics.append(dic)
                 logger.info('fetched URL: {}; successes: {}'.format(url, len(dics)))
-                #if len(dics) > 1:
-                #    break
-            df = pd.DataFrame(dics)
-            df['date'] = datetime.datetime.now().isoformat()
-            df.to_json('/home/rycpt/craigslist-data/{}.json'.format(datetime.datetime.now().isoformat()), orient='records')
+            writes3(dics)
+            #df = pd.DataFrame(dics)
+            #df.to_json('/home/rycpt/craigslist-data/{}.json'.format(datetime.datetime.now().isoformat()), orient='records')
     return
 
 if __name__ == "__main__":
