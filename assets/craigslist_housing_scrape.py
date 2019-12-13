@@ -27,7 +27,7 @@ logger.addHandler(handler)
 logger.addHandler(fhandler)
 logger.setLevel(logging.INFO)
 
-proxies = {"http": "http://{}:@proxy.crawlera.com:8010/".format(os.environ["CRAWLERA_API_KEY"]}
+proxies = {"http": "http://{}:@proxy.crawlera.com:8010/".format(os.environ["CRAWLERA_API_KEY"])}
 proxy_handler = urllib.request.ProxyHandler(proxies)
 
 
@@ -95,11 +95,9 @@ def accumulate_feeds(rssurl_base):
     for offset in [25*x for x in range(0,8)]:
         # All houses posted today in sfbay
         rssurl = '{0}&s={1}'.format(rssurl_base,offset)
-        #posts = feedparser.parse(rssurl)
         posts = feedparser.parse(rssurl, handlers=[proxy_handler])
-        print(posts)
         if posts.status != 200:
-            logger.error('feedparser failed: {}; status: '.format(rssurl, posts.status))
+            logger.error('feedparser failed: {}; status: '.format(rssurl, posts))
             return
         postss.append(posts)
         logger.info('feed URL: {}; hits: {}'.format(rssurl, len(posts.entries)))
