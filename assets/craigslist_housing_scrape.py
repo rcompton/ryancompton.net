@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 logger.addHandler(handler)
 logger.addHandler(fhandler)
 logger.setLevel(logging.INFO)
+logger.info("starting new scrape!")
 
 proxies = {"http": "http://{}:@proxy.crawlera.com:8010/".format(os.environ["CRAWLERA_API_KEY"])}
 proxy_handler = urllib.request.ProxyHandler(proxies)
