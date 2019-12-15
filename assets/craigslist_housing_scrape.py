@@ -237,7 +237,7 @@ def main():
 
 
 
-    for city in texas_cities:
+    for city in texas_cities + california_cities:
         posts = accumulate_posts(city)
         dics = []
         logger.info("fetching {0} posts for {1}".format(len(posts), city))
