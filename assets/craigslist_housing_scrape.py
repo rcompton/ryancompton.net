@@ -2,11 +2,12 @@
 # coding: utf-8
 
 import os
-import boto
+import boto3
 import datetime
 import feedparser
 import logging
 import pandas as pd
+import numpy as np
 import random
 import requests
 import time
@@ -29,6 +30,7 @@ logger.setLevel(logging.INFO)
 
 proxies = {"http": "http://{}:@proxy.crawlera.com:8010/".format(os.environ["CRAWLERA_API_KEY"])}
 proxy_handler = urllib.request.ProxyHandler(proxies)
+
 
 
 def parse_divs(html_soup):
@@ -89,63 +91,173 @@ def parse_page(html_soup):
             **parse_spans(html_soup),
             **parse_text(html_soup)}
 
-def accumulate_feeds(rssurl_base):
-    # Accumulate the day's feeds.
-    postss = []
-    for offset in [25*x for x in range(0,8)]:
+def accumulate_posts(city):
+    # Accumulate the day's posts.
+    posts = []
+    for offset in [120*x for x in range(0,3)]:
         # All houses posted today in sfbay
-        rssurl = '{0}&s={1}'.format(rssurl_base,offset)
-        posts = feedparser.parse(rssurl, handlers=[proxy_handler])
-        if posts.status != 200:
-            logger.error('feedparser failed: {}; status: '.format(rssurl, posts))
-            return
-        postss.append(posts)
-        logger.info('feed URL: {}; hits: {}'.format(rssurl, len(posts.entries)))
-        hits = len(posts.entries)
-        if hits < 25:
+        search_url = make_search_url(city,offset)
+        logger.info('search_url: {}'.format(search_url))
+        r = requests.get(search_url, proxies=proxies)
+        if r.status_code != requests.codes.ok:
+            logger.error('search parse failed: {}; status: {}'.format(search_url, r))
+            return posts
+        #parse search result html
+        dics = parse_search_html(r)
+        logger.info('feed URL: {}; hits: {}'.format(search_url, len(dics)))
+        posts.extend(dics)
+        if len(dics) < 120:
             break
-    return postss
+    return posts
 
-def writes3(dics):
+def writes3(city, dics):
     outstr = '\n'.join([json.dumps(dic) for dic in dics])
     s3 = boto3.resource('s3')
-    s3object = s3.Object('rycpt-crawls', 'craigslist-housing/{}.json'.format(datetime.datetime.now().isoformat()))
-    s3object.put(Body=(bytes(json.dumps(json_data).encode('UTF-8'))))
+    s3object = s3.Object('rycpt-crawls', 'craigslist-housing/{0}_{1}.json'.format(city, datetime.datetime.now().isoformat()))
+    s3object.put(Body=(bytes(outstr.encode('UTF-8'))))
     return
 
+def make_search_url(city, offset=0):
+    surl = 'https://{}.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates'.format(city)
+    if offset:
+        surl = '{0}&s={1}'.format(surl, offset)
+    return surl
+
+def parse_search_html(r):
+    #parse search result response
+    feed_soup = BeautifulSoup(r.text,'html.parser')
+    posts = feed_soup.find_all('li', class_= 'result-row')
+    #extract data item-wise
+    dics = []
+    for post in posts:
+        #import ipdb;ipdb.set_trace()
+        dic = {}
+        if post.find('span', class_ = 'result-hood') is not None:
+            #posting date
+            #grab the datetime element 0 for date and 1 for time
+            dic['post_datetime'] = post.find('time', class_= 'result-date')['datetime']
+            #neighborhoods
+            dic['post_hood'] = post.find('span', class_= 'result-hood').text
+            #title text
+            post_title = post.find('a', class_='result-title hdrlnk')
+            dic['post_title_text'] = post_title.text
+            #post link
+            dic['post_link'] = post_title['href']
+            #removes the \n whitespace from each side, removes the currency symbol, and turns it into an int
+            try:
+                dic['post_price'] = int(post.a.text.strip().replace("$", ""))
+            except:
+                logger.info("no price: {}".format(post.a.text))
+                dic['post_price'] = np.nan
+            if post.find('span', class_ = 'housing') is not None:
+                #if the first element is accidentally square footage
+                if 'ft2' in post.find('span', class_ = 'housing').text.split()[0]:
+                    #make bedroom nan
+                    dic['post_bedroom_count'] = np.nan
+                    #make sqft the first element
+                    dic['post_sqft'] = int(post.find('span', class_ = 'housing').text.split()[0][:-3])
+                #if the length of the housing details element is more than 2
+                elif len(post.find('span', class_ = 'housing').text.split()) > 2:
+                    #therefore element 0 will be bedroom count
+                    dic['post_bedroom_count'] = post.find('span', class_ = 'housing').text.replace("br", "").split()[0]
+                    #and sqft will be number 3, so set these here and append
+                    dic['post_sqft'] = int(post.find('span', class_ = 'housing').text.split()[2][:-3])
+                #if there is num bedrooms but no sqft
+                elif len(post.find('span', class_ = 'housing').text.split()) == 2:
+                    #therefore element 0 will be bedroom count
+                    dic['post_bedroom_count'] = post.find('span', class_ = 'housing').text.replace("br", "").split()[0]
+                    #and sqft will be number 3, so set these here and append
+                    dic['post_sqft'] = np.nan
+                else:
+                    dic['post_bedroom_count'] = np.nan
+                    dic['post_sqft'] = np.nan
+        dics.append(dic)
+    return dics
+
 def main():
-    rssurls = [
-               'https://chico.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates&format=rss',
-               'https://miami.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates&format=rss',
-               'https://sfbay.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates&format=rss',
-               'https://losangeles.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates&format=rss',
-               'https://austin.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates&format=rss',
-               'https://seattle.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates&format=rss',
-               'https://chicago.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates&format=rss',
-               'https://portland.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates&format=rss',
-               'https://humboldt.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates&format=rss',
-               'https://fresno.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates&format=rss',
-              ]
-    for rssurl in rssurls:
-        postss = accumulate_feeds(rssurl)
-        # Iterate through the listings and get what you can.
-        for posts in postss:
-            dics = []
-            for post in posts.entries:
-                url = post.links[0].href
-                #time.sleep(random.choice([0,20]))
-                response = requests.get(url, proxies=proxies)
-                if response.status_code != 200:
-                    logger.warning('failed URL: {}; Status code: {}'.format(url, response.status_code))
-                    continue
-                html_soup = BeautifulSoup(response.text, features='html.parser')
-                dic = parse_page(html_soup)
-                dic['crawl_date'] = datetime.datetime.now().isoformat()
-                dics.append(dic)
-                logger.info('fetched URL: {}; successes: {}'.format(url, len(dics)))
-            writes3(dics)
-            #df = pd.DataFrame(dics)
-            #df.to_json('/home/rycpt/craigslist-data/{}.json'.format(datetime.datetime.now().isoformat()), orient='records')
+    california_cities = [
+                        'bakersfield',
+                        'chico',
+                        'fresno',
+                        'goldcountry',
+                        'hanford',
+                        'humboldt',
+                        'imperial',
+                        'inlandempire',
+                        'losangeles',
+                        'mendocino',
+                        'merced',
+                        'modesto',
+                        'monterey',
+                        'orangecounty',
+                        'palmsprings',
+                        'redding',
+                        'sacramento',
+                        'sandiego',
+                        'sfbay',
+                        'slo',
+                        'santabarbara',
+                        'santamaria',
+                        'siskiyou',
+                        'stockton',
+                        'susanville',
+                        'ventura',
+                        'visalia',
+                        'yubasutter',
+                        ]
+    texas_cities = [
+                   'abilene',
+                   'amarillo',
+                   'austin',
+                   'beaumont',
+                   'brownsville',
+                   'collegestation',
+                   'corpuschristi',
+                   'dallas',
+                   'nacogdoches',
+                   'delrio',
+                   'elpaso',
+                   'galveston',
+                   'houston',
+                   'killeen',
+                   'laredo',
+                   'lubbock',
+                   'mcallen',
+                   'odessa',
+                   'sanangelo',
+                   'sanantonio',
+                   'sanmarcos',
+                   'bigbend',
+                   'texoma',
+                   'easttexas',
+                   'victoriatx',
+                   'waco',
+                   'wichitafalls',
+                    ]
+
+
+
+    for city in texas_cities:
+        posts = accumulate_posts(city)
+        dics = []
+        logger.info("fetching {0} posts for {1}".format(len(posts), city))
+        no_links = 0
+        for post in posts:
+            if 'post_link' not in post:
+                no_links += 1
+                continue
+            r = requests.get(post['post_link'], proxies=proxies)
+            if r.status_code != requests.codes.ok:
+                logger.error('search parse failed: {}; status: {}'.format(search_url, r))
+                continue
+            html_soup = BeautifulSoup(r.text, features='html.parser')
+            dic = parse_page(html_soup)
+            dic['crawl_date'] = datetime.datetime.now().isoformat()
+            dic = {**dic, **post}
+            dics.append(dic)
+            logger.info('fetched URL: {}; successes: {}'.format(post['post_link'], len(dics)))
+        logger.info("no link counter: {}".format(no_links))
+        writes3(city, dics)
     return
 
 if __name__ == "__main__":
