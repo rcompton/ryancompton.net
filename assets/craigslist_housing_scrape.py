@@ -4,15 +4,12 @@
 import os
 import boto3
 import datetime
-import feedparser
 import logging
-import pandas as pd
 import numpy as np
 import random
 import requests
 import time
 import json
-import urllib
 
 from bs4 import BeautifulSoup
 
@@ -29,9 +26,10 @@ logger.addHandler(fhandler)
 logger.setLevel(logging.INFO)
 logger.info("starting new scrape!")
 
-proxies = {"http": "http://{}:@proxy.crawlera.com:8010/".format(os.environ["CRAWLERA_API_KEY"])}
-proxy_handler = urllib.request.ProxyHandler(proxies)
-
+proxies = {
+        "http": "http://{}:@proxy.crawlera.com:8010/".format(os.environ["CRAWLERA_API_KEY"]),
+        "https": "https://{}:@proxy.crawlera.com:8010/".format(os.environ["CRAWLERA_API_KEY"])
+        }
 
 
 def parse_divs(html_soup):
@@ -99,7 +97,7 @@ def accumulate_posts(city):
         # All houses posted today in sfbay
         search_url = make_search_url(city,offset)
         logger.info('search_url: {}'.format(search_url))
-        r = requests.get(search_url, proxies=proxies)
+        r = requests.get(search_url, proxies=proxies, verify=False)
         if r.status_code != requests.codes.ok:
             logger.error('search parse failed: {}; status: {}'.format(search_url, r))
             return posts
@@ -247,7 +245,7 @@ def main():
             if 'post_link' not in post:
                 no_links += 1
                 continue
-            r = requests.get(post['post_link'], proxies=proxies)
+            r = requests.get(post['post_link'], proxies=proxies, verify=False)
             if r.status_code != requests.codes.ok:
                 logger.error('search parse failed: {}; status: {}'.format(search_url, r))
                 continue
