@@ -53,8 +53,6 @@ def parse_spans(html_soup):
         dic['price'] = span.text
     for span in html_soup.find_all('span', class_='housing'):
         dic['housing'] = span.text
-    for span in html_soup.find_all('span', class_='hxxousing'):
-        dic['housing'] = span.text
     return dic
 
 
@@ -109,10 +107,10 @@ def accumulate_posts(city):
             break
     return posts
 
-def writes3(city, dics):
+def writes3(dics):
     outstr = '\n'.join([json.dumps(dic) for dic in dics])
     s3 = boto3.resource('s3')
-    s3object = s3.Object('rycpt-crawls', 'craigslist-housing/{0}_{1}.json'.format(city, datetime.datetime.now().isoformat()))
+    s3object = s3.Object('rycpt-crawls', 'craigslist-housing/{0}.json'.format(datetime.datetime.now().isoformat()))
     s3object.put(Body=(bytes(outstr.encode('UTF-8'))))
     return
 
@@ -234,11 +232,9 @@ def main():
                    'wichitafalls',
                     ]
 
-
-
+    dics = []
     for city in texas_cities + california_cities:
         posts = accumulate_posts(city)
-        dics = []
         logger.info("fetching {0} posts for {1}".format(len(posts), city))
         no_links = 0
         for post in posts:
@@ -256,7 +252,7 @@ def main():
             dics.append(dic)
             logger.info('fetched URL: {}; successes: {}'.format(post['post_link'], len(dics)))
         logger.info("no link counter: {}".format(no_links))
-        writes3(city, dics)
+    writes3(dics)
     return
 
 if __name__ == "__main__":
