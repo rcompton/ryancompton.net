@@ -10,8 +10,14 @@ import random
 import requests
 import time
 import json
+import urllib
+import geocoder
 
 from bs4 import BeautifulSoup
+from urllib3.exceptions import InsecureRequestWarning
+
+# Suppress only the single warning from urllib3 needed.
+requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
 FORMAT = '%(asctime)-15s %(levelname)-6s %(message)s'
 DATE_FORMAT = '%b %d %H:%M:%S'
@@ -30,6 +36,8 @@ proxies = {
         "http": "http://{}:@proxy.crawlera.com:8010/".format(os.environ["CRAWLERA_API_KEY"]),
         "https": "https://{}:@proxy.crawlera.com:8010/".format(os.environ["CRAWLERA_API_KEY"])
         }
+
+GOOGLE_MAPS_API_KEY = os.environ["GOOGLE_MAPS_API_KEY"]
 
 
 def parse_divs(html_soup):
@@ -171,6 +179,120 @@ def parse_search_html(r):
         dics.append(dic)
     return dics
 
+def is_rf_eligible(dic):
+    data_accuracy = dic.get('data_accuracy')
+    if not data_accuracy:
+        return False
+    if int(data_accuracy) > 10:
+        return False
+    if not dic.get('post_price'):
+        return False
+    if dic.get('mapaddress') and dic.get('post_hood') and dic.get('geo.region'):
+        return True
+
+
+def geocode(mapaddress, geo_region, post_hood, min_confidence=9, mykey=GOOGLE_MAPS_API_KEY):
+    post_hood = post_hood.replace('(','').replace(')','')
+    q = '{0} {1} {2}'.format(mapaddress, geo_region, post_hood)
+    g = geocoder.google(q, key=mykey)
+    logger.info("google address: {0}, confidence: {1}".format(g.address, g.confidence))
+    if(g.confidence >= min_confidence):
+        return g.address
+
+def mangle_encode_address(address):
+    mangled = address.replace(',','')
+    return urllib.parse.quote(mangled)
+
+def get_redfin_url(address):
+    mangled_address = mangle_encode_address(address)
+    autocomplete_url = 'https://www.redfin.com/stingray/do/location-autocomplete?location={0}&count=10&v=2'.format(mangled_address)
+    headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'}
+    r = requests.get(autocomplete_url, headers=headers)
+   # , proxies=proxies, verify=False)
+    if(r.status_code != 200):
+        logger.info("rf url fail: {0} {1} {2}".format(r.status_code, r.headers, autocomplete_url))
+        return
+    else:
+        try:
+            dic = json.loads(r.content.decode().split('&&')[-1])
+            if 'payload' in dic:
+                payload = dic['payload']
+            else:
+                logger.warning('payload absent: {0}'.format(dic))
+            if 'exactMatch' in payload:
+                match = payload['exactMatch']
+                return {'rf_id':match['id'],
+                        'rf_type':match['type'],
+                        'rf_url':urllib.parse.urljoin('https://www.redfin.com',match['url'])}
+            else:
+                logger.warning("rf payload no exactMatch fail: {0}".format(payload))
+        except:
+            logger.warning("rf content parse fail: {0}".format(r.content))
+
+def extract_tax(rf_soup):
+    for tag in rf_soup.find_all('div', class_='tax-record'):
+        rdics = []
+        for row in tag.find_all('tr'):
+            cols = row.find_all('td')
+            if(len(cols)==2):
+                rdic = {}
+                rdic['rf_tax_year'] = cols[0].text
+                rdic['rf_tax_paid'] = cols[1].text
+                rdics.append(rdic)
+    return rdics
+
+def extract_basic_info(rf_soup):
+    basic_info = rf_soup.find('div', class_='basic-info')
+    facts_table = basic_info.find('div', class_='facts-table')
+    fdic = {}
+    for row in facts_table.find_all('div', class_='table-row'):
+        fdic['rf_'+row.find('span',class_='table-label').text] = row.find('div',class_='table-value').text
+    return fdic
+
+def extract_taxable_value(rf_soup):
+    tax_val = rf_soup.find('div', class_='taxable-value')
+    tax_table = tax_val.find('div', class_='tax-table').find('table')
+    dic = {}
+    for row in tax_table.find_all('tr'):
+        dic['rf_'+row.find('td',class_='heading').text] = row.find('td', class_='value').text
+    return dic
+
+def parse_rf(rf_soup):
+    try:
+        tax = extract_tax(rf_soup)
+    except:
+        logger.warning("rf tax parse fail: {0}".format(tax))
+    try:
+        basic_info = extract_basic_info(rf_soup)
+    except:
+        logger.warning("rf basic_info parse fail: {0}".format(basic_info))
+    try:
+        taxable_value = extract_taxable_value(rf_soup)
+    except:
+        logger.warning("rf taxable_value parse fail: {0}".format(taxable_value))
+    return {'rf_tax_history':tax, **basic_info, **taxable_value}
+
+def tax_join(mapaddress, geo_region, post_hood):
+    output = {}
+    address = geocode(mapaddress, geo_region, post_hood)
+    if not address:
+        return
+    output['clean_address'] = address
+    rf_url = get_redfin_url(address)
+    if not rf_url:
+        return output
+    output = {**output, **rf_url}
+    headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'}
+    r = requests.get(rf_url['rf_url'], headers=headers, proxies=proxies, verify=False)
+    rf_soup = BeautifulSoup(r.text,'html.parser')
+    parsed_rf = parse_rf(rf_soup)
+    if not parsed_rf:
+        return output
+    output = {**output, **parsed_rf}
+    output['rf_soup_content'] = rf_soup.content
+    return output
+
+
 def main():
     california_cities = [
                         'bakersfield',
@@ -234,6 +356,7 @@ def main():
 
     dics = []
     for city in texas_cities + california_cities:
+        city = 'miami'
         posts = accumulate_posts(city)
         logger.info("fetching {0} posts for {1}".format(len(posts), city))
         no_links = 0
@@ -249,6 +372,16 @@ def main():
             dic = parse_page(html_soup)
             dic['crawl_date'] = datetime.datetime.now().isoformat()
             dic = {**dic, **post}
+            # rf join
+            if is_rf_eligible(dic):
+                logger.info("starting rf join for: {0}".format(dic['og:url']))
+                rf_data = tax_join(dic['mapaddress'], dic['geo.region'], dic['post_hood'])
+                if rf_data:
+                    logger.info("rf join success!")
+                    print(rf_data)
+                    dic = {**dic, **rf_data}
+            else:
+                logger.info("not eligible: {0}".format({k:dic.get(k) for k in ['mapaddress', 'post_hood', 'geo.region', 'data_accuracy']}))
             dics.append(dic)
             logger.info('fetched URL: {}; successes: {}'.format(post['post_link'], len(dics)))
         logger.info("no link counter: {}".format(no_links))
