@@ -377,7 +377,6 @@ def main():
                 rf_data = tax_join(dic['mapaddress'], dic['geo.region'], dic['post_hood'])
                 if rf_data:
                     logger.info("rf join success!")
-                    print(rf_data)
                     dic = {**dic, **rf_data}
             else:
                 logger.info("not eligible: {0}".format({k:dic.get(k) for k in ['mapaddress', 'post_hood', 'geo.region', 'data_accuracy']}))
