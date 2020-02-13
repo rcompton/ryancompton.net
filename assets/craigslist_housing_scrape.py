@@ -24,7 +24,10 @@ DATE_FORMAT = '%b %d %H:%M:%S'
 formatter = logging.Formatter(fmt=FORMAT, datefmt=DATE_FORMAT)
 handler = logging.StreamHandler()
 handler.setFormatter(formatter)
-fhandler = logging.FileHandler(os.path.join(os.environ['HOME'],'craigslist-data/log.log'))
+fhandler = logging.FileHandler(
+    os.path.join(
+        os.environ['HOME'],
+        'craigslist-data/log.log'))
 fhandler.setFormatter(formatter)
 logger = logging.getLogger(__name__)
 logger.addHandler(handler)
@@ -33,9 +36,9 @@ logger.setLevel(logging.INFO)
 logger.info("starting new scrape!")
 
 proxies = {
-        "http": "http://{}:@proxy.crawlera.com:8010/".format(os.environ["CRAWLERA_API_KEY"]),
-        "https": "https://{}:@proxy.crawlera.com:8010/".format(os.environ["CRAWLERA_API_KEY"])
-        }
+    "http": "http://{}:@proxy.crawlera.com:8010/".format(os.environ["CRAWLERA_API_KEY"]),
+    "https": "https://{}:@proxy.crawlera.com:8010/".format(os.environ["CRAWLERA_API_KEY"])
+}
 
 GOOGLE_MAPS_API_KEY = os.environ["GOOGLE_MAPS_API_KEY"]
 
@@ -87,7 +90,7 @@ def parse_metas(html_soup):
 
 
 def parse_text(html_soup):
-    return {'text':html_soup.get_text()}
+    return {'text': html_soup.get_text()}
 
 
 def parse_page(html_soup):
@@ -96,18 +99,21 @@ def parse_page(html_soup):
             **parse_spans(html_soup),
             **parse_text(html_soup)}
 
+
 def accumulate_posts(city):
     # Accumulate the day's posts.
     posts = []
-    for offset in [120*x for x in range(0,3)]:
+    for offset in [120 * x for x in range(0, 3)]:
         # All houses posted today in sfbay
-        search_url = make_search_url(city,offset)
+        search_url = make_search_url(city, offset)
         logger.info('search_url: {}'.format(search_url))
         r = requests.get(search_url, proxies=proxies, verify=False)
         if r.status_code != requests.codes.ok:
-            logger.error('search parse failed: {}; status: {}'.format(search_url, r))
+            logger.error(
+                'search parse failed: {}; status: {}'.format(
+                    search_url, r))
             return posts
-        #parse search result html
+        # parse search result html
         dics = parse_search_html(r)
         logger.info('feed URL: {}; hits: {}'.format(search_url, len(dics)))
         posts.extend(dics)
@@ -115,71 +121,86 @@ def accumulate_posts(city):
             break
     return posts
 
+
 def writes3(dics):
     outstr = '\n'.join([json.dumps(dic) for dic in dics])
-    fname = 'craigslist-housing/{0}.json'.format(datetime.datetime.now().isoformat())
+    fname = 'craigslist-housing/{0}.json'.format(
+        datetime.datetime.now().isoformat())
     logger.info("writing: {}".format(fname))
     s3 = boto3.resource('s3')
     s3object = s3.Object('rycpt-crawls', fname)
     s3object.put(Body=(bytes(outstr.encode('UTF-8'))))
     return
 
+
 def make_search_url(city, offset=0):
-    surl = 'https://{}.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates'.format(city)
+    surl = 'https://{}.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates'.format(
+        city)
     if offset:
         surl = '{0}&s={1}'.format(surl, offset)
     return surl
 
+
 def parse_search_html(r):
-    #parse search result response
-    feed_soup = BeautifulSoup(r.text,'html.parser')
-    posts = feed_soup.find_all('li', class_= 'result-row')
-    #extract data item-wise
+    # parse search result response
+    feed_soup = BeautifulSoup(r.text, 'html.parser')
+    posts = feed_soup.find_all('li', class_='result-row')
+    # extract data item-wise
     dics = []
     for post in posts:
         #import ipdb;ipdb.set_trace()
         dic = {}
-        if post.find('span', class_ = 'result-hood') is not None:
-            #posting date
-            #grab the datetime element 0 for date and 1 for time
-            dic['post_datetime'] = post.find('time', class_= 'result-date')['datetime']
-            #neighborhoods
-            dic['post_hood'] = post.find('span', class_= 'result-hood').text
-            #title text
+        if post.find('span', class_='result-hood') is not None:
+            # posting date
+            # grab the datetime element 0 for date and 1 for time
+            dic['post_datetime'] = post.find(
+                'time', class_='result-date')['datetime']
+            # neighborhoods
+            dic['post_hood'] = post.find('span', class_='result-hood').text
+            # title text
             post_title = post.find('a', class_='result-title hdrlnk')
             dic['post_title_text'] = post_title.text
-            #post link
+            # post link
             dic['post_link'] = post_title['href']
-            #removes the \n whitespace from each side, removes the currency symbol, and turns it into an int
+            # removes the \n whitespace from each side, removes the currency
+            # symbol, and turns it into an int
             try:
                 dic['post_price'] = int(post.a.text.strip().replace("$", ""))
-            except:
+            except BaseException:
                 logger.info("no price: {}".format(post.a.text))
                 dic['post_price'] = np.nan
-            if post.find('span', class_ = 'housing') is not None:
-                #if the first element is accidentally square footage
-                if 'ft2' in post.find('span', class_ = 'housing').text.split()[0]:
-                    #make bedroom nan
+            if post.find('span', class_='housing') is not None:
+                # if the first element is accidentally square footage
+                if 'ft2' in post.find(
+                        'span', class_='housing').text.split()[0]:
+                    # make bedroom nan
                     dic['post_bedroom_count'] = np.nan
-                    #make sqft the first element
-                    dic['post_sqft'] = int(post.find('span', class_ = 'housing').text.split()[0][:-3])
-                #if the length of the housing details element is more than 2
-                elif len(post.find('span', class_ = 'housing').text.split()) > 2:
-                    #therefore element 0 will be bedroom count
-                    dic['post_bedroom_count'] = post.find('span', class_ = 'housing').text.replace("br", "").split()[0]
-                    #and sqft will be number 3, so set these here and append
-                    dic['post_sqft'] = int(post.find('span', class_ = 'housing').text.split()[2][:-3])
-                #if there is num bedrooms but no sqft
-                elif len(post.find('span', class_ = 'housing').text.split()) == 2:
-                    #therefore element 0 will be bedroom count
-                    dic['post_bedroom_count'] = post.find('span', class_ = 'housing').text.replace("br", "").split()[0]
-                    #and sqft will be number 3, so set these here and append
+                    # make sqft the first element
+                    dic['post_sqft'] = int(
+                        post.find('span', class_='housing').text.split()[0][:-3])
+                # if the length of the housing details element is more than 2
+                elif len(post.find('span', class_='housing').text.split()) > 2:
+                    # therefore element 0 will be bedroom count
+                    dic['post_bedroom_count'] = post.find(
+                        'span', class_='housing').text.replace(
+                        "br", "").split()[0]
+                    # and sqft will be number 3, so set these here and append
+                    dic['post_sqft'] = int(
+                        post.find('span', class_='housing').text.split()[2][:-3])
+                # if there is num bedrooms but no sqft
+                elif len(post.find('span', class_='housing').text.split()) == 2:
+                    # therefore element 0 will be bedroom count
+                    dic['post_bedroom_count'] = post.find(
+                        'span', class_='housing').text.replace(
+                        "br", "").split()[0]
+                    # and sqft will be number 3, so set these here and append
                     dic['post_sqft'] = np.nan
                 else:
                     dic['post_bedroom_count'] = np.nan
                     dic['post_sqft'] = np.nan
         dics.append(dic)
     return dics
+
 
 def is_rf_eligible(dic):
     data_accuracy = dic.get('data_accuracy')
@@ -189,30 +210,42 @@ def is_rf_eligible(dic):
         return False
     if not dic.get('post_price'):
         return False
-    if dic.get('mapaddress') and dic.get('post_hood') and dic.get('geo.region'):
+    if dic.get('mapaddress') and dic.get(
+            'post_hood') and dic.get('geo.region'):
         return True
 
 
-def geocode(mapaddress, geo_region, post_hood, min_confidence=9, mykey=GOOGLE_MAPS_API_KEY):
-    post_hood = post_hood.replace('(','').replace(')','')
+def geocode(mapaddress, geo_region, post_hood,
+            min_confidence=9, mykey=GOOGLE_MAPS_API_KEY):
+    post_hood = post_hood.replace('(', '').replace(')', '')
     q = '{0} {1} {2}'.format(mapaddress, geo_region, post_hood)
     g = geocoder.google(q, key=mykey)
-    logger.info("google address: {0}, confidence: {1}".format(g.address, g.confidence))
+    logger.info(
+        "google address: {0}, confidence: {1}".format(
+            g.address, g.confidence))
     if(g.confidence >= min_confidence):
         return g.address
 
+
 def mangle_encode_address(address):
-    mangled = address.replace(',','')
+    mangled = address.replace(',', '')
     return urllib.parse.quote(mangled)
+
 
 def get_redfin_url(address):
     mangled_address = mangle_encode_address(address)
-    autocomplete_url = 'https://www.redfin.com/stingray/do/location-autocomplete?location={0}&count=10&v=2'.format(mangled_address)
-    headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'}
+    autocomplete_url = 'https://www.redfin.com/stingray/do/location-autocomplete?location={0}&count=10&v=2'.format(
+        mangled_address)
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'}
     r = requests.get(autocomplete_url, headers=headers)
    # , proxies=proxies, verify=False)
     if(r.status_code != 200):
-        logger.info("rf url fail: {0} {1} {2}".format(r.status_code, r.headers, autocomplete_url))
+        logger.info(
+            "rf url fail: {0} {1} {2}".format(
+                r.status_code,
+                r.headers,
+                autocomplete_url))
         return
     else:
         try:
@@ -223,56 +256,67 @@ def get_redfin_url(address):
                 logger.warning('payload absent: {0}'.format(dic))
             if 'exactMatch' in payload:
                 match = payload['exactMatch']
-                return {'rf_id':match['id'],
-                        'rf_type':match['type'],
-                        'rf_url':urllib.parse.urljoin('https://www.redfin.com',match['url'])}
+                return {'rf_id': match['id'],
+                        'rf_type': match['type'],
+                        'rf_url': urllib.parse.urljoin('https://www.redfin.com', match['url'])}
             else:
-                logger.warning("rf payload no exactMatch fail: {0}".format(payload))
-        except:
+                logger.warning(
+                    "rf payload no exactMatch fail: {0}".format(payload))
+        except BaseException:
             logger.warning("rf content parse fail: {0}".format(r.content))
+
 
 def extract_tax(rf_soup):
     for tag in rf_soup.find_all('div', class_='tax-record'):
         rdics = []
         for row in tag.find_all('tr'):
             cols = row.find_all('td')
-            if(len(cols)==2):
+            if(len(cols) == 2):
                 rdic = {}
                 rdic['rf_tax_year'] = cols[0].text
                 rdic['rf_tax_paid'] = cols[1].text
                 rdics.append(rdic)
     return rdics
 
+
 def extract_basic_info(rf_soup):
     basic_info = rf_soup.find('div', class_='basic-info')
     facts_table = basic_info.find('div', class_='facts-table')
     fdic = {}
     for row in facts_table.find_all('div', class_='table-row'):
-        fdic['rf_'+row.find('span',class_='table-label').text] = row.find('div',class_='table-value').text
+        fdic['rf_' + row.find('span',
+                              class_='table-label').text] = row.find('div',
+                                                                     class_='table-value').text
     return fdic
+
 
 def extract_taxable_value(rf_soup):
     tax_val = rf_soup.find('div', class_='taxable-value')
     tax_table = tax_val.find('div', class_='tax-table').find('table')
     dic = {}
     for row in tax_table.find_all('tr'):
-        dic['rf_'+row.find('td',class_='heading').text] = row.find('td', class_='value').text
+        dic['rf_' + row.find('td',
+                             class_='heading').text] = row.find('td',
+                                                                class_='value').text
     return dic
+
 
 def parse_rf(rf_soup):
     try:
         tax = extract_tax(rf_soup)
-    except:
+    except BaseException:
         logger.warning("rf tax parse fail: {0}".format(tax))
     try:
         basic_info = extract_basic_info(rf_soup)
-    except:
+    except BaseException:
         logger.warning("rf basic_info parse fail: {0}".format(basic_info))
     try:
         taxable_value = extract_taxable_value(rf_soup)
-    except:
-        logger.warning("rf taxable_value parse fail: {0}".format(taxable_value))
-    return {'rf_tax_history':tax, **basic_info, **taxable_value}
+    except BaseException:
+        logger.warning(
+            "rf taxable_value parse fail: {0}".format(taxable_value))
+    return {'rf_tax_history': tax, **basic_info, **taxable_value}
+
 
 def tax_join(mapaddress, geo_region, post_hood):
     output = {}
@@ -284,9 +328,14 @@ def tax_join(mapaddress, geo_region, post_hood):
     if not rf_url:
         return output
     output = {**output, **rf_url}
-    headers = {'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'}
-    r = requests.get(rf_url['rf_url'], headers=headers, proxies=proxies, verify=False)
-    rf_soup = BeautifulSoup(r.text,'html.parser')
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'}
+    r = requests.get(
+        rf_url['rf_url'],
+        headers=headers,
+        proxies=proxies,
+        verify=False)
+    rf_soup = BeautifulSoup(r.text, 'html.parser')
     parsed_rf = parse_rf(rf_soup)
     if not parsed_rf:
         return output
@@ -297,500 +346,7 @@ def tax_join(mapaddress, geo_region, post_hood):
 
 def main():
     cities = [
-            'abilene',
-            'accra',
-            'addisababa',
-            'akroncanton',
-            'albany',
-            'albanyga',
-            'albuquerque',
-            'allentown',
-            'altoona',
-            'amarillo',
-            'ames',
-            'amsterdam',
-            'anchorage',
-            'annapolis',
-            'annarbor',
-            'appleton',
-            'asheville',
-            'ashtabula',
-            'athensga',
-            'athensohio',
-            'atlanta',
-            'auburn',
-            'auckland',
-            'augusta',
-            'austin',
-            'baghdad',
-            'bakersfield',
-            'baltimore',
-            'bangladesh',
-            'batonrouge',
-            'battlecreek',
-            'beaumont',
-            'beirut',
-            'bellingham',
-            'belohorizonte',
-            'bemidji',
-            'bend',
-            'bgky',
-            'bham',
-            'bigbend',
-            'billings',
-            'binghamton',
-            'bismarck',
-            'blacksburg',
-            'bloomington',
-            'bn',
-            'boise',
-            'boone',
-            'bordeaux',
-            'boston',
-    'boulder',
-    'bozeman',
-    'brainerd',
-    'brasilia',
-    'brownsville',
-    'brunswick',
-    'brussels',
-    'bucharest',
-    'budapest',
-    'buenosaires',
-    'buffalo',
-    'bulgaria',
-    'butte',
-    'cairo',
-    'capecod',
-    'caracas',
-    'carbondale',
-    'caribbean',
-    'casablanca',
-    'catskills',
-    'cedarrapids',
-    'cenla',
-    'centralmich',
-    'cfl',
-    'chambana',
-    'chambersburg',
-    'charleston',
-    'charlestonwv',
-    'charlotte',
-    'charlottesville',
-    'chattanooga',
-    'chautauqua',
-    'chicago',
-    'chico',
-    'chillicothe',
-    'christchurch',
-    'cincinnati',
-    'clarksville',
-    'cleveland',
-    'clovis',
-    'cnj',
-    'collegestation',
-    'colombia',
-    'columbia',
-    'columbiamo',
-    'columbus',
-    'columbusga',
-    'cookeville',
-    'copenhagen',
-    'corpuschristi',
-    'corvallis',
-    'cosprings',
-    'costarica',
-    'cotedazur',
-    'csd',
-    'curitiba',
-    'dallas',
-    'danville',
-    'daytona',
-    'dayton',
-    'decatur',
-    'delaware',
-    'delrio',
-    'denver',
-    'desmoines',
-    'detroit',
-    'dothan',
-    'dubai',
-    'dublin',
-    'dubuque',
-    'duluth',
-    'eastco',
-    'easternshore',
-    'eastidaho',
-    'eastky',
-    'eastnc',
-    'eastoregon',
-    'easttexas',
-    'eauclaire',
-    'elko',
-    'elmira',
-    'elpaso',
-    'elsalvador',
-    'enid',
-    'erie',
-    'eugene',
-    'evansville',
-    'fairbanks',
-    'fargo',
-    'farmington',
-    'fayar',
-    'fayetteville',
-    'fingerlakes',
-    'flagstaff',
-    'flint',
-    'florencesc',
-    'fortaleza',
-    'fortcollins',
-    'fortdodge',
-    'fortlauderdale',
-    'fortmyers',
-    'fortsmith',
-    'fortwayne',
-    'forums',
-    'frederick',
-    'fredericksburg',
-    'fresno',
-    'gadsden',
-    'gainesville',
-    'galveston',
-    'glensfalls',
-    'goldcountry',
-    'grandforks',
-    'grandisland',
-    'grandrapids',
-    'greatfalls',
-    'greenbay',
-    'greensboro',
-    'greenville',
-    'grenoble',
-    'guatemala',
-    'gulfport',
-    'haifa',
-    'hanford',
-    'harrisburg',
-    'harrisonburg',
-    'hartford',
-    'hattiesburg',
-    'helena',
-    'hickory',
-    'hiltonhead',
-    'holland',
-    'honolulu',
-    'houma',
-    'houston',
-    'hudsonvalley',
-    'humboldt',
-    'huntington',
-    'huntsville',
-    'imperial',
-    'indianapolis',
-    'inlandempire',
-    'iowacity',
-    'ithaca',
-    'jackson',
-    'jacksontn',
-    'jacksonville',
-    'jakarta',
-    'janesville',
-    'jerseyshore',
-    'jerusalem',
-    'jonesboro',
-    'joplin',
-    'juneau',
-    'jxn',
-    'kalamazoo',
-    'kalispell',
-    'kansascity',
-    'kenai',
-    'kenya',
-    'keys',
-    'killeen',
-    'kirksville',
-    'klamath',
-    'knoxville',
-    'kokomo',
-    'kpr',
-    'ksu',
-    'kuwait',
-    'lacrosse',
-    'lafayette',
-    'lakecharles',
-    'lakecity',
-    'lakeland',
-    'lancaster',
-    'lansing',
-    'lapaz',
-    'laredo',
-    'lasalle',
-    'lascruces',
-    'lasvegas',
-    'lawrence',
-    'lawton',
-    'lewiston',
-    'lexington',
-    'lille',
-    'lima',
-    'limaohio',
-    'lincoln',
-    'littlerock',
-    'logan',
-    'loire',
-    'longisland',
-    'losangeles',
-    'louisville',
-    'loz',
-    'lubbock',
-    'luxembourg',
-    'lynchburg',
-    'lyon',
-    'macon',
-    'madison',
-    'maine',
-    'malaysia',
-    'managua',
-    'mankato',
-    'mansfield',
-    'marseilles',
-    'marshall',
-    'martinsburg',
-    'masoncity',
-    'mattoon',
-    'mcallen',
-    'meadville',
-    'medford',
-    'memphis',
-    'mendocino',
-    'merced',
-    'meridian',
-    'miami',
-    'micronesia',
-    'milwaukee',
-    'minneapolis',
-    'missoula',
-    'mobile',
-    'modesto',
-    'mohave',
-    'monroe',
-    'monroemi',
-    'montana',
-    'monterey',
-    'montevideo',
-    'montgomery',
-    'montpellier',
-    'morgantown',
-    'moscow',
-    'moseslake',
-    'muncie',
-    'muskegon',
-    'myrtlebeach',
-    'nacogdoches',
-    'nashville',
-    'natchez',
-    'nd',
-    'nesd',
-    'newhaven',
-    'newjersey',
-    'newlondon',
-    'neworleans',
-    'newyork',
-    'nh',
-    'nmi',
-    'norfolk',
-    'northernwi',
-    'northmiss',
-    'northplatte',
-    'nwct',
-    'nwga',
-    'nwks',
-    'ocala',
-    'odessa',
-    'ogden',
-    'okaloosa',
-    'oklahomacity',
-    'olympic',
-    'omaha',
-    'oneonta',
-    'onslow',
-    'orangecounty',
-    'oregoncoast',
-    'orlando',
-    'oslo',
-    'ottumwa',
-    'outerbanks',
-    'owensboro',
-    'pakistan',
-    'palmsprings',
-    'panamacity',
-    'panama',
-    'paris',
-    'parkersburg',
-    'pennstate',
-    'pensacola',
-    'peoria',
-    'philadelphia',
-    'phoenix',
-    'pittsburgh',
-    'plattsburgh',
-    'poconos',
-    'porthuron',
-    'portland',
-    'portoalegre',
-    'potsdam',
-    'prescott',
-    'providence',
-    'provo',
-    'pueblo',
-    'puertorico',
-    'pullman',
-    'quadcities',
-    'quincy',
-    'quito',
-    'racine',
-    'raleigh',
-    'ramallah',
-    'rapidcity',
-    'reading',
-    'recife',
-    'redding',
-    'rennes',
-    'reno',
-    'reykjavik',
-    'richmond',
-    'richmondin',
-    'rio',
-    'rmn',
-    'roanoke',
-    'rochester',
-    'rockford',
-    'rockies',
-    'roseburg',
-    'roswell',
-    'rouen',
-    'sacramento',
-    'saginaw',
-    'salem',
-    'salina',
-    'saltlakecity',
-    'salvador',
-    'sanangelo',
-    'sanantonio',
-    'sandiego',
-    'sandusky',
-    'sanmarcos',
-    'santabarbara',
-    'santafe',
-    'santamaria',
-    'santiago',
-    'santodomingo',
-    'saopaulo',
-    'sarasota',
-    'savannah',
-    'scottsbluff',
-    'scranton',
-    'sd',
-    'seattle',
-    'seks',
-    'semo',
-    'sfbay',
-    'sheboygan',
-    'shoals',
-    'showlow',
-    'shreveport',
-    'sierravista',
-    'siouxcity',
-    'siouxfalls',
-    'siskiyou',
-    'skagit',
-    'slo',
-    'smd',
-    'southbend',
-    'southcoast',
-    'southjersey',
-    'spacecoast',
-    'spokane',
-    'springfield',
-    'springfieldil',
-    'statesboro',
-    'staugustine',
-    'stcloud',
-    'stgeorge',
-    'stillwater',
-    'stjoseph',
-    'stlouis',
-    'stockton',
-    'stpetersburg',
-    'strasbourg',
-    'susanville',
-    'swks',
-    'swmi',
-    'swva',
-    'swv',
-    'syracuse',
-    'tallahassee',
-    'tampa',
-    'tehran',
-    'telaviv',
-    'terrehaute',
-    'texarkana',
-    'texoma',
-    'thumb',
-    'tippecanoe',
-    'toledo',
-    'topeka',
-    'toulouse',
-    'treasure',
-    'tricities',
-    'tucson',
-    'tulsa',
-    'tunis',
-    'tuscaloosa',
-    'tuscarawas',
-    'twinfalls',
-    'twintiers',
-    'ukraine',
-    'up',
-    'utica',
-    'valdosta',
-    'ventura',
-    'vermont',
-    'victoriatx',
-    'vietnam',
-    'virgin',
-    'visalia',
-    'waco',
-    'washingtondc',
-    'waterloo',
-    'watertown',
-    'wausau',
-    'wellington',
-    'wenatchee',
-    'westernmass',
-    'westky',
-    'westmd',
-    'westslope',
-    'wheeling',
-    'wichita',
-    'wichitafalls',
-    'williamsport',
-    'wilmington',
-    'winchester',
-    'winstonsalem',
-    'worcester',
-    'wv',
-    'www',
-    'wyoming',
-    'yakima',
-    'york',
-    'youngstown',
-    'yubasutter',
-    'yuma',
-    'zagreb',
-    'zanesville',
-    ]
+        'abilene', 'accra', 'addisababa', 'akroncanton', 'albany', 'albanyga', 'albuquerque', 'allentown', 'altoona', 'amarillo', 'ames', 'amsterdam', 'anchorage', 'annapolis', 'annarbor', 'appleton', 'asheville', 'ashtabula', 'athensga', 'athensohio', 'atlanta', 'auburn', 'auckland', 'augusta', 'austin', 'baghdad', 'bakersfield', 'baltimore', 'bangladesh', 'batonrouge', 'battlecreek', 'beaumont', 'beirut', 'bellingham', 'belohorizonte', 'bemidji', 'bend', 'bgky', 'bham', 'bigbend', 'billings', 'binghamton', 'bismarck', 'blacksburg', 'bloomington', 'bn', 'boise', 'boone', 'bordeaux', 'boston', 'boulder', 'bozeman', 'brainerd', 'brasilia', 'brownsville', 'brunswick', 'brussels', 'bucharest', 'budapest', 'buenosaires', 'buffalo', 'bulgaria', 'butte', 'cairo', 'capecod', 'caracas', 'carbondale', 'caribbean', 'casablanca', 'catskills', 'cedarrapids', 'cenla', 'centralmich', 'cfl', 'chambana', 'chambersburg', 'charleston', 'charlestonwv', 'charlotte', 'charlottesville', 'chattanooga', 'chautauqua', 'chicago', 'chico', 'chillicothe', 'christchurch', 'cincinnati', 'clarksville', 'cleveland', 'clovis', 'cnj', 'collegestation', 'colombia', 'columbia', 'columbiamo', 'columbus', 'columbusga', 'cookeville', 'copenhagen', 'corpuschristi', 'corvallis', 'cosprings', 'costarica', 'cotedazur', 'csd', 'curitiba', 'dallas', 'danville', 'daytona', 'dayton', 'decatur', 'delaware', 'delrio', 'denver', 'desmoines', 'detroit', 'dothan', 'dubai', 'dublin', 'dubuque', 'duluth', 'eastco', 'easternshore', 'eastidaho', 'eastky', 'eastnc', 'eastoregon', 'easttexas', 'eauclaire', 'elko', 'elmira', 'elpaso', 'elsalvador', 'enid', 'erie', 'eugene', 'evansville', 'fairbanks', 'fargo', 'farmington', 'fayar', 'fayetteville', 'fingerlakes', 'flagstaff', 'flint', 'florencesc', 'fortaleza', 'fortcollins', 'fortdodge', 'fortlauderdale', 'fortmyers', 'fortsmith', 'fortwayne', 'forums', 'frederick', 'fredericksburg', 'fresno', 'gadsden', 'gainesville', 'galveston', 'glensfalls', 'goldcountry', 'grandforks', 'grandisland', 'grandrapids', 'greatfalls', 'greenbay', 'greensboro', 'greenville', 'grenoble', 'guatemala', 'gulfport', 'haifa', 'hanford', 'harrisburg', 'harrisonburg', 'hartford', 'hattiesburg', 'helena', 'hickory', 'hiltonhead', 'holland', 'honolulu', 'houma', 'houston', 'hudsonvalley', 'humboldt', 'huntington', 'huntsville', 'imperial', 'indianapolis', 'inlandempire', 'iowacity', 'ithaca', 'jackson', 'jacksontn', 'jacksonville', 'jakarta', 'janesville', 'jerseyshore', 'jerusalem', 'jonesboro', 'joplin', 'juneau', 'jxn', 'kalamazoo', 'kalispell', 'kansascity', 'kenai', 'kenya', 'keys', 'killeen', 'kirksville', 'klamath', 'knoxville', 'kokomo', 'kpr', 'ksu', 'kuwait', 'lacrosse', 'lafayette', 'lakecharles', 'lakecity', 'lakeland', 'lancaster', 'lansing', 'lapaz', 'laredo', 'lasalle', 'lascruces', 'lasvegas', 'lawrence', 'lawton', 'lewiston', 'lexington', 'lille', 'lima', 'limaohio', 'lincoln', 'littlerock', 'logan', 'loire', 'longisland', 'losangeles', 'louisville', 'loz', 'lubbock', 'luxembourg', 'lynchburg', 'lyon', 'macon', 'madison', 'maine', 'malaysia', 'managua', 'mankato', 'mansfield', 'marseilles', 'marshall', 'martinsburg', 'masoncity', 'mattoon', 'mcallen', 'meadville', 'medford', 'memphis', 'mendocino', 'merced', 'meridian', 'miami', 'micronesia', 'milwaukee', 'minneapolis', 'missoula', 'mobile', 'modesto', 'mohave', 'monroe', 'monroemi', 'montana', 'monterey', 'montevideo', 'montgomery', 'montpellier', 'morgantown', 'moscow', 'moseslake', 'muncie', 'muskegon', 'myrtlebeach', 'nacogdoches', 'nashville', 'natchez', 'nd', 'nesd', 'newhaven', 'newjersey', 'newlondon', 'neworleans', 'newyork', 'nh', 'nmi', 'norfolk', 'northernwi', 'northmiss', 'northplatte', 'nwct', 'nwga', 'nwks', 'ocala', 'odessa', 'ogden', 'okaloosa', 'oklahomacity', 'olympic', 'omaha', 'oneonta', 'onslow', 'orangecounty', 'oregoncoast', 'orlando', 'oslo', 'ottumwa', 'outerbanks', 'owensboro', 'pakistan', 'palmsprings', 'panamacity', 'panama', 'paris', 'parkersburg', 'pennstate', 'pensacola', 'peoria', 'philadelphia', 'phoenix', 'pittsburgh', 'plattsburgh', 'poconos', 'porthuron', 'portland', 'portoalegre', 'potsdam', 'prescott', 'providence', 'provo', 'pueblo', 'puertorico', 'pullman', 'quadcities', 'quincy', 'quito', 'racine', 'raleigh', 'ramallah', 'rapidcity', 'reading', 'recife', 'redding', 'rennes', 'reno', 'reykjavik', 'richmond', 'richmondin', 'rio', 'rmn', 'roanoke', 'rochester', 'rockford', 'rockies', 'roseburg', 'roswell', 'rouen', 'sacramento', 'saginaw', 'salem', 'salina', 'saltlakecity', 'salvador', 'sanangelo', 'sanantonio', 'sandiego', 'sandusky', 'sanmarcos', 'santabarbara', 'santafe', 'santamaria', 'santiago', 'santodomingo', 'saopaulo', 'sarasota', 'savannah', 'scottsbluff', 'scranton', 'sd', 'seattle', 'seks', 'semo', 'sfbay', 'sheboygan', 'shoals', 'showlow', 'shreveport', 'sierravista', 'siouxcity', 'siouxfalls', 'siskiyou', 'skagit', 'slo', 'smd', 'southbend', 'southcoast', 'southjersey', 'spacecoast', 'spokane', 'springfield', 'springfieldil', 'statesboro', 'staugustine', 'stcloud', 'stgeorge', 'stillwater', 'stjoseph', 'stlouis', 'stockton', 'stpetersburg', 'strasbourg', 'susanville', 'swks', 'swmi', 'swva', 'swv', 'syracuse', 'tallahassee', 'tampa', 'tehran', 'telaviv', 'terrehaute', 'texarkana', 'texoma', 'thumb', 'tippecanoe', 'toledo', 'topeka', 'toulouse', 'treasure', 'tricities', 'tucson', 'tulsa', 'tunis', 'tuscaloosa', 'tuscarawas', 'twinfalls', 'twintiers', 'ukraine', 'up', 'utica', 'valdosta', 'ventura', 'vermont', 'victoriatx', 'vietnam', 'virgin', 'visalia', 'waco', 'washingtondc', 'waterloo', 'watertown', 'wausau', 'wellington', 'wenatchee', 'westernmass', 'westky', 'westmd', 'westslope', 'wheeling', 'wichita', 'wichitafalls', 'williamsport', 'wilmington', 'winchester', 'winstonsalem', 'worcester', 'wv', 'www', 'wyoming', 'yakima', 'york', 'youngstown', 'yubasutter', 'yuma', 'zagreb', 'zanesville', ]
     dics = []
 
     for city in cities:
@@ -803,7 +359,9 @@ def main():
                 continue
             r = requests.get(post['post_link'], proxies=proxies, verify=False)
             if r.status_code != requests.codes.ok:
-                logger.error('search parse failed: {}; status: {}'.format(search_url, r))
+                logger.error(
+                    'search parse failed: {}; status: {}'.format(
+                        search_url, r))
                 continue
             html_soup = BeautifulSoup(r.text, features='html.parser')
             dic = parse_page(html_soup)
@@ -812,17 +370,24 @@ def main():
             # rf join
             if is_rf_eligible(dic):
                 logger.info("starting rf join for: {0}".format(dic['og:url']))
-                rf_data = tax_join(dic['mapaddress'], dic['geo.region'], dic['post_hood'])
+                rf_data = tax_join(
+                    dic['mapaddress'],
+                    dic['geo.region'],
+                    dic['post_hood'])
                 if rf_data:
                     logger.info("rf join success!")
                     dic = {**dic, **rf_data}
             else:
-                logger.info("not eligible: {0}".format({k:dic.get(k) for k in ['mapaddress', 'post_hood', 'geo.region', 'data_accuracy']}))
+                logger.info("not eligible: {0}".format({k: dic.get(k) for k in [
+                            'mapaddress', 'post_hood', 'geo.region', 'data_accuracy']}))
             dics.append(dic)
-            logger.info('fetched URL: {}; successes: {}'.format(post['post_link'], len(dics)))
+            logger.info(
+                'fetched URL: {}; successes: {}'.format(
+                    post['post_link'], len(dics)))
         logger.info("no link counter: {}".format(no_links))
     writes3(dics)
     return
+
 
 if __name__ == "__main__":
     logger.info("starting new scrape! main")
