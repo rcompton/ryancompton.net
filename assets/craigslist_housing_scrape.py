@@ -100,12 +100,12 @@ def parse_page(html_soup):
             **parse_text(html_soup)}
 
 
-def accumulate_posts(city):
+def accumulate_posts(city_url):
     # Accumulate the day's posts.
     posts = []
     for offset in [120 * x for x in range(0, 3)]:
         # All houses posted today in sfbay
-        search_url = make_search_url(city, offset)
+        search_url = make_search_url(city_url, offset)
         logger.info('search_url: {}'.format(search_url))
         try:
             r = requests.get(search_url, proxies=proxies, verify=False)
@@ -136,9 +136,9 @@ def writes3(dics):
     return
 
 
-def make_search_url(city, offset=0):
+def make_search_url(city_url, offset=0):
     #'https://{}.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates' SFH only
-    surl = 'https://{}.craigslist.org/search/apa?postedToday=1&availabilityMode=0&sale_date=all+dates'.format(city)
+    surl = urllib.parse.urljoin(city_url,'/search/apa?postedToday=1&availabilityMode=0&sale_date=all+dates')
     if offset:
         surl = '{0}&s={1}'.format(surl, offset)
     return surl
@@ -348,14 +348,15 @@ def tax_join(mapaddress, geo_region, post_hood):
 
 
 def main():
-    cities = set([
-        'abilene', 'accra', 'addisababa', 'akroncanton', 'albany', 'albanyga', 'albuquerque', 'allentown', 'altoona', 'amarillo', 'ames', 'amsterdam', 'anchorage', 'annapolis', 'annarbor', 'appleton', 'asheville', 'ashtabula', 'athensga', 'athensohio', 'atlanta', 'auburn', 'auckland', 'augusta', 'austin', 'baghdad', 'bakersfield', 'baltimore', 'bangladesh', 'batonrouge', 'battlecreek', 'beaumont', 'beirut', 'bellingham', 'belohorizonte', 'bemidji', 'bend', 'bgky', 'bham', 'bigbend', 'billings', 'binghamton', 'bismarck', 'blacksburg', 'bloomington', 'bn', 'boise', 'boone', 'bordeaux', 'boston', 'boulder', 'bozeman', 'brainerd', 'brasilia', 'brownsville', 'brunswick', 'brussels', 'bucharest', 'budapest', 'buenosaires', 'buffalo', 'bulgaria', 'butte', 'cairo', 'capecod', 'caracas', 'carbondale', 'caribbean', 'casablanca', 'catskills', 'cedarrapids', 'cenla', 'centralmich', 'cfl', 'chambana', 'chambersburg', 'charleston', 'charlestonwv', 'charlotte', 'charlottesville', 'chattanooga', 'chautauqua', 'chicago', 'chico', 'chillicothe', 'christchurch', 'cincinnati', 'clarksville', 'cleveland', 'clovis', 'cnj', 'collegestation', 'colombia', 'columbia', 'columbiamo', 'columbus', 'columbusga', 'cookeville', 'copenhagen', 'corpuschristi', 'corvallis', 'cosprings', 'costarica', 'cotedazur', 'csd', 'curitiba', 'dallas', 'danville', 'daytona', 'dayton', 'decatur', 'delaware', 'delrio', 'denver', 'desmoines', 'detroit', 'dothan', 'dubai', 'dublin', 'dubuque', 'duluth', 'eastco', 'easternshore', 'eastidaho', 'eastky', 'eastnc', 'eastoregon', 'easttexas', 'eauclaire', 'elko', 'elmira', 'elpaso', 'elsalvador', 'enid', 'erie', 'eugene', 'evansville', 'fairbanks', 'fargo', 'farmington', 'fayar', 'fayetteville', 'fingerlakes', 'flagstaff', 'flint', 'florencesc', 'fortaleza', 'fortcollins', 'fortdodge', 'fortlauderdale', 'fortmyers', 'fortsmith', 'fortwayne', 'forums', 'frederick', 'fredericksburg', 'fresno', 'gadsden', 'gainesville', 'galveston', 'glensfalls', 'goldcountry', 'grandforks', 'grandisland', 'grandrapids', 'greatfalls', 'greenbay', 'greensboro', 'greenville', 'grenoble', 'guatemala', 'gulfport', 'haifa', 'hanford', 'harrisburg', 'harrisonburg', 'hartford', 'hattiesburg', 'helena', 'hickory', 'hiltonhead', 'holland', 'honolulu', 'houma', 'houston', 'hudsonvalley', 'humboldt', 'huntington', 'huntsville', 'imperial', 'indianapolis', 'inlandempire', 'iowacity', 'ithaca', 'jackson', 'jacksontn', 'jacksonville', 'jakarta', 'janesville', 'jerseyshore', 'jerusalem', 'jonesboro', 'joplin', 'juneau', 'jxn', 'kalamazoo', 'kalispell', 'kansascity', 'kenai', 'kenya', 'keys', 'killeen', 'kirksville', 'klamath', 'knoxville', 'kokomo', 'kpr', 'ksu', 'kuwait', 'lacrosse', 'lafayette', 'lakecharles', 'lakecity', 'lakeland', 'lancaster', 'lansing', 'lapaz', 'laredo', 'lasalle', 'lascruces', 'lasvegas', 'lawrence', 'lawton', 'lewiston', 'lexington', 'lille', 'lima', 'limaohio', 'lincoln', 'littlerock', 'logan', 'loire', 'longisland', 'losangeles', 'louisville', 'loz', 'lubbock', 'luxembourg', 'lynchburg', 'lyon', 'macon', 'madison', 'maine', 'malaysia', 'managua', 'mankato', 'mansfield', 'marseilles', 'marshall', 'martinsburg', 'masoncity', 'mattoon', 'mcallen', 'meadville', 'medford', 'memphis', 'mendocino', 'merced', 'meridian', 'miami', 'micronesia', 'milwaukee', 'minneapolis', 'missoula', 'mobile', 'modesto', 'mohave', 'monroe', 'monroemi', 'montana', 'monterey', 'montevideo', 'montgomery', 'montpellier', 'morgantown', 'moscow', 'moseslake', 'muncie', 'muskegon', 'myrtlebeach', 'nacogdoches', 'nashville', 'natchez', 'nd', 'nesd', 'newhaven', 'newjersey', 'newlondon', 'neworleans', 'newyork', 'nh', 'nmi', 'norfolk', 'northernwi', 'northmiss', 'northplatte', 'nwct', 'nwga', 'nwks', 'ocala', 'odessa', 'ogden', 'okaloosa', 'oklahomacity', 'olympic', 'omaha', 'oneonta', 'onslow', 'orangecounty', 'oregoncoast', 'orlando', 'oslo', 'ottumwa', 'outerbanks', 'owensboro', 'pakistan', 'palmsprings', 'panamacity', 'panama', 'paris', 'parkersburg', 'pennstate', 'pensacola', 'peoria', 'philadelphia', 'phoenix', 'pittsburgh', 'plattsburgh', 'poconos', 'porthuron', 'portland', 'portoalegre', 'potsdam', 'prescott', 'providence', 'provo', 'pueblo', 'puertorico', 'pullman', 'quadcities', 'quincy', 'quito', 'racine', 'raleigh', 'ramallah', 'rapidcity', 'reading', 'recife', 'redding', 'rennes', 'reno', 'reykjavik', 'richmond', 'richmondin', 'rio', 'rmn', 'roanoke', 'rochester', 'rockford', 'rockies', 'roseburg', 'roswell', 'rouen', 'sacramento', 'saginaw', 'salem', 'salina', 'saltlakecity', 'salvador', 'sanangelo', 'sanantonio', 'sandiego', 'sandusky', 'sanmarcos', 'santabarbara', 'santafe', 'santamaria', 'santiago', 'santodomingo', 'saopaulo', 'sarasota', 'savannah', 'scottsbluff', 'scranton', 'sd', 'seattle', 'seks', 'semo', 'sfbay', 'sheboygan', 'shoals', 'showlow', 'shreveport', 'sierravista', 'siouxcity', 'siouxfalls', 'siskiyou', 'skagit', 'slo', 'smd', 'southbend', 'southcoast', 'southjersey', 'spacecoast', 'spokane', 'springfield', 'springfieldil', 'statesboro', 'staugustine', 'stcloud', 'stgeorge', 'stillwater', 'stjoseph', 'stlouis', 'stockton', 'stpetersburg', 'strasbourg', 'susanville', 'swks', 'swmi', 'swva', 'swv', 'syracuse', 'tallahassee', 'tampa', 'tehran', 'telaviv', 'terrehaute', 'texarkana', 'texoma', 'thumb', 'tippecanoe', 'toledo', 'topeka', 'toulouse', 'treasure', 'tricities', 'tucson', 'tulsa', 'tunis', 'tuscaloosa', 'tuscarawas', 'twinfalls', 'twintiers', 'ukraine', 'up', 'utica', 'valdosta', 'ventura', 'vermont', 'victoriatx', 'vietnam', 'virgin', 'visalia', 'waco', 'washingtondc', 'waterloo', 'watertown', 'wausau', 'wellington', 'wenatchee', 'westernmass', 'westky', 'westmd', 'westslope', 'wheeling', 'wichita', 'wichitafalls', 'williamsport', 'wilmington', 'winchester', 'winstonsalem', 'worcester', 'wv', 'www', 'wyoming', 'yakima', 'york', 'youngstown', 'yubasutter', 'yuma', 'zagreb', 'zanesville'
-        ])
+
+    with open(os.path.join(os.environ['HOME'],'ryancompton.net/assets/craig_housing_cities.txt'),'r') as fin:
+        city_urls = fin.read().splitlines()
+        city_urls = set(city_urls)
     dics = []
 
-    for city in cities:
-        posts = accumulate_posts(city)
-        logger.info("fetching {0} posts for {1}".format(len(posts), city))
+    for city_url in city_urls:
+        posts = accumulate_posts(city_url)
+        logger.info("fetching {0} posts for {1}".format(len(posts), city_url))
         no_links = 0
         for post in posts:
             if 'post_link' not in post:
