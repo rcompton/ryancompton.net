@@ -3,6 +3,7 @@
 
 import os
 import boto3
+import concurrent.futures
 import datetime
 import logging
 import numpy as np
@@ -90,7 +91,7 @@ def parse_metas(html_soup):
 
 
 def parse_text(html_soup):
-    return {'html_content':str(html_soup)}
+    return {'html_content': str(html_soup)}
 
 
 def parse_page(html_soup):
@@ -109,7 +110,7 @@ def accumulate_posts(city_url):
         logger.info('search_url: {}'.format(search_url))
         try:
             r = requests.get(search_url, proxies=proxies, verify=False)
-        except:
+        except BaseException:
             continue
         if r.status_code != requests.codes.ok:
             logger.error(
@@ -125,10 +126,10 @@ def accumulate_posts(city_url):
     return posts
 
 
-def writes3(dics):
+def writes3(dics, cityname):
     outstr = '\n'.join([json.dumps(dic) for dic in dics])
-    fname = 'craigslist-housing/{0}.json'.format(
-        datetime.datetime.now().isoformat())
+    fname = 'craigslist-housing/{0}_{1}.json'.format(
+            cityname, datetime.datetime.now().isoformat())
     logger.info("writing: {}".format(fname))
     s3 = boto3.resource('s3')
     s3object = s3.Object('rycpt-crawls', fname)
@@ -137,8 +138,9 @@ def writes3(dics):
 
 
 def make_search_url(city_url, offset=0):
-    #'https://{}.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates' SFH only
-    surl = urllib.parse.urljoin(city_url,'/search/apa?postedToday=1&availabilityMode=0&sale_date=all+dates')
+    # 'https://{}.craigslist.org/search/apa?postedToday=1&availabilityMode=0&housing_type=6&sale_date=all+dates' SFH only
+    surl = urllib.parse.urljoin(
+        city_url, '/search/apa?postedToday=1&availabilityMode=0&sale_date=all+dates')
     if offset:
         surl = '{0}&s={1}'.format(surl, offset)
     return surl
@@ -170,7 +172,6 @@ def parse_search_html(r):
             try:
                 dic['post_price'] = int(post.a.text.strip().replace("$", ""))
             except BaseException:
-                logger.info("no price: {}".format(post.a.text))
                 dic['post_price'] = np.nan
             if post.find('span', class_='housing') is not None:
                 # if the first element is accidentally square footage
@@ -347,53 +348,60 @@ def tax_join(mapaddress, geo_region, post_hood):
     return output
 
 
+def do_one_city(city_url, do_rf_join=False):
+    dics = []
+    posts = accumulate_posts(city_url)
+    logger.info("fetching {0} posts for {1}".format(len(posts), city_url))
+    no_links = 0
+    for post in posts:
+        if 'post_link' not in post:
+            no_links += 1
+            continue
+        try:
+            r = requests.get(post['post_link'], proxies=proxies, verify=False)
+        except BaseException:
+            continue
+        if r.status_code != requests.codes.ok:
+            logger.error(
+                'search parse failed: {}; status: {}'.format(
+                    search_url, r))
+            continue
+        html_soup = BeautifulSoup(r.text, features='html.parser')
+        dic = parse_page(html_soup)
+        dic['crawl_date'] = datetime.datetime.now().isoformat()
+        dic = {**dic, **post}
+        # rf join
+        if is_rf_eligible(dic) and do_rf_join:
+            logger.debug("starting rf join for: {0}".format(dic['og:url']))
+            rf_data = tax_join(
+                dic['mapaddress'],
+                dic['geo.region'],
+                dic['post_hood'])
+            if rf_data:
+                logger.debug("rf join success!")
+                dic = {**dic, **rf_data}
+        else:
+            logger.debug("not eligible: {0}".format({k: dic.get(k) for k in [
+                        'mapaddress', 'post_hood', 'geo.region', 'data_accuracy']}))
+        dics.append(dic)
+        logger.info(
+            'fetched URL: {}; successes: {}'.format(
+                post['post_link'], len(dics)))
+    logger.debug("no link counter: {}".format(no_links))
+    if dics:
+        cityname = urllib.parse.urlparse(city_url).netloc
+        writes3(dics, cityname)
+
+
 def main():
 
-    with open(os.path.join(os.environ['HOME'],'ryancompton.net/assets/craig_housing_cities.txt'),'r') as fin:
+    with open(os.path.join(os.environ['HOME'], 'ryancompton.net/assets/craig_housing_cities.txt'), 'r') as fin:
         city_urls = fin.read().splitlines()
         city_urls = set(city_urls)
-    dics = []
 
-    for city_url in city_urls:
-        posts = accumulate_posts(city_url)
-        logger.info("fetching {0} posts for {1}".format(len(posts), city_url))
-        no_links = 0
-        for post in posts:
-            if 'post_link' not in post:
-                no_links += 1
-                continue
-            try:
-                r = requests.get(post['post_link'], proxies=proxies, verify=False)
-            except:
-                continue
-            if r.status_code != requests.codes.ok:
-                logger.error(
-                    'search parse failed: {}; status: {}'.format(
-                        search_url, r))
-                continue
-            html_soup = BeautifulSoup(r.text, features='html.parser')
-            dic = parse_page(html_soup)
-            dic['crawl_date'] = datetime.datetime.now().isoformat()
-            dic = {**dic, **post}
-            # rf join
-            if is_rf_eligible(dic):
-                logger.info("starting rf join for: {0}".format(dic['og:url']))
-                rf_data = tax_join(
-                    dic['mapaddress'],
-                    dic['geo.region'],
-                    dic['post_hood'])
-                if rf_data:
-                    logger.info("rf join success!")
-                    dic = {**dic, **rf_data}
-            else:
-                logger.info("not eligible: {0}".format({k: dic.get(k) for k in [
-                            'mapaddress', 'post_hood', 'geo.region', 'data_accuracy']}))
-            dics.append(dic)
-            logger.info(
-                'fetched URL: {}; successes: {}'.format(
-                    post['post_link'], len(dics)))
-        logger.info("no link counter: {}".format(no_links))
-    writes3(dics)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        executor.map(do_one_city, city_urls)
+
     return
 
 
