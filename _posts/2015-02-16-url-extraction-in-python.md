@@ -5,7 +5,7 @@ description: ""
 category:
 tags: ["coding"]
 ---
-{% include JB/setup %}
+
 
 I was looking for a way to identify urls in text and eventually found this huge regex <http://daringfireball.net/2010/07/improved_regex_for_matching_urls> . I figured I'll need to do this again so I stuck all that into [urlmarker.py](https://github.com/rcompton/ryancompton.net/blob/master/assets/praw_drugs/urlmarker.py) and now I can just import it.
 

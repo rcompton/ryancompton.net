@@ -1,19 +1,18 @@
 ---
 layout: post
 title: "One thousand captcha photos organized with a neural network"
-description: ""
-category: 
+comments: true
 tags: ["coding", "machine learning"]
 ---
-{% include JB/setup %}
-{% excerpt %}
+
+
 *Coauthored with Habib Talavati. Originally published on the Clarifai blog at [https://blog.clarifai.com/one-thousand-captcha-photos-organized-with-a-neural-network-2/](https://blog.clarifai.com/one-thousand-captcha-photos-organized-with-a-neural-network-2/)*
 
 The below image shows 1024 of the captcha photos used in "I’m not a human: Breaking the Google reCAPTCHA" by Sivakorn, Polakis, and Keromytis arranged on a 32x32 grid in such a way that visually-similar photos appear in close proximity to each other on the grid.
 
-![captcha bigimg](https://s3.amazonaws.com/imtagco/hungarian/2159657417b494ef9d30d01800e1717c.jpg)
+![captcha bigimg]({{ site.url }}/assets/pix/gridz.jpg)
 
-{% endexcerpt %}
+<!--more-->
 
 ## How did we do this?
 
@@ -23,7 +22,7 @@ Images are naturally very high-dimensional objects, even a "small" 224x224 image
 
 *Remark:* Code for all of this is available here: [https://github.com/Clarifai/public-notebooks/blob/master/gridded_tsne_blog_public.ipynb](https://github.com/Clarifai/public-notebooks/blob/master/gridded_tsne_blog_public.ipynb)
 
-![captcha_2x2](https://s3.amazonaws.com/imtagco/blog/2x2captcha.png)
+![captcha_2x2]({{ site.url }}/assets/pix/2x2captcha.png)
 
 ### Step 1: Reducing from 150528 to 1024 dimensions with a neural net
 

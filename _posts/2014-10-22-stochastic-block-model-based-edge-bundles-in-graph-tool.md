@@ -5,8 +5,8 @@ description: ""
 category:
 tags: ["coding"]
 ---
-{% include JB/setup %}
-{% excerpt %}
+
+
 
 Here's a plot of the political blogging network in [“The political blogosphere and the 2004 US Election”](http://dx.doi.org/10.1145/1134271.1134277) but with the edge bundles determined using a [stochastic block model](http://arxiv.org/abs/1310.4377) (remark: the below plot is the same (ie. same layout and data) as fig. 5 in Tiago's paper - I just put a black background on it).
 
@@ -16,7 +16,7 @@ The edge-color scheme is the same as in the original paper by Adamic and Glance,
 
 
 Code and high-res version here:
-{% endexcerpt %}
+<!--more-->
 
 {% highlight python %}
 # -*- coding: utf-8 -*-

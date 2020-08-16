@@ -4,14 +4,14 @@ title: "Sample pom.xml to build Scala *-jar-with-dependencies.jar"
 description: ""
 tags: ["coding"]
 ---
-{% include JB/setup %}
 
 
-{% excerpt %}
+
+
 I've been using [Spark](https://spark.apache.org/) for a few months now. It's great for tasks that don't fit easily into a [Pig](https://pig.apache.org/) script. If you've already been writing Java for a while it can be a drag to switch everything over to sbt just for Spark.
 
 Here's a basic pom.xml that can build scala code (you'll need maven 3) and include all dependencies into one giant jar.
-{% endexcerpt %}
+<!--more-->
 
 {% highlight xml %}
 <project xmlns="http://maven.apache.org/POM/4.0.0"

@@ -5,9 +5,9 @@ description: ""
 category:
 tags: ["audio", "coding"]
 ---
-{% include JB/setup %}
 
-{% excerpt %}
+
+
 *Originally published in 2009 at [http://www.math.ucla.edu/~rcompton/fft_sonification/fft_sonification.html](http://www.math.ucla.edu/~rcompton/fft_sonification/fft_sonification.html)*
 
 The FFT is an essential tool for digital signal processing and electronic music production. It is easily, commonly, and inefficiently implemented via the recursive Cooley-Tukey algorithm which we now briefly review.
@@ -28,7 +28,7 @@ X_k &=& \sum_{n=0}^{N/2-1} x_{2n} e^{\frac{-2 \pi i}{N}(2n)k} + \sum_{n=0}^{N/2-
 &=& X_{\text{even }k} + e^{\frac{-2 \pi i}{N}k} X_{\text{odd }k}
 \end{eqnarray*}
 $$
-{% endexcerpt %}
+<!--more-->
 
 
 where $$X_{\text{even }k}$$ and $$X_{\text{odd }k}$$ are the $$k$$th component of the DFT of the sequences obtained by selecting only the even or odd members from $$\{ x_n \}$$. In this manner we compute the DFT by recursively computing the DFT of the even and odd subsequences of $$\{ x_n \}$$. By the time that $$N=1$$ our DFT is simply the identity mapping from the constant sequence into the constant mode in Fourier space.

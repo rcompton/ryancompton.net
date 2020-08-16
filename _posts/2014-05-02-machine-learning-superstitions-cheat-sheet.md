@@ -5,7 +5,7 @@ description: ""
 category:
 tags: ["coding", "machine learning"]
 ---
-{% include JB/setup %}
+
 
 This notebook contains notes and beliefs about several commonly-used supervised learning algorithms. My dream is that it will be useful as a quick reference or for people who are irrational about studying for machine learning interviews.
 

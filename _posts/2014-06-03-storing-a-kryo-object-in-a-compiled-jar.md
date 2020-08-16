@@ -5,9 +5,9 @@ description: ""
 category:
 tags: ["coding"]
 ---
-{% include JB/setup %}
 
-{% excerpt %}
+
+
 This really threw me off for a while (cf [https://stackoverflow.com/questions/23748254/storing-a-kryo-object-in-a-compiled-jar](https://stackoverflow.com/questions/23748254/storing-a-kryo-object-in-a-compiled-jar) ).
 
 I had a `HashMap` I needed to persist and have fast access to. I used Kryo to serialize the object
@@ -22,7 +22,7 @@ Output output = new Output(new FileOutputStream("src/main/resources/locations50K
 kryo.writeObject(output, locationMap);
 output.close();
 {% endhighlight %}
-{% endexcerpt %}
+<!--more-->
 
 I successfully deserialized with
 

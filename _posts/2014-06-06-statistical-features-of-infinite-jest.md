@@ -5,14 +5,14 @@ description: ""
 category:
 tags: ["books", "coding"]
 ---
-{% include JB/setup %}
 
-{% excerpt %}
+
+
 After stressing my reading comprehension over the past eight months I've finally finished David Foster Wallace's Infinite Jest. The writing is, in a word, impressive. Wallace's command of the English language allows him to do things that I've never seen before. In this post I'll try to quantify a few of the stylistic features that I think really stood out.
 
 First off, to run these experiments, one needs an electronic version of the book. It turns out that these are remarkably easy to find online. I ran the .pdf [here](http://nkelber.com/engl295/blog/2012/07/03/playing-with-infinite-jests-corpus-exploring-tradition-literature-electronically/) through [pdftotext](https://en.wikipedia.org/wiki/Pdftotext), imported [nltk](http://www.nltk.org), and got these results:
 
-###*"But and so and but so" is the longest uninterrupted chain of conjunctions*{: style="color: white"}
+### *"But and so and but so" is the longest uninterrupted chain of conjunctions*{: style="color: white"}
 
 In Infinite Jest conjunctions often appear in chains of length three or greater. There is a length-six chain on page 379 of the .pdf. It's due to a minor character, "old Mikey", standing at the Boston AA podium and speaking to a crowd:
 
@@ -49,7 +49,7 @@ With this list we can find the most common uninterrupted conjunction chains alon
 | if and when :| 5 | but not until after :| 1 |   |   |
 
 (Remark: according to Wiktionary, "/" is a valid conjunction)
-{% endexcerpt %}
+<!--more-->
 
 The only length six chain is "But and so and but so".
 
@@ -127,7 +127,7 @@ def all_uninterrupted_seqs(raw, prep_conj, min_seq_length=3):
 
 Our next result:
 
-###*Wallace used a vocabulary of 20,584 words to write Infinite Jest*{: style="color: white"}
+### *Wallace used a vocabulary of 20,584 words to write Infinite Jest*{: style="color: white"}
 
 By comparison, the [Brown Corpus](https://en.wikipedia.org/wiki/Brown_Corpus), which is roughly three times longer than Infinite Jest, contains only 26,126 unique words. To be precise, the Brown Corpus contains 9,964,284 characters and 2,074,513 (not necessarily unique) words, while Infinite Jest contains 3,204,159 characters and 577,608 words. If we restrict the Brown Corpus to its first 3,204,159 characters we find a vocabulary of only 15,771 unique words.
 
@@ -157,7 +157,7 @@ def vocabulary_size(raw):
 
 Finally,
 
-###*The longest acronyms are O.N.A.N.D.E.A. and O.N.A.N.C.A.A.*{: style="color: white"}
+### *The longest acronyms are O.N.A.N.D.E.A. and O.N.A.N.C.A.A.*{: style="color: white"}
 
 These are used to abbreviate institutions within the Organization of North American Nations (O.N.A.N.): the Drug Enforcement Organization (D.E.A.) and the Commonwealth Academy Association (C.A.A).
 

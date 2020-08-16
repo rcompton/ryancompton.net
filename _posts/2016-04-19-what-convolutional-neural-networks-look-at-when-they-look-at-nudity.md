@@ -5,8 +5,8 @@ description: ""
 category:
 tags: ["coding", "machine learning"]
 ---
-{% include JB/setup %}
-{% excerpt %}
+
+
 *Originally published on the Clarifai blog at [http://blog.clarifai.com/what-convolutional-neural-networks-see-at-when-they-see-nudity/](http://blog.clarifai.com/what-convolutional-neural-networks-see-at-when-they-see-nudity/)*
 
 Last week at Clarifai we [formally](http://blog.clarifai.com/moderate-filter-or-curate-adult-content-with-clarifais-nsfw-model/) [announced](http://blog.clarifai.com/how-to-use-clarifai-to-protect-your-eyes-from-seeing-something-they-cant-unsee/) our Not Safe for Work (NSFW) adult content recognition model. Automating the discovery of nude pictures has been a central problem in computer vision for over two decades now and, because of it's rich history and straightforward goal, serves as a great example of how the field has evolved. In this blog post, I'll use the problem of nudity detection to illustrate how training modern convolutional neural networks (convnets) differs from research done in the past.
@@ -15,7 +15,7 @@ Last week at Clarifai we [formally](http://blog.clarifai.com/moderate-filter-or-
 
 (**Warning & Disclaimer**: This post contains visualizations of nudity for scientific purposes. Read no further if you are under the age of 18 or if you are offended by nudity.)
 
-{% endexcerpt %}
+<!--more-->
 
 
 ## 1996

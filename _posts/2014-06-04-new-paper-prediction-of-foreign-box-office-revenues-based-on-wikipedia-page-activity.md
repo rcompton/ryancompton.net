@@ -5,7 +5,7 @@ description: ""
 category:
 tags: ["papers"]
 ---
-{% include JB/setup %}
+
 
 Brian and I recently published a paper on the arxiv: <http://arxiv.org/abs/1405.5924>, earlier this month it was accepted into the [ChASM workshop](http://www.chasm.ws) at WebSci. Here's the abstract:
 

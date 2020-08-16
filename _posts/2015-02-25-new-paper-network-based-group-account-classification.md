@@ -5,7 +5,7 @@ description: ""
 category:
 tags: ["papers"]
 ---
-{% include JB/setup %}
+
 
 *Update 2015-03-25: We just got nominated for a best paper award!*{: style="color: white"}
 

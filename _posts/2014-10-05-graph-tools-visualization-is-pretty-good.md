@@ -5,8 +5,8 @@ description: ""
 category: 
 tags: ["coding"]
 ---
-{% include JB/setup %}
-{% excerpt %}
+
+
 
 Here's a plot of the political blogging network described by Adamic and Glance in [“The political blogosphere and the 2004 US Election”](http://dx.doi.org/10.1145/1134271.1134277). The layout is determined using [graph-tool's implementation](http://graph-tool.skewed.de/static/doc/draw.html?highlight=get_hierarchy_control_points#graph_tool.draw.get_hierarchy_control_points) of [hierarchal edge bundles](http://dx.doi.org/10.1109/TVCG.2006.147). The color scheme is the same as in the original paper, i.e. each node corresponds to a blog url and the colors reflect political orientation, red for conservative, and blue for liberal. Orange edges go from liberal blogs to conservative blogs, and purple ones from conservative to liberal (cf  fig. 1 in Adamic and Glance). All 1,490 nodes and 19,090 edges are drawn.
 
@@ -16,7 +16,7 @@ The url of each blog is drawn alongside each node, here's a close-up:
 
 ![closeup]({{ site.url }}/assets/graphviz/closeup.png)
 
-{% endexcerpt %}
+<!--more-->
 
 
 This dataset is fairly well-known (it even comes packaged into graph-tool, cf. the below snippet).

@@ -5,7 +5,7 @@ description: ""
 category:
 tags: ["papers"]
 ---
-{% include JB/setup %}
+
 
 I recently published a paper on the arxiv: [http://arxiv.org/abs/1404.7152](http://arxiv.org/abs/1404.7152), and it made [Tech Review junior varsity!](http://www.technologyreview.com/view/527246/other-interesting-arxiv-papers-week-ending-may-10-2014/) Here's the abstract:
 

@@ -5,11 +5,11 @@ description: ""
 category:
 tags: ["papers"]
 ---
-{% include JB/setup %}
+
 
 ***
 
-###*Press coverage (updated 2015-05-02):*{: style="color: white"}
+### *Press coverage (updated 2015-05-02):*{: style="color: white"}
 
 + [Forbes](http://www.forbes.com/sites/thomasbrewster/2015/03/07/twitter-location-can-be-determined-through-friends/)
 + [Business Insider](http://www.businessinsider.com/twitter-location-research-at-mentions-cornell-2015-3)
@@ -21,9 +21,8 @@ tags: ["papers"]
 + [MIT Tech Review junior varsity](http://www.technologyreview.com/view/527246/other-interesting-arxiv-papers-week-ending-may-10-2014/)
 + [Serene Risc Quarterly Digest](http://ryancompton.net/assets/resume/Serene_Risc_Digest_2015_Spring.pdf)
 
-Altmetric link:
+[Altmetrics link](https://www.altmetric.com/details/2314147)
 
-[![altmetrix]({{site.url}}/assets/pix/altmetric-badges.a.ssl.fastly.net.png)](http://www.altmetric.com/details.php?citation_id=2314147)
 
 ***
 

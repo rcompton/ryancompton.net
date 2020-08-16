@@ -5,9 +5,9 @@ description: ""
 category:
 tags: ["audio", "coding"]
 ---
-{% include JB/setup %}
 
-{% excerpt %}
+
+
 *Originally published in 2009 at [http://www.math.ucla.edu/~rcompton/musical_gauss_seidel/musical_gauss_seidel.html](http://www.math.ucla.edu/~rcompton/musical_gauss_seidel/musical_gauss_seidel.html)*
 
 One second of a 44.1kHz single channel .wav file can be read into an
@@ -20,7 +20,7 @@ high pitched notes in b become audible first while at the same time
 the pitch of the white noise decreases.
 
 Audio of the initial 12 second .wav file (white noise) [initialAx.wav]({{ site.url }}/assets/musical_gauss_seidel/initialAx.wav)
-{% endexcerpt %}
+<!--more-->
 
 Plots of the initial Ax, residual, and FFT of residual:
 

@@ -5,13 +5,13 @@ description: ""
 category:
 tags: ["coding"]
 ---
-{% include JB/setup %}
 
-{% excerpt %}
+
+
 
 Last year [Chris Whong](http://chriswhong.com/) used a [foil](http://www.dos.ny.gov/coog/foil2.html) request to obtain a dataset with information on the locations, times, and medallions for 173 million NYC cab rides. I'm interested is determining which cabs are the fastest cabs are and how quickly they can get between various parts of the city.
 
-{% endexcerpt %}
+<!--more-->
 
 ## Data
 

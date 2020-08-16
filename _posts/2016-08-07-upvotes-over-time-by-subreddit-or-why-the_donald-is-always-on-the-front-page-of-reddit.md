@@ -6,15 +6,15 @@ category:
 tags: ["coding"]
 ---
 
-{% include JB/setup %}
 
-{% excerpt %}
+
+
 
 Here's a plot of the cumulative number of upvotes per minute for submissions to a few major subreddits:
 
 ![avg-votes]({{ site.url }}/assets/reddit_scrape/ups_per_subreddit.jpg){: height="389px" width="480px"}
 
-{% endexcerpt %}
+<!--more-->
 
 The data was collected by polling `/new/` every 2 minutes for each subreddit over the past 3 days (2942138 records were found). The vast majority of submissions to reddit never get anywhere - I removed submissions which never attained over 50 upvotes which left me with 154160 records. The raw data is shown below:
 

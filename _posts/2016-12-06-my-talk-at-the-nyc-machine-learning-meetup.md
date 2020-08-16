@@ -5,7 +5,7 @@ description: ""
 category:
 tags: ["machine learning"]
 ---
-{% include JB/setup %}
+
 
 Check out this video of my talk at the NYC Machine Learning meetup.
 
