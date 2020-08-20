@@ -25,7 +25,9 @@ description: >-
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "http://www.ryancompton.net" # the base hostname & protocol for your site, e.g. http://example.com
 
-google_analytics: UA-51195216-1
+# This does not work, has some kind of disable-ua thing in the theme's
+# google_analytics.html
+#google_analytics: UA-51195216-1
 
 author:
   name: Ryan Compton
