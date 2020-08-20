@@ -24,8 +24,12 @@ description: >-
   Ryan Compton personal blog.
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "http://www.ryancompton.net" # the base hostname & protocol for your site, e.g. http://example.com
-twitter_username: rycpt
-github_username:  rcompton
+
+google_analytics: UA-175907329-1
+
+author:
+  name: Ryan Compton
+  email: "ryan@ryancompton.net"
 
 # Build settings
 theme: minima
@@ -33,6 +37,12 @@ plugins:
   - jekyll-feed
 minima:
   skin: dark
+  social_links:
+    twitter: rycpt
+    github: rcompton
+    stackoverflow: "424631"
+    linkedin: ryan-compton-2503941a
+
 
 show_excerpts: true
 excerpt_separator: <!--more-->
