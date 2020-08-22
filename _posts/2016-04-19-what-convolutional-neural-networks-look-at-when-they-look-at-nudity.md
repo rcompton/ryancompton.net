@@ -5,8 +5,6 @@ description: ""
 category:
 tags: ["coding", "machine learning"]
 redirect_from:
-  - /2016-04-19-what-convolutional-neural-networks-look-at-when-they-look-at-nudity.md
-redirect_from:
   - /2016/04/19/what-convolutional-neural-networks-look-at-when-they-look-at-nudity/
 ---
 
