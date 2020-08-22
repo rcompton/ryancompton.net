@@ -14,7 +14,7 @@ Here's a plot of the political blogging network in [“The political blogosphere
 
 The edge-color scheme is the same as in the original paper by Adamic and Glance, i.e. each node corresponds to a blog url and the colors reflect political orientation, red for conservative, and blue for liberal. Orange edges go from liberal blogs to conservative blogs, and purple ones from conservative to liberal (cf  fig. 1 in Adamic and Glance).
 
-![polblogs_blockmodel_1024]({{ site.url }}/assets/graphviz/polblogs_blockmodel_1024.png)
+![polblogs_blockmodel_1024]({{ site.url }}/assets/graphviz/polblogs_blockmodel_1024.jpg)
 
 
 Code and high-res version here:
@@ -91,4 +91,4 @@ gt.graph_draw(g, pos=pos, vertex_fill_color=g.vertex_properties['plot_color'],
             output='polblogs_blockmodel.png')
 {% endhighlight %}
 
-The high-res version is available [here]({{ site.url }}/assets/graphviz/polblogs_blockmodel.png).
+The high-res version is available [here]({{ site.url }}/assets/graphviz/polblogs_blockmodel.jpg).
