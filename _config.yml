@@ -34,9 +34,11 @@ author:
   email: "ryan@ryancompton.net"
 
 # Build settings
-theme: minima
 plugins:
   - jekyll-feed
+  - jekyll-redirect-from
+
+theme: minima
 minima:
   skin: dark
   social_links:
