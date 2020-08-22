@@ -4,6 +4,8 @@ title: "Url extraction in python"
 description: ""
 category:
 tags: ["coding"]
+redirect_from:
+  - /2015-02-16-url-extraction-in-python.md
 ---
 
 

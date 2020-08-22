@@ -4,6 +4,8 @@ title: "My talk at the NYC Machine Learning meetup"
 description: ""
 category:
 tags: ["machine learning"]
+redirect_from:
+  - /2016-12-06-my-talk-at-the-nyc-machine-learning-meetup.md
 ---
 
 

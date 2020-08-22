@@ -4,6 +4,8 @@ title: "Algorithm Sonification II: Gauss Seidel method"
 description: ""
 category:
 tags: ["audio", "coding"]
+redirect_from:
+  - /2014/05/23/algorithm-sonification-ii-gauss-seidel-method./
 ---
 
 

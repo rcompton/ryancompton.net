@@ -4,6 +4,8 @@ title: "Stochastic block model based edge bundles in graph-tool"
 description: ""
 category:
 tags: ["coding"]
+redirect_from:
+  - /2014-10-22-stochastic-block-model-based-edge-bundles-in-graph-tool.md
 ---
 
 

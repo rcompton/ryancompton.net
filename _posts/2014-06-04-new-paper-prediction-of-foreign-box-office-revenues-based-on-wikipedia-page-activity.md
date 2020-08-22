@@ -4,6 +4,8 @@ title: "New Paper: Prediction of Foreign Box Office Revenues Based on Wikipedia 
 description: ""
 category:
 tags: ["papers"]
+redirect_from:
+  - /2014-06-04-new-paper-prediction-of-foreign-box-office-revenues-based-on-wikipedia-page-activity.md
 ---
 
 

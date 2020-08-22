@@ -4,6 +4,8 @@ title: "Storing a Kryo object in a compiled jar"
 description: ""
 category:
 tags: ["coding"]
+redirect_from:
+  - /2014/06/03/storing-a-kryo-object-in-a-compiled-jar/
 ---
 
 

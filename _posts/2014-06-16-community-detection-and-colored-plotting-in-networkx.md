@@ -4,6 +4,8 @@ title: "Community detection and colored plotting in networkx"
 description: ""
 category:
 tags: ["coding"]
+redirect_from:
+  - /2014-06-16-community-detection-and-colored-plotting-in-networkx.md
 ---
 
 Just came across this very easy library for community detection <https://sites.google.com/site/findcommunities/> <https://bitbucket.org/taynaud/python-louvain/src>. Here's how to create a graph, detect communities in it, and then visualize with nodes colored by their community in less than 10 lines of python:

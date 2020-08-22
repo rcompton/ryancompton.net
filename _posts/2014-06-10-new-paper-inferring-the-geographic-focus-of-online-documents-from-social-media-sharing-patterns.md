@@ -4,6 +4,8 @@ title: "New Paper: Inferring the Geographic Focus of Online Documents from Socia
 description: ""
 category: 
 tags: ["papers"]
+redirect_from:
+  - /2014-06-10-new-paper-inferring-the-geographic-focus-of-online-documents-from-social-media-sharing-patterns.md
 ---
 
 

@@ -4,6 +4,8 @@ title: "Upvotes over time by subreddit or: Why /r/The_Donald is always on the fr
 description: ""
 category:
 tags: ["coding"]
+redirect_from:
+  - /2016/08/07/upvotes-over-time-by-subreddit-or-why-the_donald-is-always-on-the-front-page-of-reddit/
 ---
 
 

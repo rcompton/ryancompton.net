@@ -4,6 +4,8 @@ title: "Taxi Strava"
 description: ""
 category:
 tags: ["coding"]
+redirect_from:
+  - /2016-06-11-taxi-strava.md
 ---
 
 

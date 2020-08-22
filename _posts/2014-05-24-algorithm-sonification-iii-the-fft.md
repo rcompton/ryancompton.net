@@ -4,6 +4,8 @@ title: "Algorithm Sonification III: The FFT"
 description: ""
 category:
 tags: ["audio", "coding"]
+redirect_from:
+  - /2014/05/24/algorithm-sonification-iii-the-fft./
 ---
 
 

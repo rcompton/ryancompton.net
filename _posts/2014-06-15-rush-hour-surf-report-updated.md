@@ -4,6 +4,8 @@ title: "Rush Hour Surf Report updated"
 description: ""
 category: 
 tags: ["coding"]
+redirect_from:
+  - /2014-06-15-rush-hour-surf-report-updated.md
 ---
 
 

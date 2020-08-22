@@ -3,6 +3,8 @@ layout: post
 title: "One thousand captcha photos organized with a neural network"
 comments: true
 tags: ["coding", "machine learning"]
+redirect_from:
+  - /2017-08-18-one-thousand-captcha-photos-organized-with-a-neural-network.md
 ---
 
 

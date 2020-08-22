@@ -4,6 +4,8 @@ title: "Supervised Learning Superstitions Cheat Sheet"
 description: ""
 category:
 tags: ["coding", "machine learning"]
+redirect_from:
+  - /2014/05/02/machine-learning-superstitions-cheat-sheet
 ---
 
 

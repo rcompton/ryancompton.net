@@ -3,6 +3,8 @@ layout: post
 title: "Sample pom.xml to build Scala *-jar-with-dependencies.jar"
 description: ""
 tags: ["coding"]
+redirect_from:
+  - /2014/05/19/sample-pomxml-to-build-scala--jar-with-dependenciesjar/
 ---
 
 

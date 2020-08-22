@@ -4,6 +4,8 @@ title: "Algorithm Sonification I: Sorting"
 description: ""
 category:
 tags: ["audio", "coding"]
+redirect_from:
+  - /2014/05/22/algorithm-sonification-i-sorting/
 ---
 
 

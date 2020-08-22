@@ -4,6 +4,8 @@ title: "Paper update: Geotagging One Hundred Million Twitter Accounts with Total
 description: ""
 category:
 tags: ["papers"]
+redirect_from:
+  - /2015-03-05-paper-update-geotagging-one-hundred-million-twitter-accounts-with-total-variation-minimization.md
 ---
 
 

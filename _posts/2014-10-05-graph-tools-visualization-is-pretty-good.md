@@ -4,6 +4,8 @@ title: "graph-tool's visualization is pretty good"
 description: ""
 category: 
 tags: ["coding"]
+redirect_from:
+  - /2014-10-05-graph-tools-visualization-is-pretty-good.md
 ---
 
 

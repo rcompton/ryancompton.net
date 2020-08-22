@@ -4,6 +4,8 @@ title: "New Paper: Geotagging One Hundred Million Twitter Accounts with Total Va
 description: ""
 category:
 tags: ["papers"]
+redirect_from:
+  - /2014/06/03/new-paper-geotagging-one-hundred-million-twitter-accounts-with-total-variation-minimization/
 ---
 
 

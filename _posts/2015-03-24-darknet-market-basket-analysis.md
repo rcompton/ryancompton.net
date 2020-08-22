@@ -4,6 +4,8 @@ title: "Darknet Market Basket Analysis"
 description: ""
 category:
 tags: ["coding"]
+redirect_from:
+  - /2015/03/24/darknet-market-basket-analysis/
 ---
 
 

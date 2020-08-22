@@ -4,6 +4,8 @@ title: "Bit-reversal permutation in Python"
 description: ""
 category:
 tags: ["coding"]
+redirect_from:
+  - /2014-06-05-bit-reversal-permutation-in-python.md
 ---
 
 

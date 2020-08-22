@@ -4,6 +4,8 @@ title: "Infinite Jest by the numbers"
 description: ""
 category:
 tags: ["books", "coding"]
+redirect_from:
+  - /2014-06-06-statistical-features-of-infinite-jest.md
 ---
 
 
