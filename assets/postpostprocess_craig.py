@@ -10,6 +10,7 @@ from datetime import datetime
 from sqlalchemy import create_engine
 import zlib
 from itertools import zip_longest
+import time
 
 
 FORMAT = '%(asctime)-15s %(levelname)-6s %(message)s'
@@ -30,35 +31,45 @@ def geocode(mapaddress, geo_region, post_hood,
     try:
         mapaddress2 = mapaddress if ' near ' not in mapaddress else mapaddress.split('near')[0]
         post_hood2 = post_hood.replace('(', '').replace(')', '')
+        start = time.process_time()
         q = '{0} {1} {2}'.format(mapaddress2, geo_region, post_hood2)
         g = geocoder.google(q, key=mykey)
-        logger.info(
-            "google address: {0}, confidence: {1}".format(
-                g.address, g.confidence))
-        if(g.confidence >= min_confidence):
-            return {'mapaddress':mapaddress, 'geo.region':geo_region,'post_hood':post_hood, 'address':g.address, 'quality':g.quality, 'lat':g.lat, 'lng':g.lng, 'zip':g.postal, 'craig_address_hash':address_hash((mapaddress,geo_region,post_hood)), 'gconfidence': g.confidence}
+        #logger.info("processed_time: {0} || {1} || google address: {2}, confidence: {3}".format(
+        #        round(time.process_time()-start,4), q, g.address, g.confidence))
+        return {'mapaddress':mapaddress, 'geo.region':geo_region,'post_hood':post_hood, 'address':g.address, 'quality':g.quality, 'lat':g.lat, 'lng':g.lng, 'zip':g.postal, 'craig_address_hash':address_hash((mapaddress,geo_region,post_hood)), 'gconfidence': g.confidence}
     except:
-        logger.exception('geo meh')
+        logger.exception(post_hood)
 
 def process_chunk(chunk):
     def geo_helper(x):
+        if x is None:
+            return
         try:
-            return geocode(x[0], x[1], x[2])
+            if all(x):
+                return geocode(x[0], x[1], x[2])
+            else:
+                logger.info("None in geo input: {}".format(x))
         except:
-            pass
+            logger.exception('geo ehhh')
     results = []
+    #not threaded ok.
+    #for x in chunk:
+    #    result = geo_helper(x)
+    #    if result:
+    #        results.append(result)
+    #logger.info('chunk done! size was: {}'.format(len(chunk)))
+    #queue.full ....
     with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
         for result in executor.map(geo_helper, chunk):
             if result:
                 results.append(result)
-            else:
-                logger.warning('geo err')
     geo_results = pd.DataFrame(results)
     geo_results = geo_results.dropna()
-    logger.info('writing {} geocoder results'.format(geo_results.shape))
+    ts = time.process_time()
     # psycopg2 connections are thread safe but not across processes "level 2 thread safe"
     little_engine = create_engine(os.getenv('CRAIGGER_CONN'))
     geo_results.to_sql('geocoder_results', little_engine, if_exists='append', index=False)
+    logger.info('wrote {0} geocoder results. time: {1}'.format(len(geo_results), round(time.process_time()-ts,5)))
     return geo_results
 
 
@@ -71,6 +82,7 @@ def build_address_map(limit=5):
     except:
         geo_already_done = None
 
+    cache_hits = 0
     geo_input = set()
     for idx,row in df.iterrows():
         try:
@@ -78,13 +90,14 @@ def build_address_map(limit=5):
             if geo_already_done is None or craig_hash not in geo_already_done['craig_address_hash'].values:
                 geo_input.add((row['mapaddress'], row['geo.region'], row['post_hood']))
             else:
-                logger.info('cache hit')
+                cache_hits += 1
+                logger.debug('cache hit: {}'.format(craig_hash))
         except KeyError:
             logger.exception('eh')
-    geo_chunks = chunks(geo_input, 200)
-    logger.warning('starting google geocoder, df.shape: {0} rows: {1}'.format(df.shape,len(geo_input)))
+    geo_chunks = chunks(geo_input, 25)
+    logger.warning('starting google geocoder, df.shape: {0} rows: {1} cache_hits: {2}'.format(df.shape, len(geo_input), cache_hits))
     results = []
-    with concurrent.futures.ProcessPoolExecutor(max_workers=50) as pexecutor:
+    with concurrent.futures.ProcessPoolExecutor(max_workers=3) as pexecutor:
         for result in pexecutor.map(process_chunk, geo_chunks):
             try:
                 if len(result) > 0:
@@ -113,7 +126,7 @@ def chunks(iterable, n):
 
 def main():
     # this uses geocoder api but saves to my db
-    dfgeo = build_address_map(limit=1000)
+    dfgeo = build_address_map(limit=45000)
     print(dfgeo)
 
     # query the postprocessed db
@@ -121,12 +134,13 @@ def main():
     dfrent = pd.read_sql('SELECT post_price, post_date, post_bedroom_count, post_sqft, price_per_sqft, netloc, housing, furnished, crawl_date, mapaddress, "geo.region", post_hood from cragprod WHERE "geo.region" = \'US-CA\' and data_accuracy > 9', engine)
     dfrent = dfrent.drop_duplicates()
     dfrent['craig_address_hash'] = dfrent[['mapaddress', 'geo.region', 'post_hood']].apply(address_hash,axis=1)
-    print(dfrent)
 
     logger.info('dfg = pd.merge(dfgeo,dfrent)')
     dfg = pd.merge(dfgeo,dfrent)
     print(dfg)
+    logger.info("dfg.to_sql('joined_results', engine, if_exists='append', index=False)")
     dfg.to_sql('joined_results', engine, if_exists='append', index=False)
+    return 0
 
 
 
