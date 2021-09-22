@@ -1,13 +1,17 @@
+import argparse
 import concurrent
 import json
-import s3fs
-import pandas as pd
-import urllib
 import logging
 import os
+import pandas as pd
+import s3fs
+import urllib
 from datetime import datetime
 from sqlalchemy import create_engine
 
+parser = argparse.ArgumentParser(description='Parse the crawled data in S3 to the database.')
+parser.add_argument('date', type=str, help='iso format date to process')
+args = parser.parse_args()
 
 FORMAT = '%(asctime)-15s %(levelname)-6s %(message)s'
 DATE_FORMAT = '%b %d %H:%M:%S'
@@ -28,7 +32,7 @@ def s3_to_dics(s3_fname):
                   'crawl_date', 'geo.placename', 'mapaddress'
                  ])
     dics = []
-    logger.info(s3_fname)
+    logger.info(f"working on: {s3_fname}")
     s3 = s3fs.S3FileSystem(anon=False)
     with s3.open(s3_fname,'r') as fin:
         for line in fin.readlines():
@@ -47,21 +51,22 @@ def s3_to_dics(s3_fname):
                 logger.exception('geo meh')
             dics.append(dic)
     try:
+        logger.info(f'writing parsed to cragprod: {s3_fname}')
         df = pd.DataFrame(dics)
         df = postprocess_df(df)
         df.to_sql('cragprod', engine, if_exists='append', index=False)
+        logger.info(f'done! writing: {s3_fname}')
     except:
         logger.exception('database meh')
     return
 
-def parse_dir(s3dir = 's3://rycpt-crawls/craigslist-housing/'):
+def parse_dir(date, s3dir = 's3://rycpt-crawls/craigslist-housing/'):
     dics = []
     s3 = s3fs.S3FileSystem(anon=False)
-    s3_fnames = s3.ls(s3dir)
+    all_s3_fnames = s3.ls(s3dir)
+    s3_fnames = [x for x in all_s3_fnames if date in x]  # brittle af date filter
     for s3_fname in s3_fnames:
         s3_to_dics(s3_fname)
-    with concurrent.futures.ProcessPoolExecutor(max_workers=20) as executor:
-        result = executor.map(s3_to_dics, s3_fnames)
     return dics
 
 def postprocess_df(df):
@@ -80,7 +85,8 @@ def postprocess_df(df):
     return df
 
 def main():
-    parse_dir()
+    logger.warning(f'args.date: {args.date}')
+    parse_dir(args.date)
 
 if __name__=='__main__':
     main()
