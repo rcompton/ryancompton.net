@@ -400,7 +400,7 @@ def do_one_city(city_url, do_rf_join=False):
 
 def main():
 
-    with open(os.path.join(os.environ['HOME'], 'ryancompton.net/assets/craig_housing_cities_TEST.txt'), 'r') as fin:
+    with open(os.path.join(os.environ['HOME'], 'ryancompton.net/assets/craig_housing_cities.txt'), 'r') as fin:
         city_urls = fin.read().splitlines()
         city_urls = set(city_urls)
 
