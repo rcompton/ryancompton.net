@@ -45,11 +45,6 @@ proxies = {
 }
 
 
-#proxies = {
-#    "http": "http://{}:@proxy.crawlera.com:8010/".format(os.environ["CRAWLERA_API_KEY"]),
-#    "https": "https://{}:@proxy.crawlera.com:8010/".format(os.environ["CRAWLERA_API_KEY"])
-#}
-
 GOOGLE_MAPS_API_KEY = os.environ["GOOGLE_MAPS_API_KEY"]
 
 
@@ -120,7 +115,6 @@ def accumulate_posts(city_url):
         try:
             r = requests.get(search_url, proxies=proxies, verify='/usr/local/share/ca-certificates/zyte-smartproxy-ca.crt')
         except requests.exceptions.RequestException as reqe:
-            logger.error("!!!?")
             logger.error(reqe)
             continue
         if r.status_code != requests.codes.ok:
