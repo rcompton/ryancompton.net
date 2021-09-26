@@ -4,7 +4,8 @@ import json
 import logging
 import os
 import pandas as pd
-import s3fs
+import smart_open
+import boto3
 import urllib
 from datetime import datetime
 from sqlalchemy import create_engine
@@ -24,6 +25,8 @@ logger.setLevel(logging.INFO)
 
 engine = create_engine(os.getenv('CRAIGGER_CONN'))
 
+s3_bucket = 'rycpt-crawls'
+s3_prefix = 'craigslist-housing'
 
 def s3_to_dics(s3_fname):
     fields = set(['geo.region', 'og:url', 'post_hood', 'post_price',
@@ -33,23 +36,21 @@ def s3_to_dics(s3_fname):
                  ])
     dics = []
     logger.info(f"working on: {s3_fname}")
-    s3 = s3fs.S3FileSystem(anon=False)
-    with s3.open(s3_fname,'r') as fin:
-        for line in fin.readlines():
-            dic = json.loads(line)
+    for line in smart_open.smart_open(s3_fname):
+        dic = json.loads(line)
+        furnished_hack = False
+        if 'text' in dic:
+            furnished_hack = 'furnished' in dic['text']
+        else:
             furnished_hack = False
-            if 'text' in dic:
-                furnished_hack = 'furnished' in dic['text']
-            else:
-                furnished_hack = False
-            dic = {k:dic[k] for k in dic if k in fields}
-            dic['furnished']  = furnished_hack
-            try:
-                if 'mapaddress' in dic and 'geo_region' in dic and 'post_hood' in dic:
-                    dic['clean_address'] = geocode(dic['mapaddress'], dic['geo_region'], dic['post_hood'])
-            except:
-                logger.exception('geo meh')
-            dics.append(dic)
+        dic = {k:dic[k] for k in dic if k in fields}
+        dic['furnished']  = furnished_hack
+        try:
+            if 'mapaddress' in dic and 'geo_region' in dic and 'post_hood' in dic:
+                dic['clean_address'] = geocode(dic['mapaddress'], dic['geo_region'], dic['post_hood'])
+        except:
+            logger.exception('geo meh')
+        dics.append(dic)
     try:
         logger.info(f'writing parsed to cragprod: {s3_fname}')
         df = pd.DataFrame(dics)
@@ -62,9 +63,20 @@ def s3_to_dics(s3_fname):
 
 def parse_dir(date, s3dir = 's3://rycpt-crawls/craigslist-housing/'):
     dics = []
-    s3 = s3fs.S3FileSystem(anon=False)
-    all_s3_fnames = s3.ls(s3dir)
-    s3_fnames = [x for x in all_s3_fnames if date in x]  # brittle af date filter
+
+    s3 = boto3.client('s3')
+    partial_list = s3.list_objects_v2(
+        Bucket=s3_bucket,
+        Prefix=s3_prefix)
+    obj_list = partial_list['Contents']
+    while partial_list['IsTruncated']:
+        next_token = partial_list['NextContinuationToken']
+        partial_list = s3.list_objects_v2(
+            Bucket=s3_bucket,
+            Prefix=s3_prefix,
+            ContinuationToken=next_token)
+        obj_list.extend(partial_list['Contents'])
+    s3_fnames = [f's3://{s3_bucket}/'+x['Key'] for x in obj_list if date in x['Key']] #date filter brittle af
     for s3_fname in s3_fnames:
         s3_to_dics(s3_fname)
     return dics
