@@ -17,11 +17,19 @@ args = parser.parse_args()
 FORMAT = '%(asctime)-15s %(levelname)-6s %(message)s'
 DATE_FORMAT = '%b %d %H:%M:%S'
 formatter = logging.Formatter(fmt=FORMAT, datefmt=DATE_FORMAT)
-logger = logging.getLogger(__name__)
 handler = logging.StreamHandler()
 handler.setFormatter(formatter)
+fhandler = logging.FileHandler(
+    os.path.join(
+        os.environ['HOME'],
+        'craigslist-data/log.log'))
+fhandler.setFormatter(formatter)
+logger = logging.getLogger(__name__)
 logger.addHandler(handler)
+logger.addHandler(fhandler)
 logger.setLevel(logging.INFO)
+logger.info("starting new scrape!")
+
 
 engine = create_engine(os.getenv('CRAIGGER_CONN'))
 
