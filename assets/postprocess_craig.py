@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 logger.addHandler(handler)
 logger.addHandler(fhandler)
 logger.setLevel(logging.INFO)
-logger.info("starting new scrape!")
+logger.info("starting new parse!")
 
 
 engine = create_engine(os.getenv('CRAIGGER_CONN'))
