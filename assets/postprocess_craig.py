@@ -9,6 +9,7 @@ import boto3
 import urllib
 from datetime import datetime
 from sqlalchemy import create_engine
+from money_parser import price_dec
 
 parser = argparse.ArgumentParser(description='Parse the crawled data in S3 to the database.')
 parser.add_argument('date', type=str, help='iso format date to process')
@@ -37,7 +38,7 @@ s3_bucket = 'rycpt-crawls'
 s3_prefix = 'craigslist-housing'
 
 def s3_to_dics(s3_fname):
-    fields = set(['geo.region', 'og:url', 'post_hood', 'post_price',
+    fields = set(['geo.region', 'og:url', 'post_hood', 'price',
                   'data_accuracy', 'post_bedroom_count',
                   'post_sqft', 'post_price', 'post_datetime', 'housing',
                   'crawl_date', 'geo.placename', 'mapaddress'
@@ -58,6 +59,8 @@ def s3_to_dics(s3_fname):
                 dic['clean_address'] = geocode(dic['mapaddress'], dic['geo_region'], dic['post_hood'])
         except:
             logger.exception('geo meh')
+        if 'price' in dic and (pd.isna(dic['post_price'])):
+            dic['post_price'] = float(price_dec(dic['price'])) # should not use floats for money but whatever
         dics.append(dic)
     try:
         logger.info(f'writing parsed to cragprod: {s3_fname}')
@@ -92,9 +95,15 @@ def parse_dir(date, s3dir = 's3://rycpt-crawls/craigslist-housing/'):
 def postprocess_df(df):
     #df=df[df['mapaddress'].notnull()]
     #df=df[df['data_accuracy'].notnull()]
-    df['data_accuracy'] = df['data_accuracy'].map(lambda x: int(x) if pd.notnull(x) else None)
-    df = df[df.data_accuracy<11]
+    logger.warning(f'df.shape init {df.shape}')
+    df = df[df.price.notnull()]
+    logger.warning(f'df.shape with price {df.shape}')
     df = df[df.post_price.notnull()]
+    logger.warning(f'df.shape with post_price {df.shape}')
+    df['data_accuracy'] = df['data_accuracy'].map(lambda x: int(x) if pd.notnull(x) else None)
+    logger.warning(f'df.shape with any data_accuracy {df.shape}')
+    df = df[df.data_accuracy<11]
+    logger.warning(f'df.shape with any data_accuracy < 11 {df.shape}')
     df['netloc'] = df['og:url'].map(lambda x: urllib.parse.urlparse(x).netloc)
     df['price_per_sqft'] = df['post_price']/df['post_sqft']
     #df = df[df.post_price < 10000]
@@ -105,6 +114,7 @@ def postprocess_df(df):
     return df
 
 def main():
+    #s3_to_dics('s3://rycpt-crawls/craigslist-housing/losangeles.craigslist.org_2021-06-01T11:59:30.179023.json')
     logger.warning(f'args.date: {args.date}')
     parse_dir(args.date)
 
