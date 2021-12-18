@@ -41,7 +41,7 @@ def s3_to_dics(s3_fname):
     fields = set(['geo.region', 'og:url', 'post_hood', 'price',
                   'data_accuracy', 'post_bedroom_count',
                   'post_sqft', 'post_price', 'post_datetime', 'housing',
-                  'crawl_date', 'geo.placename', 'mapaddress'
+                  'crawl_date', 'geo.placename', 'mapaddress', 'og:title'
                  ])
     dics = []
     logger.info(f"working on: {s3_fname}")
