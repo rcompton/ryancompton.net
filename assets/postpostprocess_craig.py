@@ -1,7 +1,6 @@
 import concurrent
 import geocoder
 import json
-import s3fs
 import pandas as pd
 import urllib
 import logging
@@ -74,7 +73,8 @@ def process_chunk(chunk):
 
 
 def build_address_map(limit=5):
-    df = pd.read_sql('SELECT mapaddress, "geo.region", post_hood, data_accuracy from cragprod WHERE "geo.region" = \'US-CA\' and data_accuracy > 9 LIMIT {}'.format(limit), engine)
+    logger.info('query postprocess db for addresses to geocode')
+    df = pd.read_sql('SELECT mapaddress, "geo.region", post_hood, data_accuracy FROM cragprod WHERE "geo.region" = \'US-CA\' and data_accuracy > 9 LIMIT {}'.format(limit), engine)
     df = df[df['mapaddress'].notnull()]
     df = df.drop_duplicates()
     try:
@@ -94,10 +94,10 @@ def build_address_map(limit=5):
                 logger.debug('cache hit: {}'.format(craig_hash))
         except KeyError:
             logger.exception('eh')
-    geo_chunks = chunks(geo_input, 25)
+    geo_chunks = chunks(geo_input, 100)
     logger.warning('starting google geocoder, df.shape: {0} rows: {1} cache_hits: {2}'.format(df.shape, len(geo_input), cache_hits))
     results = []
-    with concurrent.futures.ProcessPoolExecutor(max_workers=3) as pexecutor:
+    with concurrent.futures.ProcessPoolExecutor(max_workers=10) as pexecutor:
         for result in pexecutor.map(process_chunk, geo_chunks):
             try:
                 if len(result) > 0:
@@ -126,7 +126,7 @@ def chunks(iterable, n):
 
 def main():
     # this uses geocoder api but saves to my db
-    dfgeo = build_address_map(limit=45000)
+    dfgeo = build_address_map(limit=450000)
     print(dfgeo)
 
     # query the postprocessed db
