@@ -10,6 +10,7 @@ from sqlalchemy import create_engine
 import zlib
 from itertools import zip_longest
 import time
+from ratelimiter import RateLimiter
 
 
 FORMAT = '%(asctime)-15s %(levelname)-6s %(message)s'
@@ -25,6 +26,12 @@ GOOGLE_MAPS_API_KEY = os.getenv('GOOGLE_MAPS_API_KEY')
 
 engine = create_engine(os.getenv('CRAIGGER_CONN'))
 
+
+def limiter(until):
+    duration = int(round(until - time.time()))
+    logger.info('Rate limited, sleeping for {:d} seconds'.format(duration))
+
+@RateLimiter(max_calls=20, period=1, callback=limiter)
 def geocode(mapaddress, geo_region, post_hood,
             min_confidence=9, mykey=GOOGLE_MAPS_API_KEY):
     try:
@@ -33,8 +40,8 @@ def geocode(mapaddress, geo_region, post_hood,
         start = time.process_time()
         q = '{0} {1} {2}'.format(mapaddress2, geo_region, post_hood2)
         g = geocoder.google(q, key=mykey)
-        #logger.info("processed_time: {0} || {1} || google address: {2}, confidence: {3}".format(
-        #        round(time.process_time()-start,4), q, g.address, g.confidence))
+        logger.debug("processed_time: {0} || {1} || google address: {2}, confidence: {3}".format(
+                round(time.process_time()-start,4), q, g.address, g.confidence))
         return {'mapaddress':mapaddress, 'geo.region':geo_region,'post_hood':post_hood, 'address':g.address, 'quality':g.quality, 'lat':g.lat, 'lng':g.lng, 'zip':g.postal, 'craig_address_hash':address_hash((mapaddress,geo_region,post_hood)), 'gconfidence': g.confidence}
     except:
         logger.exception(post_hood)
@@ -51,21 +58,14 @@ def process_chunk(chunk):
         except:
             logger.exception('geo ehhh')
     results = []
-    #not threaded ok.
-    #for x in chunk:
-    #    result = geo_helper(x)
-    #    if result:
-    #        results.append(result)
-    #logger.info('chunk done! size was: {}'.format(len(chunk)))
-    #queue.full ....
-    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-        for result in executor.map(geo_helper, chunk):
-            if result:
-                results.append(result)
+    for x in chunk:
+        result = geo_helper(x)
+        if result:
+            results.append(result)
     geo_results = pd.DataFrame(results)
     geo_results = geo_results.dropna()
     ts = time.process_time()
-    # psycopg2 connections are thread safe but not across processes "level 2 thread safe"
+    # psycopg2 connections are thread safe but not across processes "level 2 thread safe", so make a new connection.
     little_engine = create_engine(os.getenv('CRAIGGER_CONN'))
     geo_results.to_sql('geocoder_results', little_engine, if_exists='append', index=False)
     logger.info('wrote {0} geocoder results. time: {1}'.format(len(geo_results), round(time.process_time()-ts,5)))
@@ -94,10 +94,10 @@ def build_address_map(limit=5):
                 logger.debug('cache hit: {}'.format(craig_hash))
         except KeyError:
             logger.exception('eh')
-    geo_chunks = chunks(geo_input, 100)
+    geo_chunks = chunks(geo_input, 1500)
     logger.warning('starting google geocoder, df.shape: {0} rows: {1} cache_hits: {2}'.format(df.shape, len(geo_input), cache_hits))
     results = []
-    with concurrent.futures.ProcessPoolExecutor(max_workers=10) as pexecutor:
+    with concurrent.futures.ProcessPoolExecutor(max_workers=4) as pexecutor:
         for result in pexecutor.map(process_chunk, geo_chunks):
             try:
                 if len(result) > 0:
@@ -139,7 +139,7 @@ def main():
     dfg = pd.merge(dfgeo,dfrent)
     print(dfg)
     logger.info("dfg.to_sql('joined_results', engine, if_exists='append', index=False)")
-    dfg.to_sql('joined_results', engine, if_exists='append', index=False)
+    dfg.to_sql('joined_results', engine, if_exists='replace', index=False)
     return 0
 
 
