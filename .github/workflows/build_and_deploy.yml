@@ -22,6 +22,7 @@ jobs:
         uses: ruby/setup-ruby@359bebbc29cbe6c87da6bc9ea3bc930432750108
         with:
           ruby-version: '3.1'
+          bundler-cache: true
       - name: Install dependencies
         run: bundle install
       - name: "Build Site"
