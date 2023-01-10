@@ -18,4 +18,4 @@ group :jekyll_plugins do
   gem 'jekyll-redirect-from', "~> 0.16.0"
 end
 
-gem 's3_website'
+gem 'aws-sdk', '~> 3'
