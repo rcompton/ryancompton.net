@@ -26,19 +26,19 @@ frequency of string $$i = 220.0*( 2.0^{\frac{i}{12.0}} )$$
 
 for $$i=0,...,11$$ for more information [http://en.wikipedia.org/wiki/Pitch_(music)](http://en.wikipedia.org/wiki/Pitch_(music))
 
-<object width="480" height="385"><param name="movie" value="http://www.youtube.com/v/YR6VAZUGAMo&hl=en&fs=1&"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/YR6VAZUGAMo&hl=en&fs=1&" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="480" height="385"></embed></object>
+https://www.youtube.com/watch?v=YR6VAZUGAMo
 
 I could not hear what's going on all that well either. An aesthetically pleasing quadratic running time strategy you may follow is insertion sort [http://en.wikipedia.org/wiki/Insertion_sort]( http://en.wikipedia.org/wiki/Insertion_sort). Here's how insertion sort sounds in a scenario involving many more strings on the floor:
 
-<object width="480" height="385"><param name="movie" value="http://www.youtube.com/v/DNAmWDmIAZQ&hl=en&fs=1&"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/DNAmWDmIAZQ&hl=en&fs=1&" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="480" height="385"></embed></object>
+https://www.youtube.com/watch?v=DNAmWDmIAZQ
 
 And if you were to sort drums with insertion sort you would get something like this:
 
-<object width="480" height="385"><param name="movie" value="http://www.youtube.com/v/zXTlRc6QM-M&hl=en&fs=1&"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/zXTlRc6QM-M&hl=en&fs=1&" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="480" height="385"></embed></object>
+https://www.youtube.com/watch?v=zXTlRc6QM-M
 
 The sounds were made using STK [http://ccrma.stanford.edu/software/stk/](http://ccrma.stanford.edu/software/stk/) the videos were made using the python gnuplot module [http://gnuplot-py.sourceforge.net](http://gnuplot-py.sourceforge.net) and mencoder. The source is at [https://code.google.com/p/musical-sorting-algorithms/](https://code.google.com/p/musical-sorting-algorithms/)
 
 
 **Update 2009-08-11:**
-This got written up in Make: [http://blog.makezine.com/archive/2009/08/musical_sorting_algorithms.html](http://blog.makezine.com/archive/2009/08/musical_sorting_algorithms.html)
+[This got written up in Make](https://web.archive.org/web/20090827005157/http://blog.makezine.com/archive/2009/08/musical_sorting_algorithms.html)
 
