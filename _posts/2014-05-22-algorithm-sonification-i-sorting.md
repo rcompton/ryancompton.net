@@ -16,8 +16,8 @@ Suppose you drop a set of drums and they land randomly ordered in a row on the f
 
 If you order the drums by their general MIDI number and simultaneously strike any two which you swap then you will produce a sound similar to this:
 
-<object width="480" height="385"><param name="movie" value="http://www.youtube.com/v/g2IWUd3p30I&hl=en&fs=1&"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/g2IWUd3p30I&hl=en&fs=1&" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="480" height="385"></embed></object>
-<br>
+https://www.youtube.com/watch?v=g2IWUd3p30I
+
 <!--more-->
 
 To hear what's going on with quick sort a little better consider the case where you have dropped 12 guitar strings whose frequencies vary expoentially, ie
