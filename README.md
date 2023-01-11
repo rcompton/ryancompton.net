@@ -1,4 +1,4 @@
-Jekyll (Bootstrap) code for my website
+Jekyll code for my website
 
 ## License
 
