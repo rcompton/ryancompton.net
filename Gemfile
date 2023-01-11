@@ -16,7 +16,6 @@ gem "minima", git: "https://github.com/jekyll/minima"
 group :jekyll_plugins do
   gem "jekyll-feed", "~> 0.12"
   gem "jekyll-redirect-from", "~> 0.16.0"
-  gem "jekyll-sass-converter", "~> 3.0"
 end
 
 gem 'aws-sdk', '~> 3'
