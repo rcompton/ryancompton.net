@@ -11,9 +11,9 @@ I am currently a software engineer at [Google](https://www.google.com/) working 
 
 + [Photo]({{ site.url }}/assets/resume/IMG_6683_small.jpg)
 
-+ [Photo 2]({{ site.url }}/assets/resume/surfleftlane.jpg)
+    + [Photo 2]({{ site.url }}/assets/resume/surfleftlane.jpg)
 
-+ [Photo 3]({{ site.url }}/assets/resume/surflongboardlane.jpg)
+    + [Photo 3]({{ site.url }}/assets/resume/surflongboardlane.jpg)
 
 
 You can find me elsewhere on the web:
