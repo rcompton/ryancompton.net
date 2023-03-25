@@ -7,7 +7,7 @@ source "https://rubygems.org"
 #
 # This will help ensure the proper Jekyll version is running.
 # Happy Jekylling!
-gem "jekyll", "~> 4.3.1"
+gem "jekyll", "~> 4.3.2"
 
 # Theme, use the latest on github to get dark version
 gem "minima", git: "https://github.com/jekyll/minima"
