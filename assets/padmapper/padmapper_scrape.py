@@ -49,7 +49,8 @@ def geocode_and_assess(padmapper_address):
     tax = process_address(g.address)
     if tax is None:
         logger.error(f"No tax for {g.address}")
-    out.update(tax)
+    else:
+        out.update(tax)
     return out
 
 def search_and_parse(la_city):
@@ -102,7 +103,7 @@ def search_and_parse(la_city):
 
         tax = geocode_and_assess(ad["address"] + " " + ad["hood"])
         ad.update(tax)
-        
+
         ads.append(ad)
 
     return ads
@@ -201,7 +202,7 @@ LA_CITIES = ["whittier",
 def main():
 
     ads = []
-    for la_city in LA_CITIES[-10:]:
+    for la_city in LA_CITIES:
         city_ads = search_and_parse(la_city)
         if not city_ads:
             logger.info(f"Welcome to Dumpville: {la_city}")
@@ -210,8 +211,7 @@ def main():
         logger.info(f"Hits: {la_city} {len(city_ads)}")
         ads.extend(city_ads)
     df = pd.DataFrame(ads)
-    print(df)
-    df.to_sql("padmapper_ads", engine, if_exists="replace", index=False)
+    df.to_sql("padmapper_ads", engine, if_exists="append", index=False)
 
 if __name__ == "__main__":
     main()
