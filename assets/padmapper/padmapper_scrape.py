@@ -8,9 +8,9 @@ from datetime import datetime as dt
 from bs4 import BeautifulSoup
 from sqlalchemy import create_engine
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.options import Options
 
 from assessor_api import process_address
 
@@ -111,14 +111,18 @@ def search_and_parse(la_city):
 
         try:
             service = Service(ChromeDriverManager().install())
-            chrome_options = Options()
-            chrome_options.add_argument('--headless')
-            chrome_options.add_argument('--no-sandbox')
-            chrome_options.add_argument('--disable-dev-shm-usage')
-            chrome_options.add_argument('window-size=1234x2124')
-            driver = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
+            options = Options()
+            options.add_argument('--headless')
+            options.add_argument('--disable-gpu')
+            options.add_argument('--single-process')
+            options.add_argument('--no-sandbox')
+            options.add_argument('--disable-dev-shm-usage')
+            options.add_argument('--user-data-dir=~/.config/google-chrome')
+            options.add_argument('--window-size=1420,2080')
+            driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
             driver.get(ad['padmapper_url'])
             driver.save_screenshot(os.path.join(os.environ["HOME"], "padmapper-data",
+                ad["crawl_date"]+"_"+
                 ad['gaddress'].replace(" ", "_")+'.png'))
             driver.quit()
         except:
@@ -127,7 +131,6 @@ def search_and_parse(la_city):
         ads.append(ad)
 
     return ads
-
 
 
 LA_CITIES = ["whittier",
@@ -220,6 +223,18 @@ LA_CITIES = ["whittier",
 "agoura-hills"]
 
 def main():
+    service = Service(ChromeDriverManager().install())
+    options = Options()
+    options.add_argument('--headless')
+    options.add_argument('--disable-gpu')
+    options.add_argument('--single-process')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--user-data-dir=~/.config/google-chrome')
+    options.add_argument('--window-size=1420,2080')
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+    driver.get("https://www.ryancompton.net")
+    driver.quit()
 
     ads = []
     for la_city in LA_CITIES:
