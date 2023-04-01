@@ -2,11 +2,15 @@ import re
 import os
 import requests
 import logging
+import geocoder
 import pandas as pd
 from datetime import datetime as dt
 from bs4 import BeautifulSoup
 from sqlalchemy import create_engine
 
+from assessor_api import process_address
+
+GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
 
 FORMAT = "%(asctime)-15s %(levelname)-6s %(message)s"
 DATE_FORMAT = "%b %d %H:%M:%S"
@@ -25,6 +29,28 @@ logger.info("starting padmapper scrape!")
 
 conn_str = os.getenv("CRAIGGER_CONN")  # make sure the tunnel is open
 engine = create_engine(conn_str)
+
+def geocode_and_assess(padmapper_address):
+    try:
+        g = geocoder.google(padmapper_address, key=GOOGLE_MAPS_API_KEY)
+    except:
+        logger.exception(padmapper_address)
+    if not g.ok:
+        logging.error(g.json)
+
+    out = {
+            "gaddress": g.address,
+            "gquality": g.quality,
+            "glat": g.lat,
+            "glng": g.lng,
+            "gzip": g.postal,
+            "gconfidence": g.confidence
+        }
+    tax = process_address(g.address)
+    if tax is None:
+        logger.error(f"No tax for {g.address}")
+    out.update(tax)
+    return out
 
 def search_and_parse(la_city):
     url = f"https://www.padmapper.com/apartments/{la_city}-ca?property-categories=house&max-days=1&lease-term=long"
@@ -73,9 +99,14 @@ def search_and_parse(la_city):
             logger.debug("if not price")
             continue
         ad['price'] = price.get_text()
+
+        tax = geocode_and_assess(ad["address"] + " " + ad["hood"])
+        ad.update(tax)
+        
         ads.append(ad)
 
     return ads
+
 
 
 LA_CITIES = ["whittier",
@@ -168,8 +199,9 @@ LA_CITIES = ["whittier",
 "agoura-hills"]
 
 def main():
+
     ads = []
-    for la_city in LA_CITIES:
+    for la_city in LA_CITIES[-10:]:
         city_ads = search_and_parse(la_city)
         if not city_ads:
             logger.info(f"Welcome to Dumpville: {la_city}")
@@ -178,7 +210,8 @@ def main():
         logger.info(f"Hits: {la_city} {len(city_ads)}")
         ads.extend(city_ads)
     df = pd.DataFrame(ads)
-    df.to_sql("padmapper_ads", engine, if_exists="append", index=False)
+    print(df)
+    df.to_sql("padmapper_ads", engine, if_exists="replace", index=False)
 
 if __name__ == "__main__":
     main()

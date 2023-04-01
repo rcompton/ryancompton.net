@@ -1,16 +1,18 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-import concurrent
 import logging
 import os
-import pandas as pd
 import requests
 import urllib.parse
 import usaddress
 from urllib3.exceptions import InsecureRequestWarning
 
-from sqlalchemy import create_engine
+headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'}
+proxies = {}
+# Suppress only the single warning from urllib3 needed.
+requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
 
 
 FORMAT = "%(asctime)-15s %(levelname)-6s %(message)s"
@@ -19,7 +21,7 @@ formatter = logging.Formatter(fmt=FORMAT, datefmt=DATE_FORMAT)
 handler = logging.StreamHandler()
 handler.setFormatter(formatter)
 fhandler = logging.FileHandler(
-    os.path.join(os.environ["HOME"], "craigslist-data/log.log")
+    os.path.join(os.environ["HOME"], "padmapper-data/log.log")
 )
 fhandler.setFormatter(formatter)
 logger = logging.getLogger(__name__)
@@ -27,24 +29,6 @@ logger.addHandler(handler)
 logger.addHandler(fhandler)
 logger.setLevel(logging.INFO)
 logger.info("starting new scrape!")
-
-conn_str = os.getenv("CRAIGGER_CONN")  # make sure the tunnel is open
-engine = create_engine(conn_str)
-
-# Suppress only the single warning from urllib3 needed.
-requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
-
-proxy_host = "proxy.zyte.com"
-proxy_port = "8011"
-proxy_auth = os.environ["CRAWLERA_API_KEY"] + ":"
-proxies = {
-    "https": f"http://{proxy_auth}@{proxy_host}:{proxy_port}/",
-    "http": f"http://{proxy_auth}@{proxy_host}:{proxy_port}/",
-}
-headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36"
-}
-
 
 def fetch_address_ain(address):
     url_base = "https://portal.assessor.lacounty.gov/api/search?search="
@@ -157,6 +141,7 @@ def fetch_ain_details(ain):
 def process_address(address):
     ain = fetch_address_ain(address)
     if ain is None:
+        logger.info(f"No AIN for: {address}")
         return
     deets = fetch_ain_details(ain)
     if deets is None:
@@ -165,27 +150,27 @@ def process_address(address):
     return deets
 
 
-def main():
-    logger.info("query the postpostprocessed db...")
-    dfrent = pd.read_sql(
-        "SELECT address from joined_results WHERE gconfidence >= 9 AND netloc = 'losangeles.craigslist.org'",
-        engine,
-    )
-    logger.warning("dfrent.shape" + str(dfrent.shape))
-    addresses = set()
-    for idx, row in dfrent.iterrows():
-        addresses.add(row["address"])
-    results = []
-    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-        for result in executor.map(process_address, addresses):
-            if result:
-                results.append(result)
-    df_taxes = pd.DataFrame(results)
-    print(df_taxes)
-    logger.info("df_taxes.to_sql...")
-    df_taxes.to_sql("tax_results", engine, if_exists="append", index=False)
-
-
-if __name__ == "__main__":
-    logger.info("starting new scrape! main")
-    main()
+#def main():
+#    logger.info("query the postpostprocessed db...")
+#    dfrent = pd.read_sql(
+#        "SELECT address from joined_results WHERE gconfidence >= 9 AND netloc = 'losangeles.craigslist.org'",
+#        engine,
+#    )
+#    logger.warning("dfrent.shape" + str(dfrent.shape))
+#    addresses = set()
+#    for idx, row in dfrent.iterrows():
+#        addresses.add(row["address"])
+#    results = []
+#    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+#        for result in executor.map(process_address, addresses):
+#            if result:
+#                results.append(result)
+#    df_taxes = pd.DataFrame(results)
+#    print(df_taxes)
+#    logger.info("df_taxes.to_sql...")
+#    df_taxes.to_sql("tax_results", engine, if_exists="append", index=False)
+#
+#
+#if __name__ == "__main__":
+#    logger.info("starting new scrape! main")
+#    main()
