@@ -1,6 +1,9 @@
 import re
+import os
 import requests
 import logging
+import pandas as pd
+from datetime import datetime as dt
 from bs4 import BeautifulSoup
 from sqlalchemy import create_engine
 
@@ -11,14 +14,14 @@ formatter = logging.Formatter(fmt=FORMAT, datefmt=DATE_FORMAT)
 handler = logging.StreamHandler()
 handler.setFormatter(formatter)
 fhandler = logging.FileHandler(
-    os.path.join(os.environ["HOME"], "craigslist-data/log.log")
+    os.path.join(os.environ["HOME"], "padmapper-data/log.log")
 )
 fhandler.setFormatter(formatter)
 logger = logging.getLogger(__name__)
 logger.addHandler(handler)
 logger.addHandler(fhandler)
 logger.setLevel(logging.INFO)
-logger.info("starting new scrape!")
+logger.info("starting padmapper scrape!")
 
 conn_str = os.getenv("CRAIGGER_CONN")  # make sure the tunnel is open
 engine = create_engine(conn_str)
@@ -29,19 +32,22 @@ def search_and_parse(la_city):
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'}
 
     response = requests.get(url, headers=headers)
+    logger.info(f"{url} {response.status_code}")
     html_content = response.content
     soup = BeautifulSoup(html_content, 'html.parser')
 
     list_item_container = soup.find("div", class_=re.compile('list_listItemContainer.*'))
 
     if not list_item_container:
+        logger.debug("no listItemContainer")
         return []
 
     list_items = list_item_container.find_all("div", class_=re.compile(".*noGutter.*"))
     ads = []
 
     for list_item in list_items:
-        ad = {}
+        ad = {"la_city": la_city}
+        ad['crawl_date'] = dt.today().isoformat()
         address = list_item.find("div", class_=re.compile(".*ListItemFull_address.*"))
         if not address:
             continue
@@ -50,6 +56,7 @@ def search_and_parse(la_city):
         for infos in list_item.find_all("div", class_=re.compile(".*ListItemFull_info.*")):
             info3 = infos.find_all("span")
             if len(info3) != 3:
+                logger.info("len(info3) != 3")
                 continue
             ad["bedbath"] = info3[0].get_text(strip=True)
             ad["housetype"] = info3[1].get_text(strip=True)
@@ -57,11 +64,13 @@ def search_and_parse(la_city):
 
         header_text = list_item.find('a', class_=re.compile("ListItemFull_headerText.*"))
         if not header_text:
+            logger.debug("if not header_text")
             continue
-        ad['href'] = "https://www.padmapper.com" + header_text['href']
+        ad['padmapper_url'] = "https://www.padmapper.com" + header_text['href']
 
         price = list_item.find('span', class_=re.compile(".*ListItemFull_text.*"))
         if not price:
+            logger.debug("if not price")
             continue
         ad['price'] = price.get_text()
         ads.append(ad)
@@ -159,11 +168,15 @@ LA_CITIES = ["whittier",
 "agoura-hills"]
 
 def main():
+    ads = []
     for la_city in LA_CITIES:
         city_ads = search_and_parse(la_city)
         if not city_ads:
-            logger.info("Welcome to Dumpville:",la_city)
-    ads.extend(city_ads)
+            logger.info(f"Welcome to Dumpville: {la_city}")
+            continue
+
+        logger.info(f"Hits: {la_city} {len(city_ads)}")
+        ads.extend(city_ads)
     df = pd.DataFrame(ads)
     df.to_sql("padmapper_ads", engine, if_exists="append", index=False)
 
