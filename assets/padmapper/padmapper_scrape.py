@@ -14,11 +14,6 @@ from selenium.webdriver.chrome.options import Options
 
 from assessor_api import process_address
 
-chrome_options = Options()
-chrome_options.add_argument('--headless')
-chrome_options.add_argument('--no-sandbox')
-chrome_options.add_argument('--disable-dev-shm-usage')
-
 
 GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
 
@@ -116,7 +111,12 @@ def search_and_parse(la_city):
 
         try:
             service = Service(ChromeDriverManager().install())
-            driver = webdriver.Chrome(ChromeDriverManager().install(), chrome_options=chrome_options)
+            chrome_options = Options()
+            chrome_options.add_argument('--headless')
+            chrome_options.add_argument('--no-sandbox')
+            chrome_options.add_argument('--disable-dev-shm-usage')
+            chrome_options.add_argument('window-size=1234x2124')
+            driver = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
             driver.get(ad['padmapper_url'])
             driver.save_screenshot(os.path.join(os.environ["HOME"], "padmapper-data",
                 ad['gaddress'].replace(" ", "_")+'.png'))
