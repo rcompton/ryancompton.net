@@ -11,6 +11,8 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.by import By
+
 
 from assessor_api import process_address
 
@@ -110,7 +112,6 @@ def search_and_parse(la_city):
         ad.update(tax)
 
         try:
-            service = Service(ChromeDriverManager().install())
             options = Options()
             options.add_argument('--headless')
             options.add_argument('--disable-gpu')
@@ -119,7 +120,10 @@ def search_and_parse(la_city):
             options.add_argument('--disable-dev-shm-usage')
             options.add_argument('--user-data-dir=~/.config/google-chrome')
             options.add_argument('--window-size=1420,2080')
-            driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+            options.add_argument('--profile-directory=Default')
+            options.add_argument('--user-data-dir=~/.config/google-chrome')
+            service=Service("/usr/local/bin/chromedriver")
+            driver = webdriver.Chrome(service=service, options=options)
             driver.get(ad['padmapper_url'])
             driver.save_screenshot(os.path.join(os.environ["HOME"], "padmapper-data",
                 ad["crawl_date"]+"_"+
@@ -223,17 +227,14 @@ LA_CITIES = ["whittier",
 "agoura-hills"]
 
 def main():
-    service = Service(ChromeDriverManager().install())
     options = Options()
-    options.add_argument('--headless')
-    options.add_argument('--disable-gpu')
-    options.add_argument('--single-process')
     options.add_argument('--no-sandbox')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument('--user-data-dir=~/.config/google-chrome')
-    options.add_argument('--window-size=1420,2080')
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-    driver.get("https://www.ryancompton.net")
+    options.add_argument('--headless')
+    options.add_argument('--window-size=1220,1480')
+    service=Service("/usr/local/bin/chromedriver")
+    driver = webdriver.Chrome(service=service, options=options)
+    driver.get("https://www.padmapper.com/apartments/14815827p/1-bedroom-1-bath-apartment-at-2015-e-broadway-long-beach-ca-90803")
+    driver.save_screenshot(os.path.join(os.environ["HOME"], "padmapper-data","asd.png"))
     driver.quit()
 
     ads = []
