@@ -305,8 +305,6 @@ def main():
             logger.info(f"Welcome to Dumpville: {la_city}")
             continue
         logger.info(f"Hits: {la_city} {len(city_ads)}")
-    df = pd.DataFrame(ads)
-    df.to_sql("padmapper_ads", engine, if_exists="append", index=False)
 
 
 if __name__ == "__main__":
