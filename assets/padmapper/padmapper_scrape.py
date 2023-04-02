@@ -1,9 +1,11 @@
 import re
+import boto3
 import os
 import requests
 import logging
 import geocoder
 import pandas as pd
+from io import BytesIO
 from datetime import datetime as dt
 from bs4 import BeautifulSoup
 from sqlalchemy import create_engine
@@ -119,9 +121,15 @@ def search_and_parse(la_city):
             service=Service("/usr/local/bin/chromedriver")
             driver = webdriver.Chrome(service=service, options=options)
             driver.get(ad['padmapper_url'])
-            fname = os.path.join(os.environ["HOME"], "padmapper-data",
-                ad["crawl_date"]+"_"+ ad['gaddress'].replace(" ", "_")+'.png')
-            driver.save_screenshot(fname)
+            byte_buffer = BytesIO()
+            screenshot_bytes = driver.get_screenshot_as_png()
+            byte_buffer.write(screenshot_bytes)
+
+            fname = os.path.join("padmapper-data",
+                ad["crawl_date"], ad['gaddress'].replace(" ", "_")+'.png')
+            s3 = boto3.client('s3')
+            s3.upload_fileobj(byte_buffer, 'rycpt-crawls', fname)
+
             ad['screenshot'] = fname
             driver.quit()
         except:
@@ -233,7 +241,7 @@ def main():
         logger.info(f"Hits: {la_city} {len(city_ads)}")
         ads.extend(city_ads)
     df = pd.DataFrame(ads)
-    df.to_sql("padmapper_ads", engine, if_exists="replace", index=False)
+    df.to_sql("padmapper_ads", engine, if_exists="append", index=False)
 
 if __name__ == "__main__":
     main()
