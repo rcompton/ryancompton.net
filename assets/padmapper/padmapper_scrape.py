@@ -240,7 +240,7 @@ def main():
         logger.info(f"Hits: {la_city} {len(city_ads)}")
         ads.extend(city_ads)
     df = pd.DataFrame(ads)
-    df.to_sql("padmapper_ads", engine, if_exists="replace", index=False)
+    df.to_sql("padmapper_ads", engine, if_exists="append", index=False)
 
 if __name__ == "__main__":
     main()
