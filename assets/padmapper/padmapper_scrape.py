@@ -95,23 +95,30 @@ def get_and_scroll(url):
 
 def screenshot_ad(ad):
     driver = webdriver.Chrome(service=service, options=options)
+    logger.info(f"about to get: {ad['padmapper_url']}")
     driver.get(ad['padmapper_url'])
     time.sleep(2)
     byte_buffer = BytesIO()
     screenshot_bytes = driver.get_screenshot_as_png()
     byte_buffer.write(screenshot_bytes)
     logger.info(f"BytesIO: {byte_buffer.getbuffer().nbytes}")
-    if byte_buffer.getbuffer().nbytes > 0:
-        fname = os.path.join("padmapper-data",
-        ad["crawl_date"], ad['gaddress'].replace(" ", "_")+'.png')
+    bsize = byte_buffer.getbuffer().nbytes
+    if bsize > 0:
+        fname = os.path.join("padmapper-data", ad["crawl_date"], ad['gaddress'].replace(" ", "_")+'.png')
         s3 = boto3.client('s3')
         byte_buffer.seek(0)
         s3.upload_fileobj(byte_buffer, 'rycpt-crawls', fname, ExtraArgs={ "ContentType": "image/jpeg"})
-        ad['screenshot'] = fname
+        response = s3.head_object(Bucket='rycpt-crawls', Key=fname)
+        if 'ContentLength' in response and response['ContentLength'] > 0:
+            logger.info(f'success s3: {fname}. ContentLength: {response["ContentLength"]} bsize: {bsize}')
+            ad['screenshot'] = fname
+        else:
+            logger.info(f'failed s3: {fname}. ContentLength: {response["ContentLength"]} bsize: {bsize}')
     return ad
 
 def search_and_parse(la_city):
     url = f"https://www.padmapper.com/apartments/{la_city}-ca?property-categories=house&max-days=1&lease-term=long"
+    logger.info(f"serp: {url}")
     html_content = get_and_scroll(url)
     soup = BeautifulSoup(html_content, 'html.parser')
 
@@ -124,7 +131,6 @@ def search_and_parse(la_city):
     ads = []
     for list_item in list_items:
         ad = {"la_city": la_city}
-        #ad = {"la_city": ""}
         ad['crawl_date'] = dt.today().date().isoformat()
         address = list_item.find("div", class_=re.compile(".*ListItemFull_address.*"))
         if not address:
@@ -134,7 +140,6 @@ def search_and_parse(la_city):
         for infos in list_item.find_all("div", class_=re.compile(".*ListItemFull_info.*")):
             info3 = infos.find_all("span")
             if len(info3) != 3:
-                logger.info("len(info3) != 3")
                 continue
             ad["bedbath"] = info3[0].get_text(strip=True)
             ad["housetype"] = info3[1].get_text(strip=True)
@@ -157,7 +162,7 @@ def search_and_parse(la_city):
             try:
                 ad = screenshot_ad(ad)
             except:
-                logger.error("screenshot fail")
+                logger.exception("screenshot fail")
 
         ads.append(ad)
 
@@ -256,8 +261,8 @@ LA_CITIES = ["whittier",
 def main():
 
     ads = []
-    #for la_city in LA_CITIES:
-    for la_city in ['los-angeles', 'santa-monica', 'culver-city']:
+    #for la_city in ['los-angeles', 'santa-monica', 'culver-city']:
+    for la_city in LA_CITIES:
         city_ads = search_and_parse(la_city)
         if not city_ads:
             logger.info(f"Welcome to Dumpville: {la_city}")
