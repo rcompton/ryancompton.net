@@ -119,9 +119,11 @@ def search_and_parse(la_city):
             service=Service("/usr/local/bin/chromedriver")
             driver = webdriver.Chrome(service=service, options=options)
             driver.get(ad['padmapper_url'])
-            driver.save_screenshot(os.path.join(os.environ["HOME"], "padmapper-data",
+            fname = os.path.join(os.environ["HOME"], "padmapper-data",
                 ad["crawl_date"]+"_"+
                 ad['gaddress'].replace(" ", "_")+'.png'))
+            driver.save_screenshot(fname)
+            ad['screenshot'] = fname
             driver.quit()
         except:
             logger.exception(f'screenshot fail {ad["padmapper_url"]}')
@@ -232,7 +234,7 @@ def main():
         logger.info(f"Hits: {la_city} {len(city_ads)}")
         ads.extend(city_ads)
     df = pd.DataFrame(ads)
-    df.to_sql("padmapper_ads", engine, if_exists="append", index=False)
+    df.to_sql("padmapper_ads", engine, if_exists="replace", index=False)
 
 if __name__ == "__main__":
     main()
