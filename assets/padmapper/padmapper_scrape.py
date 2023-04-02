@@ -113,15 +113,9 @@ def search_and_parse(la_city):
 
         try:
             options = Options()
-            options.add_argument('--headless')
-            options.add_argument('--disable-gpu')
-            options.add_argument('--single-process')
             options.add_argument('--no-sandbox')
-            options.add_argument('--disable-dev-shm-usage')
-            options.add_argument('--user-data-dir=~/.config/google-chrome')
-            options.add_argument('--window-size=1420,2080')
-            options.add_argument('--profile-directory=Default')
-            options.add_argument('--user-data-dir=~/.config/google-chrome')
+            options.add_argument('--headless')
+            options.add_argument('--window-size=1220,1480')
             service=Service("/usr/local/bin/chromedriver")
             driver = webdriver.Chrome(service=service, options=options)
             driver.get(ad['padmapper_url'])
@@ -227,15 +221,6 @@ LA_CITIES = ["whittier",
 "agoura-hills"]
 
 def main():
-    options = Options()
-    options.add_argument('--no-sandbox')
-    options.add_argument('--headless')
-    options.add_argument('--window-size=1220,1480')
-    service=Service("/usr/local/bin/chromedriver")
-    driver = webdriver.Chrome(service=service, options=options)
-    driver.get("https://www.padmapper.com/apartments/14815827p/1-bedroom-1-bath-apartment-at-2015-e-broadway-long-beach-ca-90803")
-    driver.save_screenshot(os.path.join(os.environ["HOME"], "padmapper-data","asd.png"))
-    driver.quit()
 
     ads = []
     for la_city in LA_CITIES:
