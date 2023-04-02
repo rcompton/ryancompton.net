@@ -145,7 +145,6 @@ random.shuffle(LA_CITIES)
 logger.info(LA_CITIES)
 
 
-
 def geocode_and_assess(padmapper_address):
     try:
         g = geocoder.google(padmapper_address, key=GOOGLE_MAPS_API_KEY)
@@ -287,17 +286,16 @@ def search_and_parse(la_city):
 
         ads.append(ad)
 
-    #Write to db
+    # Write to db
     df = pd.DataFrame(ads)
-    logger.info(f'df {la_cty}: {df.shape}')
+    logger.info(f"df {la_city}: {df.shape}")
     df.to_sql("padmapper_ads", engine, if_exists="append", index=False)
 
     return ads
 
 
-
 def main():
-    #for la_city in ['los-angeles', 'santa-monica', 'culver-city']:
+    # for la_city in ['los-angeles', 'santa-monica', 'culver-city']:
     for la_city in LA_CITIES:
         city_ads = search_and_parse(la_city)
         if not city_ads:
