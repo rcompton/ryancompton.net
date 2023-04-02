@@ -2,6 +2,7 @@ import re
 import boto3
 import os
 import requests
+import random
 import logging
 import time
 import geocoder
@@ -44,6 +45,8 @@ engine = create_engine(conn_str)
 options = Options()
 options.add_argument("--no-sandbox")
 options.add_argument("--headless")
+options.add_argument("--disable_gpu")
+options.add_argument("--force-device-scale-factor=1")
 options.add_argument("--window-size=1220,1480")
 service = Service(executable_path=ChromeDriverManager().install())
 # service=Service("/usr/local/bin/chromedriver")
@@ -138,6 +141,9 @@ LA_CITIES = [
     "westlake-village",
     "whittier",
 ]
+random.shuffle(LA_CITIES)
+logger.info(LA_CITIES)
+
 
 
 def geocode_and_assess(padmapper_address):
@@ -165,13 +171,15 @@ def geocode_and_assess(padmapper_address):
 
 
 def get_and_scroll(url):
+    logger.info(f"get and scroll {url}")
     driver = webdriver.Chrome(service=service, options=options)
+    driver.set_page_load_timeout(45)
     driver.get(url)
     # Wait for the page to fully render
-    driver.implicitly_wait(3)
+    driver.implicitly_wait(10)
     prev_height = driver.execute_script("return document.body.scrollHeight")
     while True:
-        logger.debug("Scroll all scrollable elements to the bottom")
+        logger.info("Scroll...")
         driver.execute_script(
             "var elems = document.querySelectorAll('*'); for(var i=0; i<elems.length; i++){ var elem = elems[i]; if(elem.scrollHeight > elem.clientHeight){ elem.scrollTop = elem.scrollHeight; } }"
         )
@@ -284,7 +292,7 @@ def search_and_parse(la_city):
 
 def main():
     ads = []
-    # for la_city in ['los-angeles', 'santa-monica', 'culver-city']:
+    #for la_city in ['los-angeles', 'santa-monica', 'culver-city']:
     for la_city in LA_CITIES:
         city_ads = search_and_parse(la_city)
         if not city_ads:
