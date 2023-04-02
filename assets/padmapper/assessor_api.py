@@ -51,7 +51,7 @@ def usaddress_match(left, right):
 
 # Get AIN from address. Input address must match Google geocoder address exactly.
 def fetch_address_ain(address, try_google=False):
-    logger.debug(f"fetchAIN: {address}")
+    logger.info(f"fetch AIN: {address}")
     url_base = "https://portal.assessor.lacounty.gov/api/search?search="
     final_url = url_base + urllib.parse.quote(address)
     logger.info(f"searching: {final_url}")
@@ -63,28 +63,30 @@ def fetch_address_ain(address, try_google=False):
         return
     matches = []
 
-    # Check 1st result only.
-    parcel = srpj["Parcels"][0]
+    # Check 1st few result only.
+    for idx, parcel in enumerate(srpj["Parcels"][0:2]):
+        parcel_address = (
+            f'{parcel["SitusStreet"]}, {parcel["SitusCity"]}, {parcel["SitusZipCode"]}'
+        )
+        logger.info(f'parcel_address {idx}: {parcel_address}')
+        parsed_assessor_data = usaddress.tag(parcel_address)
+        if usaddress_match(parsed_input, parsed_assessor_data):
+            return parcel["AIN"]
 
-    parcel_address = (
-        f'{parcel["SitusStreet"]}, {parcel["SitusCity"]}, {parcel["SitusZipCode"]}'
-    )
-    parsed_assessor_data = usaddress.tag(parcel_address)
-    if usaddress_match(parsed_input, parsed_assessor_data):
-        return parcel["AIN"]
-
-    if not try_google:
-        return
-    logger.info(f"Fallback to Google API for: {parcel_address}")
-    g = geocoder.google(parcel_address, key=GOOGLE_MAPS_API_KEY)
-    if not g.ok:
-        logging.error(g.json)
-        return
-    logger.info(f"Google found: {g.address}")
-    parsed_google = usaddress.tag(g.address)
-    if usaddress_match(parsed_input, parsed_google):
-        logger.info(f'After Google we matched {g.address} to AIN: {parcel["AIN"]}')
-        return parcel["AIN"]
+        if not try_google:
+            return
+        logger.info(f"Fallback to Google API for input {address} matching against {parcel_address}")
+        g = geocoder.google(parcel_address, key=GOOGLE_MAPS_API_KEY)
+        if not g.ok:
+            logging.error(g.json)
+            return
+        logger.info(f"Google found: {g.address}")
+        parsed_google = usaddress.tag(g.address)
+        if usaddress_match(parsed_input, parsed_google):
+            logger.info(f'After Google we matched {g.address} to AIN: {parcel["AIN"]}')
+            return parcel["AIN"]
+        else:
+            logger.info(f"no google match between:\n{parsed_input}\n{parsed_google}")
     return
 
 
