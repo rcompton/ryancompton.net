@@ -3,6 +3,7 @@ import boto3
 import os
 import requests
 import logging
+import time
 import geocoder
 import pandas as pd
 from io import BytesIO
@@ -39,6 +40,14 @@ logger.info("starting padmapper scrape!")
 conn_str = os.getenv("CRAIGGER_CONN")  # make sure the tunnel is open
 engine = create_engine(conn_str)
 
+#selenium setup
+options = Options()
+options.add_argument('--no-sandbox')
+options.add_argument('--headless')
+options.add_argument('--window-size=1220,1480')
+service = Service(executable_path=ChromeDriverManager().install())
+#service=Service("/usr/local/bin/chromedriver")
+
 def geocode_and_assess(padmapper_address):
     try:
         g = geocoder.google(padmapper_address, key=GOOGLE_MAPS_API_KEY)
@@ -62,26 +71,60 @@ def geocode_and_assess(padmapper_address):
         out.update(tax)
     return out
 
+def get_and_scroll(url):
+    driver = webdriver.Chrome(service=service, options=options)
+    driver.get(url)
+    # Wait for the page to fully render
+    driver.implicitly_wait(3)
+    prev_height = driver.execute_script("return document.body.scrollHeight")
+    while True:
+        logger.debug('Scroll all scrollable elements to the bottom')
+        driver.execute_script("var elems = document.querySelectorAll('*'); for(var i=0; i<elems.length; i++){ var elem = elems[i]; if(elem.scrollHeight > elem.clientHeight){ elem.scrollTop = elem.scrollHeight; } }")
+        # Wait for a few seconds for the content to load
+        time.sleep(3)
+        # Calculate the current height of the page
+        current_height = driver.execute_script("return document.body.scrollHeight")
+        # Check if the current height is equal to the previous height
+        if current_height == prev_height:
+            break
+        # Update the previous height variable
+        prev_height = current_height
+    logger.debug('Scroll done.')
+
+    return driver.page_source
+
+def screenshot_ad(ad):
+    driver = webdriver.Chrome(service=service, options=options)
+    driver.get(ad['padmapper_url'])
+    time.sleep(2)
+    byte_buffer = BytesIO()
+    screenshot_bytes = driver.get_screenshot_as_png()
+    byte_buffer.write(screenshot_bytes)
+    logger.info(f"BytesIO: {byte_buffer.getbuffer().nbytes}")
+    if byte_buffer.getbuffer().nbytes > 0:
+        fname = os.path.join("padmapper-data",
+        ad["crawl_date"], ad['gaddress'].replace(" ", "_")+'.png')
+        s3 = boto3.client('s3')
+        byte_buffer.seek(0)
+        s3.upload_fileobj(byte_buffer, 'rycpt-crawls', fname, ExtraArgs={ "ContentType": "image/jpeg"})
+        ad['screenshot'] = fname
+    return ad
+
 def search_and_parse(la_city):
     url = f"https://www.padmapper.com/apartments/{la_city}-ca?property-categories=house&max-days=1&lease-term=long"
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'}
-
-    response = requests.get(url, headers=headers)
-    logger.info(f"{url} {response.status_code}")
-    html_content = response.content
+    html_content = get_and_scroll(url)
     soup = BeautifulSoup(html_content, 'html.parser')
 
     list_item_container = soup.find("div", class_=re.compile('list_listItemContainer.*'))
-
     if not list_item_container:
+        logger.error("no list_item_container")
         return []
 
     list_items = list_item_container.find_all("div", class_=re.compile(".*noGutter.*"))
     ads = []
-
     for list_item in list_items:
         ad = {"la_city": la_city}
+        #ad = {"la_city": ""}
         ad['crawl_date'] = dt.today().date().isoformat()
         address = list_item.find("div", class_=re.compile(".*ListItemFull_address.*"))
         if not address:
@@ -110,29 +153,11 @@ def search_and_parse(la_city):
         tax = geocode_and_assess(ad["address"] + " " + ad["hood"])
         ad.update(tax)
 
-        try:
-            options = Options()
-            options.add_argument('--no-sandbox')
-            options.add_argument('--headless')
-            options.add_argument('--window-size=1220,1480')
-            service=Service("/usr/local/bin/chromedriver")
-            driver = webdriver.Chrome(service=service, options=options)
-            driver.get(ad['padmapper_url'])
-            byte_buffer = BytesIO()
-            screenshot_bytes = driver.get_screenshot_as_png()
-            byte_buffer.write(screenshot_bytes)
-            driver.quit()
-            logger.info(f"BytesIO: {byte_buffer.getbuffer().nbytes}")
-
-            if byte_buffer.getbuffer().nbytes > 0:
-                fname = os.path.join("padmapper-data",
-                ad["crawl_date"], ad['gaddress'].replace(" ", "_")+'.png')
-                s3 = boto3.client('s3')
-                byte_buffer.seek(0)
-                s3.upload_fileobj(byte_buffer, 'rycpt-crawls', fname, ExtraArgs={ "ContentType": "image/jpeg"})
-                ad['screenshot'] = fname
-        except:
-            logger.exception(f'screenshot fail {ad["padmapper_url"]}')
+        if 'CurrentRoll_LandValue' in tax and float(tax['CurrentRoll_LandValue']) > 0.0:
+            try:
+                ad = screenshot_ad(ad)
+            except:
+                logger.error("screenshot fail")
 
         ads.append(ad)
 
@@ -231,16 +256,17 @@ LA_CITIES = ["whittier",
 def main():
 
     ads = []
-    for la_city in LA_CITIES:
+    #for la_city in LA_CITIES:
+    for la_city in ['los-angeles', 'santa-monica', 'culver-city']:
         city_ads = search_and_parse(la_city)
         if not city_ads:
             logger.info(f"Welcome to Dumpville: {la_city}")
             continue
-
         logger.info(f"Hits: {la_city} {len(city_ads)}")
         ads.extend(city_ads)
     df = pd.DataFrame(ads)
     df.to_sql("padmapper_ads", engine, if_exists="append", index=False)
+    driver.quit()
 
 if __name__ == "__main__":
     main()
