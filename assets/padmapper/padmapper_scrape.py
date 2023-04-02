@@ -298,8 +298,8 @@ def search_and_parse(la_city):
 
 
 def main():
-    for la_city in ["long-beach", "los-angeles", "santa-monica", "culver-city"]:
-        # for la_city in LA_CITIES:
+    #for la_city in ["long-beach", "los-angeles", "santa-monica", "culver-city"]:
+    for la_city in LA_CITIES:
         city_ads = search_and_parse(la_city)
         if not city_ads:
             logger.info(f"Welcome to Dumpville: {la_city}")
