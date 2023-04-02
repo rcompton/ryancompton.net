@@ -75,7 +75,6 @@ def search_and_parse(la_city):
     list_item_container = soup.find("div", class_=re.compile('list_listItemContainer.*'))
 
     if not list_item_container:
-        logger.debug("no listItemContainer")
         return []
 
     list_items = list_item_container.find_all("div", class_=re.compile(".*noGutter.*"))
@@ -100,13 +99,11 @@ def search_and_parse(la_city):
 
         header_text = list_item.find('a', class_=re.compile("ListItemFull_headerText.*"))
         if not header_text:
-            logger.debug("if not header_text")
             continue
         ad['padmapper_url'] = "https://www.padmapper.com" + header_text['href']
 
         price = list_item.find('span', class_=re.compile(".*ListItemFull_text.*"))
         if not price:
-            logger.debug("if not price")
             continue
         ad['price'] = price.get_text()
 
@@ -137,7 +134,6 @@ def search_and_parse(la_city):
         except:
             logger.exception(f'screenshot fail {ad["padmapper_url"]}')
 
-        logger.debug(f'success! {ad["padmapper_url"]}')
         ads.append(ad)
 
     return ads
@@ -244,7 +240,7 @@ def main():
         logger.info(f"Hits: {la_city} {len(city_ads)}")
         ads.extend(city_ads)
     df = pd.DataFrame(ads)
-    df.to_sql("padmapper_ads", engine, if_exists="append", index=False)
+    df.to_sql("padmapper_ads", engine, if_exists="replace", index=False)
 
 if __name__ == "__main__":
     main()
