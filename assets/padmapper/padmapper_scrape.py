@@ -307,7 +307,6 @@ def main():
         logger.info(f"Hits: {la_city} {len(city_ads)}")
     df = pd.DataFrame(ads)
     df.to_sql("padmapper_ads", engine, if_exists="append", index=False)
-    driver.quit()
 
 
 if __name__ == "__main__":
