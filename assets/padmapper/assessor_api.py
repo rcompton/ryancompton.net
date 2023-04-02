@@ -80,6 +80,7 @@ def fetch_address_ain(address, try_google=False):
     logger.info(f"Google found: {g.address}")
     parsed_google = usaddress.tag(g.address)
     if usaddress_match(parsed_input, parsed_google):
+        logger.info(f'After Google we matched {g.address} to AIN: {parcel["AIN"]}')
         return parcel["AIN"]
     return
 
