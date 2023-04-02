@@ -287,11 +287,16 @@ def search_and_parse(la_city):
 
         ads.append(ad)
 
+    #Write to db
+    df = pd.DataFrame(ads)
+    logger.info(f'df {la_cty}: {df.shape}')
+    df.to_sql("padmapper_ads", engine, if_exists="append", index=False)
+
     return ads
 
 
+
 def main():
-    ads = []
     #for la_city in ['los-angeles', 'santa-monica', 'culver-city']:
     for la_city in LA_CITIES:
         city_ads = search_and_parse(la_city)
@@ -299,9 +304,6 @@ def main():
             logger.info(f"Welcome to Dumpville: {la_city}")
             continue
         logger.info(f"Hits: {la_city} {len(city_ads)}")
-        ads.extend(city_ads)
-    df = pd.DataFrame(ads)
-    df.to_sql("padmapper_ads", engine, if_exists="append", index=False)
     driver.quit()
 
 
