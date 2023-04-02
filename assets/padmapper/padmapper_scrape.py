@@ -81,7 +81,7 @@ def search_and_parse(la_city):
 
     for list_item in list_items:
         ad = {"la_city": la_city}
-        ad['crawl_date'] = dt.today().isoformat()
+        ad['crawl_date'] = dt.today().date().isoformat()
         address = list_item.find("div", class_=re.compile(".*ListItemFull_address.*"))
         if not address:
             continue
@@ -120,8 +120,7 @@ def search_and_parse(la_city):
             driver = webdriver.Chrome(service=service, options=options)
             driver.get(ad['padmapper_url'])
             fname = os.path.join(os.environ["HOME"], "padmapper-data",
-                ad["crawl_date"]+"_"+
-                ad['gaddress'].replace(" ", "_")+'.png'))
+                ad["crawl_date"]+"_"+ ad['gaddress'].replace(" ", "_")+'.png')
             driver.save_screenshot(fname)
             ad['screenshot'] = fname
             driver.quit()
