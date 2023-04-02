@@ -413,7 +413,6 @@ def do_one_city(city_url, do_rf_join=False):
 
 
 def main():
-
     with open(
         os.path.join(
             os.environ["HOME"], "ryancompton.net/assets/craig_housing_cities.txt"

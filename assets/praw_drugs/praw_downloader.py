@@ -14,13 +14,13 @@ import pytz
 import sqlite3
 import sqlalchemy
 
-FORMAT = '%(asctime)-15s %(levelname)-6s %(message)s'
-DATE_FORMAT = '%b %d %H:%M:%S'
+FORMAT = "%(asctime)-15s %(levelname)-6s %(message)s"
+DATE_FORMAT = "%b %d %H:%M:%S"
 formatter = logging.Formatter(fmt=FORMAT, datefmt=DATE_FORMAT)
 
 handler = logging.StreamHandler()
 handler.setFormatter(formatter)
-fhandler = logging.FileHandler('/home/ubuntu/praw_downloader.log')
+fhandler = logging.FileHandler("/home/ubuntu/praw_downloader.log")
 fhandler.setFormatter(formatter)
 
 logger = logging.getLogger(__name__)
@@ -28,78 +28,96 @@ logger.addHandler(handler)
 logger.addHandler(fhandler)
 logger.setLevel(logging.INFO)
 
+
 class PRAWSubredditDownloader(object):
-    def __init__(self,subreddit_name,username,pw,dbname='sqlite+pysqlite:////home/ubuntu/drugs.db'):
+    def __init__(
+        self,
+        subreddit_name,
+        username,
+        pw,
+        dbname="sqlite+pysqlite:////home/ubuntu/drugs.db",
+    ):
         self.subreddit_name = subreddit_name
         self.redditors = None
-        self.r = praw.Reddit(user_agent='get_drugs_subreddits; subreddit_name={0}'
-                                    .format(self.subreddit_name))
-        self.r.login(username=username,password=pw)
+        self.r = praw.Reddit(
+            user_agent="get_drugs_subreddits; subreddit_name={0}".format(
+                self.subreddit_name
+            )
+        )
+        self.r.login(username=username, password=pw)
 
         self.run_datetime = datetime.datetime.now()
 
-        self.out_dir = os.path.join('subreddit_downloader','results_'+str(self.run_datetime))
+        self.out_dir = os.path.join(
+            "subreddit_downloader", "results_" + str(self.run_datetime)
+        )
         if not os.path.exists(self.out_dir):
-             os.mkdir(self.out_dir)
+            os.mkdir(self.out_dir)
 
         self.conn = sqlalchemy.create_engine(dbname, module=sqlite3.dbapi2)
 
-
-    def get_subreddit_authors(self,limit=None):
+    def get_subreddit_authors(self, limit=None):
         """
         Collect unique authors of recent comments in a subreddit
         """
-        out_dir = os.path.join(self.out_dir,'subreddit_authors')
+        out_dir = os.path.join(self.out_dir, "subreddit_authors")
         if not os.path.exists(out_dir):
             os.mkdir(out_dir)
 
-        comments = self.r.get_comments(self.subreddit_name,limit=limit)
+        comments = self.r.get_comments(self.subreddit_name, limit=limit)
         cs = []
         for c in comments:
             try:
-                d = {'author':c.author,
-                'subreddit':self.subreddit_name,
-                'submission_permalink':c.submission.permalink,
-                'body':c.body.replace('\n',' '), 
-                'posted_time': datetime.datetime.utcfromtimestamp(c.created_utc)}
+                d = {
+                    "author": c.author,
+                    "subreddit": self.subreddit_name,
+                    "submission_permalink": c.submission.permalink,
+                    "body": c.body.replace("\n", " "),
+                    "posted_time": datetime.datetime.utcfromtimestamp(c.created_utc),
+                }
                 cs.append(d)
             except:
-                logger.exception('comments download problem')
-        
-        logger.info('saving comments to sqlite db, len(comments): {}'.format(len(cs)))
-        #save to sql
-        c_strs = [{k:str(v) for (k,v) in d.items()} for d in cs]
+                logger.exception("comments download problem")
+
+        logger.info("saving comments to sqlite db, len(comments): {}".format(len(cs)))
+        # save to sql
+        c_strs = [{k: str(v) for (k, v) in d.items()} for d in cs]
         df = pd.DataFrame(c_strs)
         df = df.drop_duplicates()
-        df.to_sql(self.subreddit_name,self.conn,index=False,if_exists='append')
-        self.drop_sqlite3_duplicates(self.subreddit_name,'body')
+        df.to_sql(self.subreddit_name, self.conn, index=False, if_exists="append")
+        self.drop_sqlite3_duplicates(self.subreddit_name, "body")
 
-        #hash based on usernames, Redditor class has no __hash__ ...
-        d = {str(x['author']): x['author'] for x in cs}
+        # hash based on usernames, Redditor class has no __hash__ ...
+        d = {str(x["author"]): x["author"] for x in cs}
         return list(d.values())
 
     def get_redditor_history(self, redditor, limit=None):
         """
         Figure all the subreddits a redditor comments to
         """
-        logger.info('getting post history for {0} limit={1}'.format(redditor,limit))
+        logger.info("getting post history for {0} limit={1}".format(redditor, limit))
         rcs = redditor.get_comments(limit=limit)
-        out = [{'redditor':redditor.name,
-                'subreddit':c.subreddit.display_name, 
-                'submission_permalink':c.submission.permalink,
-                'posted_time': datetime.datetime.utcfromtimestamp(c.created_utc),
-                'body':c.body.replace('\n',' ')} for c in rcs]
+        out = [
+            {
+                "redditor": redditor.name,
+                "subreddit": c.subreddit.display_name,
+                "submission_permalink": c.submission.permalink,
+                "posted_time": datetime.datetime.utcfromtimestamp(c.created_utc),
+                "body": c.body.replace("\n", " "),
+            }
+            for c in rcs
+        ]
 
-        #save to sql
-        out_table_name = 'redditors_history'
+        # save to sql
+        out_table_name = "redditors_history"
         df = pd.DataFrame(out)
         df = df.drop_duplicates()
-        df.to_sql(out_table_name, self.conn, index=False, if_exists='append')
+        df.to_sql(out_table_name, self.conn, index=False, if_exists="append")
 
-        logger.info('Dowloaded comments from {0}: {1}'.format(redditor, len(out)))
+        logger.info("Dowloaded comments from {0}: {1}".format(redditor, len(out)))
         return out
 
-    def get_adjacent_subreddits(self,redditors_limit=5, comments_limit=10):
+    def get_adjacent_subreddits(self, redditors_limit=5, comments_limit=10):
         """
         Find all subreddits which share a redditor with the argument subreddit
         return a list of tuples which will be used as the graph's edgelist
@@ -107,21 +125,25 @@ class PRAWSubredditDownloader(object):
         if self.redditors is None:
             self.redditors = self.get_subreddit_authors(limit=redditors_limit)
 
-        logger.info('num redditors in {0}: {1}'.format(self.subreddit_name, len(self.redditors)))
+        logger.info(
+            "num redditors in {0}: {1}".format(self.subreddit_name, len(self.redditors))
+        )
         edges = []
         for redditor in self.redditors:
             try:
                 if redditor is not None:
                     rscs = self.get_redditor_history(redditor, limit=comments_limit)
-                    rscs = [d['subreddit'] for d in rscs]
-                    edges.extend([(self.subreddit_name.lower(), str(x).lower()) for x in rscs])
+                    rscs = [d["subreddit"] for d in rscs]
+                    edges.extend(
+                        [(self.subreddit_name.lower(), str(x).lower()) for x in rscs]
+                    )
             except:
-                logger.exception('problem with redditor {0}'.format(redditor))
+                logger.exception("problem with redditor {0}".format(redditor))
 
-        #db cleanup
-        self.drop_sqlite3_duplicates("redditors_history", 'body')
+        # db cleanup
+        self.drop_sqlite3_duplicates("redditors_history", "body")
 
-        #figure weights
+        # figure weights
         c = collections.Counter(edges)
         weighted_edges = [(x[0], x[1], c[x]) for x in c]
         return weighted_edges
@@ -131,16 +153,33 @@ class PRAWSubredditDownloader(object):
         remove rows that contain duplicate text
         take the min rowid
         """
-        logger.info('dropping duplicates from: {0}, hash on table: {1}'.format(table, hash_column))
+        logger.info(
+            "dropping duplicates from: {0}, hash on table: {1}".format(
+                table, hash_column
+            )
+        )
 
-        tbl_size = [r for r in self.conn.engine.execute('SELECT COUNT(rowid) FROM {};'.format(table))]
-        logger.info('size: before drop: {}'.format(tbl_size))
+        tbl_size = [
+            r
+            for r in self.conn.engine.execute(
+                "SELECT COUNT(rowid) FROM {};".format(table)
+            )
+        ]
+        logger.info("size: before drop: {}".format(tbl_size))
 
-        self.conn.engine.execute('DELETE FROM {0} WHERE rowid NOT IN (SELECT MIN(rowid) FROM {0} GROUP BY {1});'
-            .format(table, hash_column))
+        self.conn.engine.execute(
+            "DELETE FROM {0} WHERE rowid NOT IN (SELECT MIN(rowid) FROM {0} GROUP BY {1});".format(
+                table, hash_column
+            )
+        )
 
-        tbl_size = [r for r in self.conn.engine.execute('SELECT COUNT(rowid) FROM {};'.format(table))]
-        logger.info('size: after drop: {}'.format(tbl_size))
+        tbl_size = [
+            r
+            for r in self.conn.engine.execute(
+                "SELECT COUNT(rowid) FROM {};".format(table)
+            )
+        ]
+        logger.info("size: after drop: {}".format(tbl_size))
         return
 
 
@@ -156,46 +195,57 @@ def get_all_users_and_their_histories_in_a_subreddit(subreddit_name):
     # pw = df.iloc[idx]['pw']
     # logger.info('praw username={0}'.format(u))
 
-    praw_downloader = PRAWSubredditDownloader(subreddit_name,username='fukumupo',pw='sixoroxo')
+    praw_downloader = PRAWSubredditDownloader(
+        subreddit_name, username="fukumupo", pw="sixoroxo"
+    )
 
-    #redditor limit determines how many posts to pull from the subreddit
-    #comments_limit is # c's per redditor...
-    edges = praw_downloader.get_adjacent_subreddits(redditors_limit=1000,comments_limit=100)
+    # redditor limit determines how many posts to pull from the subreddit
+    # comments_limit is # c's per redditor...
+    edges = praw_downloader.get_adjacent_subreddits(
+        redditors_limit=1000, comments_limit=100
+    )
 
     out_dir = praw_downloader.out_dir
-    
-    with open(os.path.join(out_dir,subreddit_name+'_edgelist.tsv'),'w') as fout:
+
+    with open(os.path.join(out_dir, subreddit_name + "_edgelist.tsv"), "w") as fout:
         for edge in edges:
-            fout.write('{0}\t{1}\t{2}\n'.format(edge[0],edge[1],edge[2]))
+            fout.write("{0}\t{1}\t{2}\n".format(edge[0], edge[1], edge[2]))
 
     return edges
+
 
 def single_subreddit_submission_scraper(subreddit_name):
     """
     get all the submissions in a subreddit
     save to a db file
     """
-    praw_downloader = PRAWSubredditDownloader(subreddit_name,
-        username='fukumupo',pw='sixoroxo',
-        dbname='sqlite+pysqlite:////home/ubuntu/drugs_w_submissions.db')
+    praw_downloader = PRAWSubredditDownloader(
+        subreddit_name,
+        username="fukumupo",
+        pw="sixoroxo",
+        dbname="sqlite+pysqlite:////home/ubuntu/drugs_w_submissions.db",
+    )
     praw_downloader.get_subreddit_authors()
-    praw_downloader.drop_sqlite3_duplicates(table=subreddit_name, hash_column='body')
+    praw_downloader.drop_sqlite3_duplicates(table=subreddit_name, hash_column="body")
     return
 
+
 def main():
+    df = pd.read_csv(
+        "/home/ubuntu/ryancompton.net/assets/praw_drugs/drugs_subreddit_list_sorted.tsv",
+        sep="\t",
+    )
+    srs = df["subreddit"]
 
-    df = pd.read_csv('/home/ubuntu/ryancompton.net/assets/praw_drugs/drugs_subreddit_list_sorted.tsv',sep='\t')
-    srs = df['subreddit']
-
-    #update 2015-03-01
-    #don't get all histories, do get submission thread
+    # update 2015-03-01
+    # don't get all histories, do get submission thread
     for sr in set(srs.tolist()):
         logger.info(sr)
-        while True: #try until no HTTPError
+        while True:  # try until no HTTPError
             try:
                 single_subreddit_submission_scraper(sr)
             except requests.exceptions.HTTPError:
-                logger.warning('requests.exceptions.HTTPError... retrying....')
+                logger.warning("requests.exceptions.HTTPError... retrying....")
                 continue
             break
 
@@ -207,5 +257,6 @@ def main():
 
     return
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

@@ -29,11 +29,13 @@ engine = create_engine(os.getenv("CRAIGGER_CONN"))
 
 def limiter(until):
     duration = int(round(until - time.time()))
-    logger.info('Rate limited, sleeping for {:d} seconds'.format(duration))
+    logger.info("Rate limited, sleeping for {:d} seconds".format(duration))
+
 
 @RateLimiter(max_calls=20, period=1, callback=limiter)
-def geocode(mapaddress, geo_region, post_hood,
-            min_confidence=9, mykey=GOOGLE_MAPS_API_KEY):
+def geocode(
+    mapaddress, geo_region, post_hood, min_confidence=9, mykey=GOOGLE_MAPS_API_KEY
+):
     try:
         mapaddress2 = (
             mapaddress if " near " not in mapaddress else mapaddress.split("near")[0]
@@ -81,9 +83,15 @@ def process_chunk(chunk):
     geo_results = geo_results.dropna()
     ts = time.process_time()
     # psycopg2 connections are thread safe but not across processes "level 2 thread safe", so make a new connection.
-    little_engine = create_engine(os.getenv('CRAIGGER_CONN'))
-    geo_results.to_sql('geocoder_results', little_engine, if_exists='append', index=False)
-    logger.info('wrote {0} geocoder results. time: {1}'.format(len(geo_results), round(time.process_time()-ts,5)))
+    little_engine = create_engine(os.getenv("CRAIGGER_CONN"))
+    geo_results.to_sql(
+        "geocoder_results", little_engine, if_exists="append", index=False
+    )
+    logger.info(
+        "wrote {0} geocoder results. time: {1}".format(
+            len(geo_results), round(time.process_time() - ts, 5)
+        )
+    )
     return geo_results
 
 
