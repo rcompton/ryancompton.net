@@ -33,13 +33,14 @@ logger.setLevel(logging.INFO)
 
 GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
 
+
 def usaddress_match(left, right):
     match_fields = ("AddressNumber", "StreetName", "PlaceName", "StateName")
     zip_field = "ZipCode"
     for match_field in match_fields:
         if (match_field not in left[0]) or (match_field not in right[0]):
             return False
-        if (left[0][match_field].lower() != right[0][match_field].lower()):
+        if left[0][match_field].lower() != right[0][match_field].lower():
             return False
     if (zip_field not in left[0]) or (zip_field not in right[0]):
         return False
@@ -62,10 +63,12 @@ def fetch_address_ain(address, try_google=False):
         return
     matches = []
 
-    #Check 1st result only.
+    # Check 1st result only.
     parcel = srpj["Parcels"][0]
 
-    parcel_address = f'{parcel["SitusStreet"]}, {parcel["SitusCity"]}, {parcel["SitusZipCode"]}'
+    parcel_address = (
+        f'{parcel["SitusStreet"]}, {parcel["SitusCity"]}, {parcel["SitusZipCode"]}'
+    )
     parsed_assessor_data = usaddress.tag(parcel_address)
     if usaddress_match(parsed_input, parsed_assessor_data):
         return parcel["AIN"]
@@ -83,9 +86,6 @@ def fetch_address_ain(address, try_google=False):
         logger.info(f'After Google we matched {g.address} to AIN: {parcel["AIN"]}')
         return parcel["AIN"]
     return
-
-
-
 
 
 def fetch_ain_details(ain):
@@ -147,7 +147,7 @@ def fetch_ain_details(ain):
     return out
 
 
-#address is assumed to be google geocoder output.
+# address is assumed to be google geocoder output.
 def process_address(address):
     ain = fetch_address_ain(address, try_google=True)
     if ain is None:
@@ -158,4 +158,3 @@ def process_address(address):
         return
     deets["gAddress"] = address
     return deets
-
