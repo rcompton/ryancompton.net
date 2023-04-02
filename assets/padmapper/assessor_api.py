@@ -68,14 +68,16 @@ def fetch_address_ain(address, try_google=False):
         parcel_address = (
             f'{parcel["SitusStreet"]}, {parcel["SitusCity"]}, {parcel["SitusZipCode"]}'
         )
-        logger.info(f'parcel_address {idx}: {parcel_address}')
+        logger.info(f"parcel_address {idx}: {parcel_address}")
         parsed_assessor_data = usaddress.tag(parcel_address)
         if usaddress_match(parsed_input, parsed_assessor_data):
             return parcel["AIN"]
 
         if not try_google:
             return
-        logger.info(f"Fallback to Google API for input {address} matching against {parcel_address}")
+        logger.info(
+            f"Fallback to Google API for input {address} matching against {parcel_address}"
+        )
         g = geocoder.google(parcel_address, key=GOOGLE_MAPS_API_KEY)
         if not g.ok:
             logging.error(g.json)
