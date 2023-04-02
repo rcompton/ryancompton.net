@@ -40,13 +40,14 @@ logger.info("starting padmapper scrape!")
 conn_str = os.getenv("CRAIGGER_CONN")  # make sure the tunnel is open
 engine = create_engine(conn_str)
 
-#selenium setup
+# selenium setup
 options = Options()
-options.add_argument('--no-sandbox')
-options.add_argument('--headless')
-options.add_argument('--window-size=1220,1480')
+options.add_argument("--no-sandbox")
+options.add_argument("--headless")
+options.add_argument("--window-size=1220,1480")
 service = Service(executable_path=ChromeDriverManager().install())
-#service=Service("/usr/local/bin/chromedriver")
+# service=Service("/usr/local/bin/chromedriver")
+
 
 def geocode_and_assess(padmapper_address):
     try:
@@ -57,19 +58,20 @@ def geocode_and_assess(padmapper_address):
         logging.error(g.json)
 
     out = {
-            "gaddress": g.address,
-            "gquality": g.quality,
-            "glat": g.lat,
-            "glng": g.lng,
-            "gzip": g.postal,
-            "gconfidence": g.confidence
-        }
+        "gaddress": g.address,
+        "gquality": g.quality,
+        "glat": g.lat,
+        "glng": g.lng,
+        "gzip": g.postal,
+        "gconfidence": g.confidence,
+    }
     tax = process_address(g.address)
     if tax is None:
         logger.error(f"No tax for {g.address}")
     else:
         out.update(tax)
     return out
+
 
 def get_and_scroll(url):
     driver = webdriver.Chrome(service=service, options=options)
@@ -78,8 +80,10 @@ def get_and_scroll(url):
     driver.implicitly_wait(3)
     prev_height = driver.execute_script("return document.body.scrollHeight")
     while True:
-        logger.debug('Scroll all scrollable elements to the bottom')
-        driver.execute_script("var elems = document.querySelectorAll('*'); for(var i=0; i<elems.length; i++){ var elem = elems[i]; if(elem.scrollHeight > elem.clientHeight){ elem.scrollTop = elem.scrollHeight; } }")
+        logger.debug("Scroll all scrollable elements to the bottom")
+        driver.execute_script(
+            "var elems = document.querySelectorAll('*'); for(var i=0; i<elems.length; i++){ var elem = elems[i]; if(elem.scrollHeight > elem.clientHeight){ elem.scrollTop = elem.scrollHeight; } }"
+        )
         # Wait for a few seconds for the content to load
         time.sleep(3)
         # Calculate the current height of the page
@@ -89,14 +93,15 @@ def get_and_scroll(url):
             break
         # Update the previous height variable
         prev_height = current_height
-    logger.debug('Scroll done.')
+    logger.debug("Scroll done.")
 
     return driver.page_source
+
 
 def screenshot_ad(ad):
     driver = webdriver.Chrome(service=service, options=options)
     logger.info(f"about to get: {ad['padmapper_url']}")
-    driver.get(ad['padmapper_url'])
+    driver.get(ad["padmapper_url"])
     time.sleep(2)
     byte_buffer = BytesIO()
     screenshot_bytes = driver.get_screenshot_as_png()
@@ -104,25 +109,38 @@ def screenshot_ad(ad):
     logger.info(f"BytesIO: {byte_buffer.getbuffer().nbytes}")
     bsize = byte_buffer.getbuffer().nbytes
     if bsize > 0:
-        fname = os.path.join("padmapper-data", ad["crawl_date"], ad['gaddress'].replace(" ", "_")+'.png')
-        s3 = boto3.client('s3')
+        fname = os.path.join(
+            "padmapper-data",
+            ad["crawl_date"],
+            ad["gaddress"].replace(" ", "_") + ".png",
+        )
+        s3 = boto3.client("s3")
         byte_buffer.seek(0)
-        s3.upload_fileobj(byte_buffer, 'rycpt-crawls', fname, ExtraArgs={ "ContentType": "image/jpeg"})
-        response = s3.head_object(Bucket='rycpt-crawls', Key=fname)
-        if 'ContentLength' in response and response['ContentLength'] > 0:
-            logger.info(f'success s3: {fname}. ContentLength: {response["ContentLength"]} bsize: {bsize}')
-            ad['screenshot'] = fname
+        s3.upload_fileobj(
+            byte_buffer, "rycpt-crawls", fname, ExtraArgs={"ContentType": "image/jpeg"}
+        )
+        response = s3.head_object(Bucket="rycpt-crawls", Key=fname)
+        if "ContentLength" in response and response["ContentLength"] > 0:
+            logger.info(
+                f'success s3: {fname}. ContentLength: {response["ContentLength"]} bsize: {bsize}'
+            )
+            ad["screenshot"] = fname
         else:
-            logger.info(f'failed s3: {fname}. ContentLength: {response["ContentLength"]} bsize: {bsize}')
+            logger.info(
+                f'failed s3: {fname}. ContentLength: {response["ContentLength"]} bsize: {bsize}'
+            )
     return ad
+
 
 def search_and_parse(la_city):
     url = f"https://www.padmapper.com/apartments/{la_city}-ca?property-categories=house&max-days=1&lease-term=long"
     logger.info(f"serp: {url}")
     html_content = get_and_scroll(url)
-    soup = BeautifulSoup(html_content, 'html.parser')
+    soup = BeautifulSoup(html_content, "html.parser")
 
-    list_item_container = soup.find("div", class_=re.compile('list_listItemContainer.*'))
+    list_item_container = soup.find(
+        "div", class_=re.compile("list_listItemContainer.*")
+    )
     if not list_item_container:
         logger.error("no list_item_container")
         return []
@@ -131,13 +149,15 @@ def search_and_parse(la_city):
     ads = []
     for list_item in list_items:
         ad = {"la_city": la_city}
-        ad['crawl_date'] = dt.today().date().isoformat()
+        ad["crawl_date"] = dt.today().date().isoformat()
         address = list_item.find("div", class_=re.compile(".*ListItemFull_address.*"))
         if not address:
             continue
         ad["address"] = address.get_text(strip=True)
 
-        for infos in list_item.find_all("div", class_=re.compile(".*ListItemFull_info.*")):
+        for infos in list_item.find_all(
+            "div", class_=re.compile(".*ListItemFull_info.*")
+        ):
             info3 = infos.find_all("span")
             if len(info3) != 3:
                 continue
@@ -145,20 +165,22 @@ def search_and_parse(la_city):
             ad["housetype"] = info3[1].get_text(strip=True)
             ad["hood"] = info3[2].get_text(strip=True)
 
-        header_text = list_item.find('a', class_=re.compile("ListItemFull_headerText.*"))
+        header_text = list_item.find(
+            "a", class_=re.compile("ListItemFull_headerText.*")
+        )
         if not header_text:
             continue
-        ad['padmapper_url'] = "https://www.padmapper.com" + header_text['href']
+        ad["padmapper_url"] = "https://www.padmapper.com" + header_text["href"]
 
-        price = list_item.find('span', class_=re.compile(".*ListItemFull_text.*"))
+        price = list_item.find("span", class_=re.compile(".*ListItemFull_text.*"))
         if not price:
             continue
-        ad['price'] = price.get_text()
+        ad["price"] = price.get_text()
 
         tax = geocode_and_assess(ad["address"] + " " + ad["hood"])
         ad.update(tax)
 
-        if 'CurrentRoll_LandValue' in tax and float(tax['CurrentRoll_LandValue']) > 0.0:
+        if "CurrentRoll_LandValue" in tax and float(tax["CurrentRoll_LandValue"]) > 0.0:
             try:
                 ad = screenshot_ad(ad)
             except:
@@ -169,99 +191,101 @@ def search_and_parse(la_city):
     return ads
 
 
-LA_CITIES = ["whittier",
-"westlake-village",
-"west-hollywood",
-"west-covina",
-"walnut",
-"vernon",
-"torrance",
-"temple-city",
-"south-pasadena",
-"south-gate",
-"south-el-monte",
-"signal-hill",
-"sierra-madre",
-"santa-monica",
-"santa-fe-springs",
-"santa-clarita",
-"san-marino",
-"san-gabriel",
-"san-fernando",
-"san-dimas",
-"rosemead",
-"rolling-hills-estates",
-"rolling-hills",
-"redondo-beach",
-"rancho-palos-verdes",
-"pomona",
-"pico-rivera",
-"pasadena",
-"paramount",
-"palos-verdes-estates",
-"palmdale",
-"norwalk",
-"monterey-park",
-"montebello",
-"monrovia",
-"maywood",
-"manhattan-beach",
-"malibu",
-"lynwood",
-"los-angeles",
-"long-beach",
-"lomita",
-"lawndale",
-"lancaster",
-"lakewood",
-"la-verne",
-"la-puente",
-"la-mirada",
-"la-habra-heights",
-"la-cañada-flintridge",
-"irwindale",
-"inglewood",
-"industry",
-"huntington-park",
-"hidden-hills",
-"hermosa-beach",
-"hawthorne",
-"hawaiian-gardens",
-"glendora",
-"glendale",
-"gardena",
-"el-segundo",
-"el-monte",
-"duarte",
-"downey",
-"diamond-bar",
-"culver-city",
-"cudahy",
-"covina",
-"compton",
-"commerce",
-"claremont",
-"cerritos",
-"carson",
-"calabasas",
-"burbank",
-"bradbury",
-"beverly-hills",
-"bellflower",
-"bell-gardens",
-"bell",
-"baldwin-park",
-"azusa",
-"avalon",
-"artesia",
-"arcadia",
-"alhambra",
-"agoura-hills"]
+LA_CITIES = [
+    "agoura-hills",
+    "alhambra",
+    "arcadia",
+    "artesia",
+    "avalon",
+    "azusa",
+    "baldwin-park",
+    "bell",
+    "bell-gardens",
+    "bellflower",
+    "beverly-hills",
+    "bradbury",
+    "burbank",
+    "calabasas",
+    "carson",
+    "cerritos",
+    "claremont",
+    "commerce",
+    "compton",
+    "covina",
+    "cudahy",
+    "culver-city",
+    "diamond-bar",
+    "downey",
+    "duarte",
+    "el-monte",
+    "el-segundo",
+    "gardena",
+    "glendale",
+    "glendora",
+    "hawaiian-gardens",
+    "hawthorne",
+    "hermosa-beach",
+    "hidden-hills",
+    "huntington-park",
+    "industry",
+    "inglewood",
+    "irwindale",
+    "la-cañada-flintridge",
+    "la-habra-heights",
+    "la-mirada",
+    "la-puente",
+    "la-verne",
+    "lakewood",
+    "lancaster",
+    "lawndale",
+    "lomita",
+    "long-beach",
+    "los-angeles",
+    "lynwood",
+    "malibu",
+    "manhattan-beach",
+    "maywood",
+    "monrovia",
+    "montebello",
+    "monterey-park",
+    "norwalk",
+    "palmdale",
+    "palos-verdes-estates",
+    "paramount",
+    "pasadena",
+    "pico-rivera",
+    "pomona",
+    "rancho-palos-verdes",
+    "redondo-beach",
+    "rolling-hills",
+    "rolling-hills-estates",
+    "rosemead",
+    "san-dimas",
+    "san-fernando",
+    "san-gabriel",
+    "san-marino",
+    "santa-clarita",
+    "santa-fe-springs",
+    "santa-monica",
+    "sierra-madre",
+    "signal-hill",
+    "south-el-monte",
+    "south-gate",
+    "south-pasadena",
+    "temple-city",
+    "torrance",
+    "vernon",
+    "walnut",
+    "west-covina",
+    "west-hollywood",
+    "westlake-village",
+    "whittier",
+]
+
 
 def main():
-
     ads = []
-    #for la_city in ['los-angeles', 'santa-monica', 'culver-city']:
+    # for la_city in ['los-angeles', 'santa-monica', 'culver-city']:
     for la_city in LA_CITIES:
         city_ads = search_and_parse(la_city)
         if not city_ads:
@@ -272,6 +296,7 @@ def main():
     df = pd.DataFrame(ads)
     df.to_sql("padmapper_ads", engine, if_exists="append", index=False)
     driver.quit()
+
 
 if __name__ == "__main__":
     main()

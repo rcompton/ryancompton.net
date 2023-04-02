@@ -9,7 +9,8 @@ import usaddress
 from urllib3.exceptions import InsecureRequestWarning
 
 headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'}
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36"
+}
 proxies = {}
 # Suppress only the single warning from urllib3 needed.
 requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
@@ -29,6 +30,7 @@ logger.addHandler(handler)
 logger.addHandler(fhandler)
 logger.setLevel(logging.INFO)
 logger.info("starting new scrape!")
+
 
 def fetch_address_ain(address):
     url_base = "https://portal.assessor.lacounty.gov/api/search?search="
@@ -150,7 +152,7 @@ def process_address(address):
     return deets
 
 
-#def main():
+# def main():
 #    logger.info("query the postpostprocessed db...")
 #    dfrent = pd.read_sql(
 #        "SELECT address from joined_results WHERE gconfidence >= 9 AND netloc = 'losangeles.craigslist.org'",
@@ -171,6 +173,6 @@ def process_address(address):
 #    df_taxes.to_sql("tax_results", engine, if_exists="append", index=False)
 #
 #
-#if __name__ == "__main__":
+# if __name__ == "__main__":
 #    logger.info("starting new scrape! main")
 #    main()
