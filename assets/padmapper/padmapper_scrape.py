@@ -124,17 +124,20 @@ def search_and_parse(la_city):
             byte_buffer = BytesIO()
             screenshot_bytes = driver.get_screenshot_as_png()
             byte_buffer.write(screenshot_bytes)
-
-            fname = os.path.join("padmapper-data",
-                ad["crawl_date"], ad['gaddress'].replace(" ", "_")+'.png')
-            s3 = boto3.client('s3')
-            s3.upload_fileobj(byte_buffer, 'rycpt-crawls', fname)
-
-            ad['screenshot'] = fname
             driver.quit()
+            logger.info(f"BytesIO: {byte_buffer.getbuffer().nbytes}")
+
+            if byte_buffer.getbuffer().nbytes > 0:
+                fname = os.path.join("padmapper-data",
+                ad["crawl_date"], ad['gaddress'].replace(" ", "_")+'.png')
+                s3 = boto3.client('s3')
+                byte_buffer.seek(0)
+                s3.upload_fileobj(byte_buffer, 'rycpt-crawls', fname, ExtraArgs={ "ContentType": "image/jpeg"})
+                ad['screenshot'] = fname
         except:
             logger.exception(f'screenshot fail {ad["padmapper_url"]}')
 
+        logger.debug(f'success! {ad["padmapper_url"]}')
         ads.append(ad)
 
     return ads
