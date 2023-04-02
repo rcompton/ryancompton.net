@@ -186,7 +186,9 @@ def get_and_scroll(url):
         prev_height = current_height
     logger.debug("Scroll done.")
 
-    return driver.page_source
+    html_content = driver.page_source
+    driver.quit()
+    return html_content
 
 
 def screenshot_ad(ad):
@@ -220,12 +222,13 @@ def screenshot_ad(ad):
             logger.info(
                 f'failed s3: {fname}. ContentLength: {response["ContentLength"]} bsize: {bsize}'
             )
+    driver.quit()
     return ad
 
 
 def search_and_parse(la_city):
     url = f"https://www.padmapper.com/apartments/{la_city}-ca?property-categories=house&max-days=1&lease-term=long"
-    logger.info(f"serp: {url}")
+    logger.info(f"{la_city}\t{url}")
     html_content = get_and_scroll(url)
     soup = BeautifulSoup(html_content, "html.parser")
 
@@ -294,8 +297,6 @@ def main():
         ads.extend(city_ads)
     df = pd.DataFrame(ads)
     df.to_sql("padmapper_ads", engine, if_exists="append", index=False)
-    driver.quit()
-
 
 if __name__ == "__main__":
     main()
