@@ -6,6 +6,7 @@ import os
 import requests
 import urllib.parse
 import usaddress
+import geocoder
 from urllib3.exceptions import InsecureRequestWarning
 
 headers = {
@@ -29,56 +30,61 @@ logger = logging.getLogger(__name__)
 logger.addHandler(handler)
 logger.addHandler(fhandler)
 logger.setLevel(logging.INFO)
-logger.info("starting new scrape!")
+
+GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
+
+def usaddress_match(left, right):
+    match_fields = ("AddressNumber", "StreetName", "PlaceName", "StateName")
+    zip_field = "ZipCode"
+    for match_field in match_fields:
+        if (match_field not in left[0]) or (match_field not in right[0]):
+            return False
+        if (left[0][match_field].lower() != right[0][match_field].lower()):
+            return False
+    if (zip_field not in left[0]) or (zip_field not in right[0]):
+        return False
+    if left[0][zip_field][0:5] != right[0][zip_field][0:5]:
+        return False
+    return True
 
 
-def fetch_address_ain(address):
+# Get AIN from address. Input address must match Google geocoder address exactly.
+def fetch_address_ain(address, try_google=False):
+    logger.debug(f"fetchAIN: {address}")
     url_base = "https://portal.assessor.lacounty.gov/api/search?search="
     final_url = url_base + urllib.parse.quote(address)
     logger.info(f"searching: {final_url}")
     r = requests.get(final_url, headers=headers, proxies=proxies, verify=False)
     srpj = r.json()
     try:
-        parsed_query = usaddress.tag(address)
+        parsed_input = usaddress.tag(address)
     except usaddress.RepeatedLabelError:
         return
-    match_fields = ("AddressNumber", "StreetName", "PlaceName", "StateName")
-    zip_field = "ZipCode"
     matches = []
-    for parcel in srpj["Parcels"]:
-        try:
-            parsed_result = usaddress.tag(
-                f'{parcel["SitusStreet"]}, {parcel["SitusCity"]}, {parcel["SitusZipCode"]}'
-            )
-        except usaddress.RepeatedLabelError:
-            continue
-        if parsed_query[1] != parsed_result[1]:
-            continue
-        matched = True
-        for match_field in match_fields:
-            if (match_field not in parsed_query[0]) or (
-                match_field not in parsed_result[0]
-            ):
-                matched = False
-                continue
-            if (
-                parsed_query[0][match_field].lower()
-                != parsed_result[0][match_field].lower()
-            ):
-                matched = False
-                continue
-        if (zip_field not in parsed_query[0]) or (zip_field not in parsed_result[0]):
-            matched = False
-            continue
-        if parsed_query[0][zip_field][0:5] != parsed_result[0][zip_field][0:5]:
-            matched = False
-            continue
-        if matched:
-            parsed_result[0]["AIN"] = parcel["AIN"]
-            matches.append(parsed_result[0])
-    if len(matches) != 1:
+
+    #Check 1st result only.
+    parcel = srpj["Parcels"][0]
+
+    parcel_address = f'{parcel["SitusStreet"]}, {parcel["SitusCity"]}, {parcel["SitusZipCode"]}'
+    parsed_assessor_data = usaddress.tag(parcel_address)
+    if usaddress_match(parsed_input, parsed_assessor_data):
+        return parcel["AIN"]
+
+    if not try_google:
         return
-    return matches[0]["AIN"]
+    logger.info(f"Fallback to Google API for: {parcel_address}")
+    g = geocoder.google(parcel_address, key=GOOGLE_MAPS_API_KEY)
+    if not g.ok:
+        logging.error(g.json)
+        return
+    logger.info(f"Google found: {g.address}")
+    parsed_google = usaddress.tag(g.address)
+    if usaddress_match(parsed_input, parsed_google):
+        return parcel["AIN"]
+    return
+
+
+
 
 
 def fetch_ain_details(ain):
@@ -140,8 +146,9 @@ def fetch_ain_details(ain):
     return out
 
 
+#address is assumed to be google geocoder output.
 def process_address(address):
-    ain = fetch_address_ain(address)
+    ain = fetch_address_ain(address, try_google=True)
     if ain is None:
         logger.info(f"No AIN for: {address}")
         return
@@ -151,28 +158,3 @@ def process_address(address):
     deets["gAddress"] = address
     return deets
 
-
-# def main():
-#    logger.info("query the postpostprocessed db...")
-#    dfrent = pd.read_sql(
-#        "SELECT address from joined_results WHERE gconfidence >= 9 AND netloc = 'losangeles.craigslist.org'",
-#        engine,
-#    )
-#    logger.warning("dfrent.shape" + str(dfrent.shape))
-#    addresses = set()
-#    for idx, row in dfrent.iterrows():
-#        addresses.add(row["address"])
-#    results = []
-#    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-#        for result in executor.map(process_address, addresses):
-#            if result:
-#                results.append(result)
-#    df_taxes = pd.DataFrame(results)
-#    print(df_taxes)
-#    logger.info("df_taxes.to_sql...")
-#    df_taxes.to_sql("tax_results", engine, if_exists="append", index=False)
-#
-#
-# if __name__ == "__main__":
-#    logger.info("starting new scrape! main")
-#    main()
