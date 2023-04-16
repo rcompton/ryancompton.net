@@ -217,7 +217,7 @@ def screenshot_ad(ad):
         s3 = boto3.client("s3")
         byte_buffer.seek(0)
         s3.upload_fileobj(
-            byte_buffer, "rycpt-crawls", fname, ExtraArgs={"ContentType": "image/jpeg"}
+            byte_buffer, "rycpt-crawls", fname, ExtraArgs={"ContentType": "image/jpeg", 'ACL':'public-read'}
         )
         response = s3.head_object(Bucket="rycpt-crawls", Key=fname)
         if "ContentLength" in response and response["ContentLength"] > 0:
