@@ -23,7 +23,7 @@ email: ryan@ryancompton.net
 description: >- 
   Ryan Compton personal blog.
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "http://www.ryancompton.net" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://www.ryancompton.net" # the base hostname & protocol for your site, e.g. http://example.com
 
 # This does not work, has some kind of disable-ua thing in the theme's
 # google_analytics.html
