@@ -209,4 +209,3 @@ glat|glng|gmap_color|gaddress|current_rent|current_assessment|assessment_to_rent
 33.9861773|-118.2011473|#dd5f4b|3541 E 60th Pl, Huntington Park, CA 90255, USA|2650.0|88067.0|33.23|1979|https://portal.assessor.lacounty.gov/parceldetail/6318014027|https://rycpt-crawls.s3.us-west-2.amazonaws.com/padmapper-data/2023-04-16/3541_E_60th_Pl,_Huntington_Park,_CA_90255,_USA.png
 33.8924223|-118.4002229|#688aef|1900 N Poinsettia Ave, Manhattan Beach, CA 90266, USA|6500.0|266512.0|41.0|2018|https://portal.assessor.lacounty.gov/parceldetail/4171009020|https://rycpt-crawls.s3.us-west-2.amazonaws.com/padmapper-data/2023-04-16/1900_N_Poinsettia_Ave,_Manhattan_Beach,_CA_90266,_USA.png
 33.8728378|-118.1193534|#6180e9|17604 Garden House Ln, Bellflower, CA 90706, USA|1900.0|606355.0|319.13|2019|https://portal.assessor.lacounty.gov/parceldetail/7161024006|https://rycpt-crawls.s3.us-west-2.amazonaws.com/padmapper-data/2023-04-16/17604_Garden_House_Ln,_Bellflower,_CA_90706,_USA.png
-
