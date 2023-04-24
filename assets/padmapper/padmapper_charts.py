@@ -107,7 +107,6 @@ def write_tsv(df):
             "screenshot",
         ]
     ]
-    dfp = dfp.sample(frac=1)
     dfp.to_csv(
         os.path.join(os.environ["HOME"], "ryancompton.net/assets/taxrentlocations.tsv"),
         sep="\t",
