@@ -217,7 +217,10 @@ def screenshot_ad(ad):
         s3 = boto3.client("s3")
         byte_buffer.seek(0)
         s3.upload_fileobj(
-            byte_buffer, "rycpt-crawls", fname, ExtraArgs={"ContentType": "image/jpeg", 'ACL':'public-read'}
+            byte_buffer,
+            "rycpt-crawls",
+            fname,
+            ExtraArgs={"ContentType": "image/jpeg", "ACL": "public-read"},
         )
         response = s3.head_object(Bucket="rycpt-crawls", Key=fname)
         if "ContentLength" in response and response["ContentLength"] > 0:
@@ -298,7 +301,7 @@ def search_and_parse(la_city):
 
 
 def main():
-    #for la_city in ["long-beach", "los-angeles", "santa-monica", "culver-city"]:
+    # for la_city in ["long-beach", "los-angeles", "santa-monica", "culver-city"]:
     for la_city in LA_CITIES:
         city_ads = search_and_parse(la_city)
         if not city_ads:
