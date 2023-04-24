@@ -74,11 +74,12 @@ def plot_scatter(df):
     )
     g.despine(left=True, bottom=True)
     plt.suptitle(
-        "Tax Assessment per sqft vs. Rent per sqft\nPadmapper rental ads in Los Angeles",
-        y=1.04,
+        "Tax Assessment per sqft vs. Rent per sqft\nPadmapper rental ads in Los Angeles"
     )
-    output = os.path.join(os.environ["HOME"], "ryancompton.net/assets/pix/tax_vs_rent_padmapper.png")
-    print('output!', output)
+    output = os.path.join(
+        os.environ["HOME"], "ryancompton.net/assets/pix/tax_vs_rent_padmapper.png"
+    )
+    print("output!", output)
     plt.savefig(output)
 
 
@@ -107,8 +108,7 @@ def write_tsv(df):
         ]
     ]
     dfp.to_csv(
-        os.path.join(os.environ["HOME"],
-        "ryancompton.net/assets/taxrentlocations.tsv"),
+        os.path.join(os.environ["HOME"], "ryancompton.net/assets/taxrentlocations.tsv"),
         sep="\t",
         index=False,
     )
