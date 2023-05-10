@@ -1,8 +1,24 @@
 import os
 import pandas as pd
 import seaborn as sns
+import logging
 import matplotlib.pyplot as plt
 from sqlalchemy import create_engine
+
+FORMAT = "%(asctime)-15s %(levelname)-6s %(message)s"
+DATE_FORMAT = "%b %d %H:%M:%S"
+formatter = logging.Formatter(fmt=FORMAT, datefmt=DATE_FORMAT)
+handler = logging.StreamHandler()
+handler.setFormatter(formatter)
+fhandler = logging.FileHandler(
+    os.path.join(os.environ["HOME"], "padmapper-data/gitlog.log")
+)
+fhandler.setFormatter(formatter)
+logger = logging.getLogger(__name__)
+logger.addHandler(handler)
+logger.addHandler(fhandler)
+logger.setLevel(logging.INFO)
+logger.info("starting padmapper scrape!")
 
 
 conn_str = os.getenv("CRAIGGER_CONN")  # make sure the tunnel is open
@@ -11,33 +27,33 @@ engine = create_engine(conn_str)
 
 def query_db():
     df = pd.read_sql(
-        """SELECT 
-  "gaddress", 
+        """SELECT
+  "gaddress",
   replace(
-    replace(price, '$', ''), 
-    ',', 
+    replace(price, '$', ''),
+    ',',
     ''
-  ):: numeric AS current_rent, 
-  "glat" :: numeric, 
-  "glng" :: numeric, 
-  "bedbath", 
-  "NumOfBeds", 
-  "screenshot", 
-  "NumOfBaths", 
+  ):: numeric AS current_rent,
+  "glat" :: numeric,
+  "glng" :: numeric,
+  "bedbath",
+  "NumOfBeds",
+  "screenshot",
+  "NumOfBaths",
   coalesce(
-    nullif("SqftMain", ''), 
+    nullif("SqftMain", ''),
     '0.00'
-  ):: numeric(10, 2) AS sqft, 
-  "BaseValue_Year", 
-  "AIN", 
-  "CurrentRoll_BaseYear", 
-  "CurrentRoll_LandValue" :: numeric + "CurrentRoll_ImpValue" :: numeric AS current_assessment 
-FROM 
-  "padmapper_ads" 
-WHERE 
-  "UseType" = 'Single Family Residence' 
-  AND "SqftMain" IS NOT NULL 
-  AND "NumOfBeds" != '' 
+  ):: numeric(10, 2) AS sqft,
+  "BaseValue_Year",
+  "AIN",
+  "CurrentRoll_BaseYear",
+  "CurrentRoll_LandValue" :: numeric + "CurrentRoll_ImpValue" :: numeric AS current_assessment
+FROM
+  "padmapper_ads"
+WHERE
+  "UseType" = 'Single Family Residence'
+  AND "SqftMain" IS NOT NULL
+  AND "NumOfBeds" != ''
   AND "NumOfBaths" != '';
   """,
         con=engine,
@@ -54,6 +70,7 @@ WHERE
         "https://rycpt-crawls.s3.us-west-2.amazonaws.com/" + df["screenshot"]
     )
     df["lagov"] = "https://portal.assessor.lacounty.gov/parceldetail/" + df["AIN"]
+    logger.info(df.shape)
     return df
 
 
@@ -112,10 +129,12 @@ def write_tsv(df):
         sep="\t",
         index=False,
     )
+    logger.info('wrote tsv')
 
 
 def main():
     df = query_db()
+    logger.info('df shape {}'.format(df.shape))
     plot_scatter(df)
     write_tsv(df)
 
