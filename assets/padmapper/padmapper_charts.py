@@ -129,12 +129,12 @@ def write_tsv(df):
         sep="\t",
         index=False,
     )
-    logger.info('wrote tsv')
+    logger.info("wrote tsv")
 
 
 def main():
     df = query_db()
-    logger.info('df shape {}'.format(df.shape))
+    logger.info("df shape {}".format(df.shape))
     plot_scatter(df)
     write_tsv(df)
 
