@@ -95,8 +95,6 @@ def plot_scatter(df):
     g.despine(left=True, bottom=True)
     plt.suptitle(
         f"Rent per sqft vs. Tax Assessment per sqft\n{len(df)} Padmapper rental ads in Los Angeles",
-        verticalalignment='top',
-        y=1.035
     )
     output = os.path.join(
         os.environ["HOME"], "ryancompton.net/assets/pix/tax_vs_rent_padmapper.png"
