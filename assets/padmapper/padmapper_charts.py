@@ -88,8 +88,9 @@ def plot_scatter(df):
         y="rent_per_sqft",
         hue="years_held",
         linewidth=0,
-        alpha=0.6,
+        alpha=0.96,
         palette=cmap,
+        marker='.',
     )
     g.despine(left=True, bottom=True)
     plt.suptitle(
