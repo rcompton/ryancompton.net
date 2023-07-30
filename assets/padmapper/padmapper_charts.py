@@ -78,7 +78,7 @@ def plot_scatter(df):
 
     cmap = sns.color_palette("coolwarm", as_cmap=True)
 
-    #outliers
+    # outliers
     df = df[df.rent_per_sqft < 15]
     df = df[df.assessment_per_sqft < 2500]
 
@@ -90,7 +90,7 @@ def plot_scatter(df):
         linewidth=0,
         alpha=0.96,
         palette=cmap,
-        marker='.',
+        marker=".",
     )
     g.despine(left=True, bottom=True)
     plt.suptitle(
