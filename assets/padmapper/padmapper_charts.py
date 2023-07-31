@@ -115,7 +115,7 @@ def plot_scatter(df):
         alpha=0.96,
         palette=cmap,
         marker=".",
-        col='years_held > 30'
+        row='years_held > 30'
     )
     g.despine(left=True, bottom=True)
     plt.suptitle(
