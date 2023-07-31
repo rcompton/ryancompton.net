@@ -82,6 +82,9 @@ def plot_scatter(df):
     df = df[df.rent_per_sqft < 15]
     df = df[df.assessment_per_sqft < 2500]
 
+    # split
+    df['years_held > 30'] = df.years_held > 30
+
     g = sns.relplot(
         data=df,
         x="assessment_per_sqft",
@@ -98,6 +101,28 @@ def plot_scatter(df):
     )
     output = os.path.join(
         os.environ["HOME"], "ryancompton.net/assets/pix/tax_vs_rent_padmapper.png"
+    )
+    print("output!", output)
+    plt.savefig(output)
+
+    # split chart
+    g = sns.relplot(
+        data=df,
+        x="assessment_per_sqft",
+        y="rent_per_sqft",
+        hue="years_held",
+        linewidth=0,
+        alpha=0.96,
+        palette=cmap,
+        marker=".",
+        col='years_held > 30'
+    )
+    g.despine(left=True, bottom=True)
+    plt.suptitle(
+        f"Rent per sqft vs. Tax Assessment per sqft\n{len(df)} Padmapper rental ads in Los Angeles",
+    )
+    output = os.path.join(
+        os.environ["HOME"], "ryancompton.net/assets/pix/tax_vs_rent_padmapper_yh30.png"
     )
     print("output!", output)
     plt.savefig(output)
