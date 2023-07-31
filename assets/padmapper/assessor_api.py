@@ -152,8 +152,8 @@ def fetch_ain_details(ain):
 
 
 # address is assumed to be google geocoder output.
-def process_address(address):
-    ain = fetch_address_ain(address, try_google=True)
+def process_address(address, try_google=True):
+    ain = fetch_address_ain(address, try_google=try_google)
     if ain is None:
         logger.info(f"No AIN for: {address}")
         return

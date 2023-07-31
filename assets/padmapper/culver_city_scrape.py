@@ -15,24 +15,28 @@ engine = create_engine(conn_str)
 
 
 def geocode_and_assess(padmapper_address):
-    try:
-        g = geocoder.google(padmapper_address, key=GOOGLE_MAPS_API_KEY)
-    except:
-        logger.exception(padmapper_address)
-    if not g.ok:
-        logging.error(g.json)
+    #try:
+    #    g = geocoder.google(padmapper_address, key=GOOGLE_MAPS_API_KEY)
+    #except:
+    #    logger.exception(padmapper_address)
+    #if not g.ok:
+    #    logging.error(g.json)
 
-    out = {
-        "gaddress": g.address,
-        "gquality": g.quality,
-        "glat": g.lat,
-        "glng": g.lng,
-        "gzip": g.postal,
-        "gconfidence": g.confidence,
-    }
-    tax = process_address(g.address)
+    #out = {
+    #    "gaddress": g.address,
+    #    "gquality": g.quality,
+    #    "glat": g.lat,
+    #    "glng": g.lng,
+    #    "gzip": g.postal,
+    #    "gconfidence": g.confidence,
+    #}
+    #cleaned_address = g.address
+
+    out = {}
+    cleaned_address = padmapper_address # skip Google
+    tax = process_address(cleaned_address, try_google=False)
     if tax is None:
-        logger.error(f"No tax for {g.address}")
+        logger.error(f"No tax for {padmapper_address}")
     else:
         out.update(tax)
     return out
@@ -54,14 +58,15 @@ def main():
     unique_addresses = list(set(df["AddressLineSum"]))
     logger.info(len(unique_addresses))
     assessments = []
-    for address_line_sum in unique_addresses[:20]:
+    for address_line_sum in unique_addresses:
         try:
             assessment = geocode_and_assess(address_line_sum)
             assessment["AddressLineSum"] = address_line_sum
-            assessments.append(address_line_sum)
+            assessments.append(assessment)
         except:
             logger.exception(address_line_sum)
     dfa = pd.DataFrame(assessments)
+    print(dfa.sample(10))
     dfa.to_sql("culver_city_rental_tax", engine, if_exists="replace", index=False)
 
 
