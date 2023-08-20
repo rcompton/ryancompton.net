@@ -15,25 +15,25 @@ engine = create_engine(conn_str)
 
 
 def geocode_and_assess(padmapper_address):
-    #try:
+    # try:
     #    g = geocoder.google(padmapper_address, key=GOOGLE_MAPS_API_KEY)
-    #except:
+    # except:
     #    logger.exception(padmapper_address)
-    #if not g.ok:
+    # if not g.ok:
     #    logging.error(g.json)
 
-    #out = {
+    # out = {
     #    "gaddress": g.address,
     #    "gquality": g.quality,
     #    "glat": g.lat,
     #    "glng": g.lng,
     #    "gzip": g.postal,
     #    "gconfidence": g.confidence,
-    #}
-    #cleaned_address = g.address
+    # }
+    # cleaned_address = g.address
 
     out = {}
-    cleaned_address = padmapper_address # skip Google
+    cleaned_address = padmapper_address  # skip Google
     tax = process_address(cleaned_address, try_google=False)
     if tax is None:
         logger.error(f"No tax for {padmapper_address}")

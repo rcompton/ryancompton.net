@@ -83,7 +83,7 @@ def plot_scatter(df):
     df = df[df.assessment_per_sqft < 2500]
 
     # split
-    df['years_held > 30'] = df.years_held > 30
+    df["years_held > 30"] = df.years_held > 30
 
     g = sns.relplot(
         data=df,
@@ -115,7 +115,7 @@ def plot_scatter(df):
         alpha=0.96,
         palette=cmap,
         marker=".",
-        row='years_held > 30'
+        row="years_held > 30",
     )
     g.despine(left=True, bottom=True)
     output = os.path.join(

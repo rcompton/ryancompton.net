@@ -144,125 +144,126 @@ LA_CITIES = [
 random.shuffle(LA_CITIES)
 logger.info(LA_CITIES)
 
-SF_CITIES = ['alameda',
- 'alamo',
- 'albany',
- 'americannyon',
- 'antioch',
- 'aptos',
- 'ashland',
- 'atherton',
- 'bay-point',
- 'belmont',
- 'belvedere',
- 'belvedere-tiburon',
- 'benicia',
- 'berkeley',
- 'brentwood',
- 'brisbane',
- 'burlingame',
- 'calistoga',
- 'campbell',
- 'capitola',
- 'castro-valley',
- 'clayton',
- 'cloverdale',
- 'colma',
- 'concord',
- 'corte-madera',
- 'cotati',
- 'crockett',
- 'cupertino',
- 'daly-city',
- 'danville',
- 'dixon',
- 'dublin',
- 'east-palo-alto',
- 'el-cerrito',
- 'emeryville',
- 'fairfax',
- 'fairfield',
- 'foster-city',
- 'fremont',
- 'gilroy',
- 'half-moon-bay',
- 'hayward',
- 'healdsburg',
- 'hercules',
- 'hillsborough',
- 'lafayette',
- 'larkspur',
- 'livermore',
- 'los-altos',
- 'los-altos-hills',
- 'los-gatos',
- 'martinez',
- 'menlo-park',
- 'mill-valley',
- 'millbrae',
- 'milpitas',
- 'monte-sereno',
- 'moraga',
- 'morgan-hill',
- 'mountain-view',
- 'napa',
- 'newark',
- 'novato',
- 'oakland',
- 'oakley',
- 'orinda',
- 'pacifica',
- 'palo-alto',
- 'petaluma',
- 'piedmont',
- 'pinole',
- 'pittsburg',
- 'pleasant-hill',
- 'pleasanton',
- 'portola-valley',
- 'redwood-city',
- 'richmond',
- 'rio-vista',
- 'rohnert-park',
- 'ross',
- 'san-anselmo',
- 'san-bruno',
- 'san-francisco',
- 'san-francisco-bay-area',
- 'san-jose',
- 'san-leandro',
- 'san-lorenzo',
- 'san-mateo',
- 'san-pablo',
- 'san-rafael',
- 'san-ramon',
- 'sanrlos',
- 'santa-clara',
- 'santa-cruz',
- 'santa-rosa',
- 'saratoga',
- 'sausalito',
- 'scotts-valley',
- 'sebastopol',
- 'sonoma',
- 'south-san-francisco',
- 'st.-helena',
- 'stanford',
- 'suisun-city',
- 'sunnyvale',
- 'tiburon',
- 'tracy',
- 'union-city',
- 'vacaville',
- 'vallejo',
- 'walnut-creek',
- 'windsor',
- 'woodside',
- 'yountville']
+SF_CITIES = [
+    "alameda",
+    "alamo",
+    "albany",
+    "americannyon",
+    "antioch",
+    "aptos",
+    "ashland",
+    "atherton",
+    "bay-point",
+    "belmont",
+    "belvedere",
+    "belvedere-tiburon",
+    "benicia",
+    "berkeley",
+    "brentwood",
+    "brisbane",
+    "burlingame",
+    "calistoga",
+    "campbell",
+    "capitola",
+    "castro-valley",
+    "clayton",
+    "cloverdale",
+    "colma",
+    "concord",
+    "corte-madera",
+    "cotati",
+    "crockett",
+    "cupertino",
+    "daly-city",
+    "danville",
+    "dixon",
+    "dublin",
+    "east-palo-alto",
+    "el-cerrito",
+    "emeryville",
+    "fairfax",
+    "fairfield",
+    "foster-city",
+    "fremont",
+    "gilroy",
+    "half-moon-bay",
+    "hayward",
+    "healdsburg",
+    "hercules",
+    "hillsborough",
+    "lafayette",
+    "larkspur",
+    "livermore",
+    "los-altos",
+    "los-altos-hills",
+    "los-gatos",
+    "martinez",
+    "menlo-park",
+    "mill-valley",
+    "millbrae",
+    "milpitas",
+    "monte-sereno",
+    "moraga",
+    "morgan-hill",
+    "mountain-view",
+    "napa",
+    "newark",
+    "novato",
+    "oakland",
+    "oakley",
+    "orinda",
+    "pacifica",
+    "palo-alto",
+    "petaluma",
+    "piedmont",
+    "pinole",
+    "pittsburg",
+    "pleasant-hill",
+    "pleasanton",
+    "portola-valley",
+    "redwood-city",
+    "richmond",
+    "rio-vista",
+    "rohnert-park",
+    "ross",
+    "san-anselmo",
+    "san-bruno",
+    "san-francisco",
+    "san-francisco-bay-area",
+    "san-jose",
+    "san-leandro",
+    "san-lorenzo",
+    "san-mateo",
+    "san-pablo",
+    "san-rafael",
+    "san-ramon",
+    "sanrlos",
+    "santa-clara",
+    "santa-cruz",
+    "santa-rosa",
+    "saratoga",
+    "sausalito",
+    "scotts-valley",
+    "sebastopol",
+    "sonoma",
+    "south-san-francisco",
+    "st.-helena",
+    "stanford",
+    "suisun-city",
+    "sunnyvale",
+    "tiburon",
+    "tracy",
+    "union-city",
+    "vacaville",
+    "vallejo",
+    "walnut-creek",
+    "windsor",
+    "woodside",
+    "yountville",
+]
 
 random.shuffle(SF_CITIES)
 logger.info(SF_CITIES)
-
 
 
 def geocode_and_assess(padmapper_address):
@@ -405,11 +406,15 @@ def search_and_parse(la_city, screenshot=True, assess=True, write_to_db=True):
             tax = geocode_and_assess(ad["address"] + " " + ad["hood"])
             ad.update(tax)
 
-        if screenshot and "CurrentRoll_LandValue" in tax and float(tax["CurrentRoll_LandValue"]) > 0.0:
-            try:
-                ad = screenshot_ad(ad)
-            except:
-                logger.exception("screenshot fail")
+        if screenshot:
+            if (
+                "CurrentRoll_LandValue" in tax
+                and float(tax["CurrentRoll_LandValue"]) > 0.0
+            ):
+                try:
+                    ad = screenshot_ad(ad)
+                except:
+                    logger.exception("screenshot fail")
 
         ads.append(ad)
 
@@ -422,16 +427,20 @@ def search_and_parse(la_city, screenshot=True, assess=True, write_to_db=True):
 
 
 def main():
-    #for city in ['cupertino']:
-    for city in LA_CITIES:
-        city_ads = search_and_parse(city, screenshot=True, assess=True, write_to_db=True)
+    # for city in ['cupertino']:
+    for city in SF_CITIES:
+        city_ads = search_and_parse(
+            city, screenshot=True, assess=False, write_to_db=True
+        )
         if not city_ads:
             logger.info(f"Welcome to Dumpville: {city}")
             continue
         logger.info(f"Hits: {city} {len(city_ads)}")
 
-    for city in SF_CITIES:
-        city_ads = search_and_parse(city, screenshot=True, assess=False, write_to_db=True)
+    for city in LA_CITIES:
+        city_ads = search_and_parse(
+            city, screenshot=True, assess=True, write_to_db=True
+        )
         if not city_ads:
             logger.info(f"Welcome to Dumpville: {city}")
             continue
