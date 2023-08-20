@@ -402,6 +402,7 @@ def search_and_parse(la_city, screenshot=True, assess=True, write_to_db=True):
             continue
         ad["price"] = price.get_text()
 
+        tax = {}
         if assess:
             tax = geocode_and_assess(ad["address"] + " " + ad["hood"])
             ad.update(tax)
