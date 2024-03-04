@@ -14,7 +14,7 @@ I am currently a software engineer at [Google](https://www.google.com/) working 
 
 You can find me elsewhere on the web:
 
-+ [scholar.google.com](http://scholar.google.com/citations?user=YcJNT5AAAAAJ&hl=en)
++ [scholar.google.com](https://scholar.google.com/citations?user=YcJNT5AAAAAJ)
 
 + <https://github.com/rcompton>
 
