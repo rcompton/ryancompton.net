@@ -31,6 +31,21 @@ When I started working at Google we moved to Santa Cruz and I rode the corp bus 
 
 After the Shogun was stolen I picked up this from someone on Craigslist and rode it home in the rain. I opted to build another PVC rack this time as I was unimpressed with the one I bought for the Shogun. When we moved away from Santa Cruz I gave it away.
 
+## Univega Alpina Sport -- 2020
+
+![kite_bike]({{ site.url}}/assets/pix/kite_bike.jpeg)
+
+When we moved to Long Beach I effectively gave up on surfing as [the breakwater](https://www.latimes.com/california/story/2019-12-18/long-beach-breakwater-wont-be-removed). Luckily, Belmont Shore is a great place to kiteboard and kite gear is pretty compact. I fit my rig onto the same PVC rack used earlier with some extra stuff on the back. It works, but the huge downside to this is that riding around when the wind is 20kts is not a great activity.
+
+## ET Cycles 720 -- 2023
+
+![foil_bike]({{ site.url}}/assets/pix/foil_bike.jpeg)
+
+Kiteboarding is fun, but it's quite different from surfing as you're getting pulled by the wind instead of the waves. I was never able to shake this and eventually found myself back in the waves at Seal Beach. Seal Beach is arguably the best foil wave on the West Coast and I couldn't be happier about the new sport. It's a few miles from the building we live in so I was driving there. One night our catalytic converter was stolen and the wait for a replacement was 6+ months. This is how I discovered e-bikes and **they are amazing**, like riding downhill the whole way. I used an off the shelf rack for this build because the foil gets in the way of the PVC rack I'm familiar with. There's also a box on the back that holds the mast high to prevent the wing from dragging during a turn.
+
+
+
+
 
 
 
