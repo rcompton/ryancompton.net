@@ -46,6 +46,9 @@ minima:
     - {platform: linkedin, user_url: "https://www.linkedin.com/in/%E2%87%89ryan-compton%E2%87%87-2503941a/" }
     - {platform: stackoverflow, user_url: "https://stackoverflow.com/users/424631/dranxo" }
 
+header_pages:
+  - about.markdown
+
 show_excerpts: true
 excerpt_separator: <!--more-->
 
