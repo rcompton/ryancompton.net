@@ -28,6 +28,6 @@ smart-open==5.2.1
 soupsieve==2.2.1
 SQLAlchemy==1.4.25
 typing-extensions==3.10.0.2
-urllib3==1.26.18
+urllib3==1.26.19
 wrapt==1.12.1
 yarl==1.6.3
