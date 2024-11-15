@@ -379,6 +379,7 @@ def search_and_parse(la_city, screenshot=True, assess=True, write_to_db=True):
         if not address:
             continue
         ad["address"] = address.get_text(strip=True)
+        logger.debug(f'ad address: {ad["address"]}')
 
         for infos in list_item.find_all(
             "div", class_=re.compile(".*ListItemFull_info.*")
@@ -396,6 +397,7 @@ def search_and_parse(la_city, screenshot=True, assess=True, write_to_db=True):
         if not header_text:
             continue
         ad["padmapper_url"] = "https://www.padmapper.com" + header_text["href"]
+        logger.debug(f'ad url: {ad["padmapper_url"]}')
 
         price = list_item.find("span", class_=re.compile(".*ListItemFull_text.*"))
         if not price:
