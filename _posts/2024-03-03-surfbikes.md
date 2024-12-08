@@ -46,4 +46,4 @@ Kiteboarding is fun, but it's quite different from surfing as you're getting pul
 
 when I was at KDD 2023 I locked this up outside the Long Beach Convention Center for a day with a powerful Kryptonite lock. But the city apparently doesn't install strong bike racks and my e-bike was taken.
 
-![lbc_rack]({{ site.url}}/assets/pix/lbc_rack.jpeg)
+![lbc_rack]({{ site.url}}/assets/pix/PXL_20230808_012407085.MP.jpg)
