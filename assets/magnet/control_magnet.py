@@ -9,6 +9,7 @@ import sys
 import select
 from simple_pid import PID
 
+
 def measure_voltages(channel, samples=200, delay=0.01):
     readings = []
     for _ in range(samples):
@@ -16,12 +17,15 @@ def measure_voltages(channel, samples=200, delay=0.01):
         time.sleep(delay)
     return readings
 
+
 def check_stability(readings, threshold=0.01):
     r = max(readings) - min(readings)
     return r <= threshold, r
 
+
 def stable_average(readings):
     return sum(readings) / len(readings)
+
 
 def add_reading_and_average(value, buffer, max_size=5):
     """Minimal filtering: keeps a small buffer of recent readings and returns their average."""
@@ -30,12 +34,14 @@ def add_reading_and_average(value, buffer, max_size=5):
         buffer.pop(0)
     return sum(buffer) / len(buffer)
 
+
 def check_for_input():
     """Check if there's keyboard input available without blocking."""
     dr, dw, de = select.select([sys.stdin], [], [], 0)
     if dr:
         return sys.stdin.read(1)
     return None
+
 
 # -------------------- SETUP --------------------
 GPIO.setmode(GPIO.BCM)
@@ -67,14 +73,24 @@ stability_threshold = 0.1
 print("Calibrating with coil OFF...")
 GPIO.output(magnet_pin, GPIO.LOW)
 time.sleep(2)
-mid_readings_off = measure_voltages(chan_mid, samples=num_calibration_samples, delay=calibration_delay)
-top_readings_off = measure_voltages(chan_top, samples=num_calibration_samples, delay=calibration_delay)
+mid_readings_off = measure_voltages(
+    chan_mid, samples=num_calibration_samples, delay=calibration_delay
+)
+top_readings_off = measure_voltages(
+    chan_top, samples=num_calibration_samples, delay=calibration_delay
+)
 
-mid_off_stable, mid_off_range = check_stability(mid_readings_off, threshold=stability_threshold)
-top_off_stable, top_off_range = check_stability(top_readings_off, threshold=stability_threshold)
+mid_off_stable, mid_off_range = check_stability(
+    mid_readings_off, threshold=stability_threshold
+)
+top_off_stable, top_off_range = check_stability(
+    top_readings_off, threshold=stability_threshold
+)
 
 if not (mid_off_stable and top_off_stable):
-    print(f"Coil OFF readings unstable. Ranges: Mid={mid_off_range:.5f}, Top={top_off_range:.5f}")
+    print(
+        f"Coil OFF readings unstable. Ranges: Mid={mid_off_range:.5f}, Top={top_off_range:.5f}"
+    )
     pwm.stop()
     GPIO.cleanup()
     sys.exit(1)
@@ -88,14 +104,24 @@ print(f"Stability (OFF): Mid={mid_off_range:.5f}, Top={top_off_range:.5f}")
 print("Calibrating with coil ON...")
 GPIO.output(magnet_pin, GPIO.HIGH)
 time.sleep(2)
-mid_readings_on = measure_voltages(chan_mid, samples=num_calibration_samples, delay=calibration_delay)
-top_readings_on = measure_voltages(chan_top, samples=num_calibration_samples, delay=calibration_delay)
+mid_readings_on = measure_voltages(
+    chan_mid, samples=num_calibration_samples, delay=calibration_delay
+)
+top_readings_on = measure_voltages(
+    chan_top, samples=num_calibration_samples, delay=calibration_delay
+)
 
-mid_on_stable, mid_on_range = check_stability(mid_readings_on, threshold=stability_threshold)
-top_on_stable, top_on_range = check_stability(top_readings_on, threshold=stability_threshold)
+mid_on_stable, mid_on_range = check_stability(
+    mid_readings_on, threshold=stability_threshold
+)
+top_on_stable, top_on_range = check_stability(
+    top_readings_on, threshold=stability_threshold
+)
 
 if not (mid_on_stable and top_on_stable):
-    print(f"Coil ON readings unstable. Ranges: Mid={mid_on_range:.5f}, Top={top_on_range:.5f}")
+    print(
+        f"Coil ON readings unstable. Ranges: Mid={mid_on_range:.5f}, Top={top_on_range:.5f}"
+    )
     GPIO.output(magnet_pin, GPIO.LOW)
     pwm.stop()
     GPIO.cleanup()
@@ -141,39 +167,39 @@ try:
         # Check keyboard input
         key = check_for_input()
         if key:
-            if key == '1':
+            if key == "1":
                 target_levitating_field -= 0.0001
                 pid.setpoint = target_levitating_field
                 print(f"Decreased setpoint to {target_levitating_field:.6f}")
-            elif key == '2':
+            elif key == "2":
                 target_levitating_field += 0.0001
                 pid.setpoint = target_levitating_field
                 print(f"Increased setpoint to {target_levitating_field:.6f}")
-            elif key == '3':
+            elif key == "3":
                 Ki -= 0.1
-                if Ki < 0: 
+                if Ki < 0:
                     Ki = 0
                 pid.Ki = Ki
                 print(f"Decreased Ki to {Ki:.3f}")
-            elif key == '4':
+            elif key == "4":
                 Ki += 0.1
                 pid.Ki = Ki
                 print(f"Increased Ki to {Ki:.3f}")
-            elif key == '5':
+            elif key == "5":
                 Kd -= 0.1
                 if Kd < 0:
                     Kd = 0
                 pid.Kd = Kd
                 print(f"Decreased Kd to {Kd:.3f}")
-            elif key == '6':
+            elif key == "6":
                 Kd += 0.1
                 pid.Kd = Kd
                 print(f"Increased Kd to {Kd:.3f}")
-            elif key == '7':
+            elif key == "7":
                 Kp -= 1000
                 pid.Kp = Kp
                 print(f"Decreased Kp to {Kp:.3f}")
-            elif key == '8':
+            elif key == "8":
                 Kp += 1000
                 pid.Kp = Kp
                 print(f"Increased Kp to {Kp:.3f}")
@@ -181,18 +207,18 @@ try:
         # Determine current offsets based on coil current state
         # With PID we continuously adjust duty cycle, so coil state is variable
         # We'll consider coil "on correction" if duty cycle > 50%, for example
-        # Or just continuously adjust: 
+        # Or just continuously adjust:
         # Actually, we should always use offsets depending on duty cycle
         # For simplicity, just pick coil_on_offsets if duty > 50%
-        
+
         duty = pid._last_output if pid._last_output is not None else 0
         # If duty is high, assume coil field is closer to "on" offset, else "off"
         # A simple linear interpolation can also be done:
         # offset = off + (on - off)*(duty/100)
         # We'll do that for more accuracy:
-        
-        mid_dynamic_offset = mid_offset_off + mid_correction*(duty/100)
-        top_dynamic_offset = top_offset_off + top_correction*(duty/100)
+
+        mid_dynamic_offset = mid_offset_off + mid_correction * (duty / 100)
+        top_dynamic_offset = top_offset_off + top_correction * (duty / 100)
 
         # Raw sensor values, corrected by dynamic offsets
         raw_mid_value = chan_mid.voltage - mid_dynamic_offset
@@ -205,7 +231,7 @@ try:
         # Define levitating_field
         # Example: ((floor + mid)/2) - top
         levitating_field = filtered_mid
-        #levitating_field = ((filtered_mid)/2.0) - filtered_top
+        # levitating_field = ((filtered_mid)/2.0) - filtered_top
 
         # PID compute
         output = pid(levitating_field)
@@ -215,10 +241,12 @@ try:
         step_counter += 1
         if step_counter % 100 == 0:
             elapsed_time = time.time() - start_time
-            print(f"Mid(Filt): {filtered_mid:.3f}, Top(Filt): {filtered_top:.3f}, "
-                  f"Field: {levitating_field:.6f}, Duty: {output:.2f}, "
-                  f"Setpoint: {pid.setpoint:.6f}, Kp: {pid.Kp:.3f}, Ki: {pid.Ki:.3f}, Kd: {pid.Kd:.3f}, "
-                  f"Steps/s: {step_counter / elapsed_time:.2f}")
+            print(
+                f"Mid(Filt): {filtered_mid:.3f}, Top(Filt): {filtered_top:.3f}, "
+                f"Field: {levitating_field:.6f}, Duty: {output:.2f}, "
+                f"Setpoint: {pid.setpoint:.6f}, Kp: {pid.Kp:.3f}, Ki: {pid.Ki:.3f}, Kd: {pid.Kd:.3f}, "
+                f"Steps/s: {step_counter / elapsed_time:.2f}"
+            )
             step_counter = 0
             start_time = time.time()
 

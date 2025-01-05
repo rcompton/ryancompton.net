@@ -55,11 +55,11 @@ def keyboard_listener():
 
     while True:
         key = input("Enter a command: ").strip()
-        if key == '1':
+        if key == "1":
             adjust_setpoint(0.01)
-        elif key == '2':
+        elif key == "2":
             adjust_setpoint(-0.01)
-        elif key == 'q':
+        elif key == "q":
             print("Stopping the loop.")
             stop_loop = True
             break
@@ -84,30 +84,35 @@ while not stop_loop:
     # Calculate sensor difference
     sensor0_value = sum(sensor0_values) / len(sensor0_values)
     sensor1_value = sum(sensor1_values) / len(sensor1_values)
-    sensor_diff = sensor0_value# - sensor1_value
-    
+    sensor_diff = sensor0_value  # - sensor1_value
+
     # PID calculation
     control_output = pid(sensor_diff)
 
     # Define thresholds for control logic
     turn_on_threshold = 0.1  # Magnet ON when output is low
     turn_off_threshold = 0.12  # Magnet OFF when output is high
-    
+
     # Control the magnet
     if control_output < turn_on_threshold and not magnet_pin.value:
         magnet_pin.value = True  # Turn magnet ON
-        print(f"Magnet ON: control_output={control_output:.3f}, sensor_diff={sensor_diff:.3f}")
+        print(
+            f"Magnet ON: control_output={control_output:.3f}, sensor_diff={sensor_diff:.3f}"
+        )
     elif control_output > turn_off_threshold and magnet_pin.value:
         magnet_pin.value = False  # Turn magnet OFF
-        print(f"Magnet OFF: control_output={control_output:.3f}, sensor_diff={sensor_diff:.3f}")
+        print(
+            f"Magnet OFF: control_output={control_output:.3f}, sensor_diff={sensor_diff:.3f}"
+        )
 
     # Log the sensor value every loop
     if log_counter == log_n:
-        print(f'Sensor Diff: {sensor_diff:.3f}V, control_output: {control_output:.3f}, state: {magnet_pin.value}')
+        print(
+            f"Sensor Diff: {sensor_diff:.3f}V, control_output: {control_output:.3f}, state: {magnet_pin.value}"
+        )
         log_counter = 0
 
     log_counter += 1
     time.sleep(0.00001)
 
 print("Program terminated.")
-

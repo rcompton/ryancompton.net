@@ -9,32 +9,44 @@ GPIO.setup(gpio_pin, GPIO.OUT)
 
 # Duty cycle parameters
 on_time_start = 0.005  # Starting on time (seconds)
-on_time_end = 0.010    # Ending on time (seconds)
+on_time_end = 0.010  # Ending on time (seconds)
 on_time_step = 0.001  # Increased increment for on time
 
 off_time_start = 0.001  # Starting off time (seconds)
-off_time_end = 0.010    # Ending off time (seconds)
+off_time_end = 0.010  # Ending off time (seconds)
 off_time_step = 0.001  # Increased increment for off time
 
 # Logging setup
 log_file = open("duty_cycle_log.txt", "w")  # Open log file for writing
 
 try:
-    for on_time in range(int(on_time_start*1000), int(on_time_end*1000), int(on_time_step*1000 + 0.5)):
+    for on_time in range(
+        int(on_time_start * 1000),
+        int(on_time_end * 1000),
+        int(on_time_step * 1000 + 0.5),
+    ):
         on_time_seconds = on_time / 1000.0
-        for off_time in range(int(off_time_start*1000), int(off_time_end*1000), int(off_time_step*1000 + 0.5)):
+        for off_time in range(
+            int(off_time_start * 1000),
+            int(off_time_end * 1000),
+            int(off_time_step * 1000 + 0.5),
+        ):
             off_time_seconds = off_time / 1000.0
 
             # Calculate duty cycle
             duty_cycle = (on_time_seconds / (on_time_seconds + off_time_seconds)) * 100
 
             # Log the parameters
-            log_file.write(f"On time: {on_time_seconds:.4f} s, "
-                           f"Off time: {off_time_seconds:.4f} s, "
-                           f"Duty cycle: {duty_cycle:.2f}%\n")
-            print(f"On time: {on_time_seconds:.4f} s, "
-                  f"Off time: {off_time_seconds:.4f} s, "
-                  f"Duty cycle: {duty_cycle:.2f}%")
+            log_file.write(
+                f"On time: {on_time_seconds:.4f} s, "
+                f"Off time: {off_time_seconds:.4f} s, "
+                f"Duty cycle: {duty_cycle:.2f}%\n"
+            )
+            print(
+                f"On time: {on_time_seconds:.4f} s, "
+                f"Off time: {off_time_seconds:.4f} s, "
+                f"Duty cycle: {duty_cycle:.2f}%"
+            )
 
             # Apply the duty cycle for a limited time
             start_time = time.time()
@@ -56,4 +68,3 @@ try:
 except KeyboardInterrupt:
     GPIO.cleanup()
     log_file.close()
-

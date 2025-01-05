@@ -37,7 +37,6 @@ while True:
 
     # Move cursor to the beginning of the line and clear the line
     print("\r\033[K", end="")
-    print(plot(data, {'height': 10}), end="")
+    print(plot(data, {"height": 10}), end="")
 
     time.sleep(0.05)
-

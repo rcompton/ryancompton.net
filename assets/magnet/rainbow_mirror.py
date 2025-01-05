@@ -50,6 +50,7 @@ def rainbow_cycle(wait):
         pixels.show()
         time.sleep(wait)
 
+
 def complex_rainbow_cycle(wait):
     for j in range(255):
         for i in range(num_pixels):
@@ -57,19 +58,23 @@ def complex_rainbow_cycle(wait):
             # Apply a shifting effect to the rainbow
             shift = (i + j) % 256
             shifted_color = wheel((pixel_index + shift) & 255)
-            
+
             # Adjust brightness for a dynamic effect
             brightness_factor = (math.sin(math.radians(j + i * 10)) + 1) / 2
-            dimmed_color = (int(shifted_color[0] * brightness_factor),
-                            int(shifted_color[1] * brightness_factor),
-                            int(shifted_color[2] * brightness_factor))
+            dimmed_color = (
+                int(shifted_color[0] * brightness_factor),
+                int(shifted_color[1] * brightness_factor),
+                int(shifted_color[2] * brightness_factor),
+            )
 
             pixels[i] = dimmed_color
         pixels.show()
         time.sleep(wait)
+
+
 def rainbow_chase(wait):
     """
-    Creates a rainbow chase animation with "agents" moving in opposite 
+    Creates a rainbow chase animation with "agents" moving in opposite
     directions around the LED strip with varying speeds and momentum.
     """
 
@@ -86,7 +91,6 @@ def rainbow_chase(wait):
     agent2_dir = -1
 
     for j in range(255 * 5):  # Run for a longer duration
-
         # Clear the strip
         pixels.fill((0, 0, 0))
 
@@ -121,5 +125,4 @@ def rainbow_chase(wait):
 
 
 while True:
-    rainbow_chase(0.01) 
-
+    rainbow_chase(0.01)

@@ -19,6 +19,7 @@ pixels = neopixel.NeoPixel(
     pixel_pin, num_pixels, brightness=0.201, auto_write=False, pixel_order=ORDER
 )
 
+
 def halloween_spectacular(wait):
     """
     A complex Halloween animation with multiple effects:
@@ -38,24 +39,23 @@ def halloween_spectacular(wait):
     pixels.show()
 
     for _ in range(60):  # Main animation loop (adjust duration as needed)
-
         # --- Flickering Flames ---
         flame_indices = random.sample(range(num_pixels), num_pixels // 5)
         for i in flame_indices:
             pixels[i] = random.choice(flame_colors)  # Random orange shade
             if random.random() < 0.3:  # 30% chance to flicker
-                pixels[i] = (int(pixels[i][0] * 0.5),
-                             int(pixels[i][1] * 0.5),
-                             int(pixels[i][2] * 0.5))  # Dim the color
-        
+                pixels[i] = (
+                    int(pixels[i][0] * 0.5),
+                    int(pixels[i][1] * 0.5),
+                    int(pixels[i][2] * 0.5),
+                )  # Dim the color
+
         # --- Pulsating Spirits ---
         for i in range(num_pixels):
             brightness = (math.sin(math.radians(_ * 5 + i * 10)) + 1) / 2
             color_index = i % len(spirit_colors)
             r, g, b = spirit_colors[color_index]
-            pixels[i] = (int(r * brightness),
-                         int(g * brightness),
-                         int(b * brightness))
+            pixels[i] = (int(r * brightness), int(g * brightness), int(b * brightness))
 
         # --- Chasing Ghouls ---
         ghoul_pos = (_ * 3) % num_pixels
@@ -70,32 +70,34 @@ def halloween_spectacular(wait):
         pixels.show()
         time.sleep(wait)
 
+
 def halloween_pulsating_spook(wait):
     """
-    Creates a spooky Halloween animation with pulsating orange, yellow, 
+    Creates a spooky Halloween animation with pulsating orange, yellow,
     and purple lights.
     """
 
-    color_palette = [(255, 100, 0),  # Orange
-                     (255, 235, 0),  # Yellow
-                     (128, 0, 168)]  # Purple
+    color_palette = [
+        (255, 100, 0),  # Orange
+        (255, 235, 0),  # Yellow
+        (128, 0, 168),
+    ]  # Purple
 
     for j in range(360):  # Cycle through a full color rotation
         for i in range(num_pixels):
             # Calculate brightness based on sine wave
-            brightness = (math.sin(math.radians(j + i * 10)) + 1) / 2  
-            
+            brightness = (math.sin(math.radians(j + i * 10)) + 1) / 2
+
             # Get color from palette
             color_index = i % len(color_palette)
             r, g, b = color_palette[color_index]
 
             # Apply brightness to color
-            pixels[i] = (int(r * brightness), 
-                         int(g * brightness), 
-                         int(b * brightness))
+            pixels[i] = (int(r * brightness), int(g * brightness), int(b * brightness))
 
         pixels.show()
         time.sleep(wait)
+
 
 import math
 import random
@@ -118,11 +120,13 @@ def halloween_orange_frenzy(wait):
     center_index = num_pixels // 2  # Calculate the center LED index
 
     for j in range(360):  # Cycle through a full pulsation
-
         # --- Pulsating Heart ---
         heart_brightness = (math.sin(math.radians(j * 2)) + 1) / 2  # Faster pulsation
-        pixels[center_index] = (int(255 * heart_brightness), 
-                                 int(165 * heart_brightness), 0)
+        pixels[center_index] = (
+            int(255 * heart_brightness),
+            int(165 * heart_brightness),
+            0,
+        )
 
         # --- Expanding/Contracting Rings ---
         ring_radius = int(abs(math.sin(math.radians(j))) * (center_index - 1))
@@ -136,16 +140,19 @@ def halloween_orange_frenzy(wait):
             if i != center_index:  # Don't flicker the heart
                 pixels[i] = random.choice(orange_palette)
                 if random.random() < 0.4:  # 40% chance to flicker
-                    pixels[i] = (int(pixels[i][0] * 0.6),  # Dimmer flicker
-                                 int(pixels[i][1] * 0.6), 
-                                 int(pixels[i][2] * 0.6))
+                    pixels[i] = (
+                        int(pixels[i][0] * 0.6),  # Dimmer flicker
+                        int(pixels[i][1] * 0.6),
+                        int(pixels[i][2] * 0.6),
+                    )
 
         pixels.show()
         time.sleep(wait)
 
+
 def halloween_orange_purple_waves(wait):
     """
-    Creates a Halloween animation with waves of orange and purple 
+    Creates a Halloween animation with waves of orange and purple
     flowing across the LEDs.
     """
 
@@ -167,6 +174,7 @@ def halloween_orange_purple_waves(wait):
         pixels.show()
         time.sleep(wait)
 
+
 def halloween_swampy_glow(wait):
     """
     Creates a spooky swamp-like animation with pulsating
@@ -185,13 +193,35 @@ def halloween_swampy_glow(wait):
             green_intensity = (math.sin(math.radians(j + i * 10 + 240)) + 1) / 2
 
             # Combine colors based on intensities, ensuring values stay within 0-255
-            r = min(255, int(orange[0] * orange_intensity + brown[0] * brown_intensity + green[0] * green_intensity))
-            g = min(255, int(orange[1] * orange_intensity + brown[1] * brown_intensity + green[1] * green_intensity))
-            b = min(255, int(orange[2] * orange_intensity + brown[2] * brown_intensity + green[2] * green_intensity))
+            r = min(
+                255,
+                int(
+                    orange[0] * orange_intensity
+                    + brown[0] * brown_intensity
+                    + green[0] * green_intensity
+                ),
+            )
+            g = min(
+                255,
+                int(
+                    orange[1] * orange_intensity
+                    + brown[1] * brown_intensity
+                    + green[1] * green_intensity
+                ),
+            )
+            b = min(
+                255,
+                int(
+                    orange[2] * orange_intensity
+                    + brown[2] * brown_intensity
+                    + green[2] * green_intensity
+                ),
+            )
             pixels[i] = (r, g, b)
 
         pixels.show()
         time.sleep(wait)
+
 
 def halloween_red_scare(wait):
     """
@@ -222,9 +252,11 @@ def halloween_spectral_waves(wait):
     white, and darkness, simulating flickering flames.
     """
 
-    color_palette = [(255, 140, 0),  # Orange
-                     (255, 255, 0),  # Yellow
-                     (255, 255, 255)]  # White
+    color_palette = [
+        (255, 140, 0),  # Orange
+        (255, 255, 0),  # Yellow
+        (255, 255, 255),
+    ]  # White
 
     wave_speeds = [10, 15, 20]  # Different speeds for each color
     wave_offsets = [0, 60, 120]  # Different starting offsets for each color
@@ -260,15 +292,18 @@ def halloween_spectral_waves(wait):
         pixels.show()
         time.sleep(wait)
 
+
 def halloween_shadow_waves(wait):
     """
     Creates a dark and spooky wave animation with deep shades of
     purple, green, and blue, with subtle flickering.
     """
 
-    color_palette = [(75, 0, 130),   # Dark purple
-                     (0, 100, 0),   # Dark green
-                     (0, 0, 139)]   # Dark blue
+    color_palette = [
+        (75, 0, 130),  # Dark purple
+        (0, 100, 0),  # Dark green
+        (0, 0, 139),
+    ]  # Dark blue
 
     wave_speeds = [8, 12, 16]  # Slower speeds for a more ominous feel
     wave_offsets = [0, 60, 120]  # Offsets for color separation
@@ -305,41 +340,42 @@ def halloween_shadow_waves(wait):
         pixels.show()
         time.sleep(wait)
 
+
 #####
 
 patterns = [
-        halloween_shadow_waves,
-        halloween_orange_purple_waves, 
-        halloween_red_scare,
-        halloween_swampy_glow,
-        halloween_spectacular,
-        halloween_spectral_waves,
-        halloween_orange_frenzy]
+    halloween_shadow_waves,
+    halloween_orange_purple_waves,
+    halloween_red_scare,
+    halloween_swampy_glow,
+    halloween_spectacular,
+    halloween_spectral_waves,
+    halloween_orange_frenzy,
+]
 pattern_waits = [
-        0.05,
-        0.00001,
-        0.123,
-        0.000005,
-        0.15,
-        0.05,
-        0.1,
-        ]
+    0.05,
+    0.00001,
+    0.123,
+    0.000005,
+    0.15,
+    0.05,
+    0.1,
+]
 pattern_durations = [
-        10,
-        10,
-        5,
-        10,
-        10,
-        10,
-        10,
-        ]
+    10,
+    10,
+    5,
+    10,
+    10,
+    10,
+    10,
+]
 
 
 while True:
-    for pattern, pattern_wait, pattern_duration in zip(patterns, pattern_waits, pattern_durations):
+    for pattern, pattern_wait, pattern_duration in zip(
+        patterns, pattern_waits, pattern_durations
+    ):
         start_time = time.time()
         while time.time() - start_time < pattern_duration:
             pattern(pattern_wait)
-
-
-

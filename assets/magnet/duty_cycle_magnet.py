@@ -26,6 +26,7 @@ pwm.start(0)  # start with 0% duty cycle (off)
 chan0 = AnalogIn(mcp, MCP.P0)
 chan1 = AnalogIn(mcp, MCP.P1)
 
+
 # Function to collect calibration data
 def collect_calibration_data(pwm, chan0, chan1, duty_cycles):
     calibration_data = []
@@ -37,6 +38,7 @@ def collect_calibration_data(pwm, chan0, chan1, duty_cycles):
             calibration_data.append((duty, sensor_value))
             time.sleep(0.001)  # 1 ms delay
     return calibration_data
+
 
 # Function to train a regression model
 def train_model(calibration_data):
@@ -50,6 +52,7 @@ def train_model(calibration_data):
     model.fit(X, y)
     return model
 
+
 # Main script
 # Calibration phase
 print("Starting calibration phase...")
@@ -61,9 +64,17 @@ print("Training regression model...")
 model = train_model(calibration_data)
 
 # Main operation phase
-with open('hall_effect_log.csv', mode='w', newline='') as file:
+with open("hall_effect_log.csv", mode="w", newline="") as file:
     writer = csv.writer(file)
-    writer.writerow(["Time", "Duty Cycle", "Corrected Sensor Difference", "Raw Sensor 0", "Raw Sensor 1"])
+    writer.writerow(
+        [
+            "Time",
+            "Duty Cycle",
+            "Corrected Sensor Difference",
+            "Raw Sensor 0",
+            "Raw Sensor 1",
+        ]
+    )
 
     for cycle in range(7):  # Number of cycles
         for duty in duty_cycles:
@@ -77,15 +88,26 @@ with open('hall_effect_log.csv', mode='w', newline='') as file:
                 electromagnet_field = model.predict([[duty]])[0]
 
                 # Subtract electromagnet's contribution
-                corrected_sensor_difference = (raw_sensor_value0 - raw_sensor_value1) - electromagnet_field
+                corrected_sensor_difference = (
+                    raw_sensor_value0 - raw_sensor_value1
+                ) - electromagnet_field
 
                 # Log the corrected values along with raw data
-                writer.writerow([time.time(), duty, corrected_sensor_difference, raw_sensor_value0, raw_sensor_value1])
+                writer.writerow(
+                    [
+                        time.time(),
+                        duty,
+                        corrected_sensor_difference,
+                        raw_sensor_value0,
+                        raw_sensor_value1,
+                    ]
+                )
 
                 if idx % 1234 == 0:
-                    print(f'Duty Cycle: {duty}\tCorrected Sensor Difference: {corrected_sensor_difference:.3f}\t'
-                        f'Raw Sensor 0: {raw_sensor_value0:.3f}\t'
-                        f'Raw Sensor 1: {raw_sensor_value1:.3f}\t'
+                    print(
+                        f"Duty Cycle: {duty}\tCorrected Sensor Difference: {corrected_sensor_difference:.3f}\t"
+                        f"Raw Sensor 0: {raw_sensor_value0:.3f}\t"
+                        f"Raw Sensor 1: {raw_sensor_value1:.3f}\t"
                     )
 
                 time.sleep(0.001)  # 1 ms delay

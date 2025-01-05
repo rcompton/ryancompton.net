@@ -27,7 +27,9 @@ GPIO.setup(magnet_pin, GPIO.OUT)
 #    GLOBAL VARIABLES
 # ---------------------------
 running = True  # Flag to control threads
-sensor_data = []  # List to store frequency, duty cycle, timestamp, and Hall sensor readings
+sensor_data = (
+    []
+)  # List to store frequency, duty cycle, timestamp, and Hall sensor readings
 current_duty_cycle = 0  # Shared variable to control the duty cycle
 current_pwm_frequency = 0  # Shared variable to track the current PWM frequency
 
@@ -43,7 +45,15 @@ def read_sensor():
         timestamp = time.time() - start_time
         hall_voltage0 = chan0.voltage
         hall_voltage1 = chan1.voltage
-        sensor_data.append((current_pwm_frequency, current_duty_cycle, timestamp, hall_voltage0, hall_voltage1))
+        sensor_data.append(
+            (
+                current_pwm_frequency,
+                current_duty_cycle,
+                timestamp,
+                hall_voltage0,
+                hall_voltage1,
+            )
+        )
         time.sleep(0.001)  # Sample every 1 ms
 
 
@@ -53,7 +63,7 @@ def read_sensor():
 def control_duty_cycle(duty_cycles, duration_per_cycle):
     """
     Change the PWM duty cycle at regular intervals.
-    
+
     Args:
     - duty_cycles: List of duty cycles to iterate through (e.g., [0, 25, 50, 75, 100])
     - duration_per_cycle: Time to hold each duty cycle (seconds)
@@ -95,7 +105,9 @@ def main():
             # Start threads
             running = True
             sensor_thread = threading.Thread(target=read_sensor)
-            duty_cycle_thread = threading.Thread(target=control_duty_cycle, args=(duty_cycles, duration_per_cycle))
+            duty_cycle_thread = threading.Thread(
+                target=control_duty_cycle, args=(duty_cycles, duration_per_cycle)
+            )
 
             sensor_thread.start()
             duty_cycle_thread.start()
@@ -112,8 +124,15 @@ def main():
         file_name = "pwm_frequency_duty_cycle_study.csv"
         with open(file_name, "w", newline="") as file:
             writer = csv.writer(file)
-            writer.writerow(["PWM Frequency (Hz)", "Duty Cycle (%)", "Time (s)",
-                             "Hall Sensor 0 Voltage (V)", "Hall Sensor 1 Voltage (V)"])
+            writer.writerow(
+                [
+                    "PWM Frequency (Hz)",
+                    "Duty Cycle (%)",
+                    "Time (s)",
+                    "Hall Sensor 0 Voltage (V)",
+                    "Hall Sensor 1 Voltage (V)",
+                ]
+            )
             writer.writerows(sensor_data)
 
         print(f"Data collection completed. Saved to '{file_name}'.")

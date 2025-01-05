@@ -37,7 +37,7 @@ sensor_data = []  # List to store timestamp and Hall sensor readings
 def read_sensor():
     global running, sensor_data
     start_time = time.time()
-    
+
     while running:
         timestamp = time.time() - start_time
         hall_voltage = chan0.voltage
@@ -54,7 +54,7 @@ def toggle_magnet():
         # Turn magnet ON
         GPIO.output(magnet_pin, GPIO.HIGH)
         time.sleep(0.05)  # 50 ms ON duration
-        
+
         # Turn magnet OFF
         GPIO.output(magnet_pin, GPIO.LOW)
         time.sleep(0.05)  # 50 ms OFF duration
@@ -66,10 +66,10 @@ def toggle_magnet():
 def calculate_rise_fall_times(data):
     """
     Calculate rise and fall times (10% to 90%) of the voltage transitions.
-    
+
     Args:
     - data: DataFrame containing time and voltage
-    
+
     Returns:
     - A dictionary with lists of rise times and fall times
     """
@@ -91,14 +91,22 @@ def calculate_rise_fall_times(data):
         # Detect rising transition
         if voltage[i - 1] < threshold_10 and voltage[i] >= threshold_10:
             rising_start = curr_time[i]
-        elif voltage[i - 1] < threshold_90 and voltage[i] >= threshold_90 and rising_start is not None:
+        elif (
+            voltage[i - 1] < threshold_90
+            and voltage[i] >= threshold_90
+            and rising_start is not None
+        ):
             rise_times.append(curr_time[i] - rising_start)
             rising_start = None
 
         # Detect falling transition
         if voltage[i - 1] > threshold_90 and voltage[i] <= threshold_90:
             falling_start = curr_time[i]
-        elif voltage[i - 1] > threshold_10 and voltage[i] <= threshold_10 and falling_start is not None:
+        elif (
+            voltage[i - 1] > threshold_10
+            and voltage[i] <= threshold_10
+            and falling_start is not None
+        ):
             fall_times.append(curr_time[i] - falling_start)
             falling_start = None
 
@@ -115,13 +123,13 @@ def main():
         # Start threads
         sensor_thread = threading.Thread(target=read_sensor)
         magnet_thread = threading.Thread(target=toggle_magnet)
-        
+
         sensor_thread.start()
         magnet_thread.start()
-        
+
         # Run for a specified duration (e.g., 5 seconds)
         time.sleep(2)
-        
+
     finally:
         # Stop threads
         running = False
@@ -135,7 +143,7 @@ def main():
             writer = csv.writer(file)
             writer.writerow(["Time (s)", "Hall Sensor Voltage (V)"])
             writer.writerows(sensor_data)
-        
+
         print(f"Data collection completed. Saved to '{file_name}'.")
 
         # Load the data into a DataFrame
@@ -159,7 +167,6 @@ def main():
             print(f"Individual Fall Times: {fall_times}")
         else:
             print("No fall transitions detected in the data.")
-
 
 
 # Run the program
