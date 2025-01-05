@@ -6,23 +6,26 @@ import digitalio
 import time
 import csv
 import threading
+import random
+import numpy as np
+from tqdm import tqdm
 
 import adafruit_mcp3xxx.mcp3008 as MCP
 from adafruit_mcp3xxx.analog_in import AnalogIn
 
 from simple_pid import PID
-
+from sklearn.ensemble import GradientBoostingRegressor
 from collections import deque
 
 
-class MovingAverage:
+class MedianFilter:
     def __init__(self, size):
         self.size = size
         self.buffer = deque(maxlen=size)
 
     def filter(self, value):
         self.buffer.append(value)
-        return sum(self.buffer) / len(self.buffer)
+        return np.median(self.buffer)
 
 # ---------------------------
 #    SETUP MCP3008 & SENSORS
@@ -48,8 +51,8 @@ pi.set_PWM_dutycycle(magnet_pin, int(initial_duty_cycle * 255 / 100))  # Set ini
 # ---------------------------
 #   HYSTERESIS THRESHOLDS
 # ---------------------------
-HYST_HIGH = 1.1
-HYST_LOW = 1.0
+HYST_HIGH = 0
+HYST_LOW = -0.2
 
 # ---------------------------
 #        PID CONTROLLER
@@ -66,8 +69,45 @@ pid.output_limits = (0, 100)
 # ---------------------------
 running = True
 sensor_data = []
-mid_filter = MovingAverage(size=15)
-floor_filter = MovingAverage(size=15)
+mid_filter = MedianFilter(size=15)
+floor_filter = MedianFilter(size=15)
+corrected_sensor_difference_filter = MedianFilter(size=15)
+
+# ---------------------------
+#    CALIBRATION PHASE
+# ---------------------------
+# Function to collect calibration data
+def collect_calibration_data(chan0, chan1):
+    calibration_data = []
+    duty_cycles = list(range(0, 256))
+    random.shuffle(duty_cycles)  # Shuffle the duty cycles to randomize the order
+    for duty in tqdm(duty_cycles, desc="Calibrating", unit="duty cycle"):
+        pi.set_PWM_dutycycle(magnet_pin, duty)
+        time.sleep(0.01)  # Allow field to stabilize
+        for _ in range(10):  # Collect multiple samples per duty cycle
+            sensor_value = chan0.voltage - chan1.voltage
+            calibration_data.append((duty, sensor_value))
+            time.sleep(0.002)  # 2 ms delay
+    return calibration_data
+
+# Function to train a regression model
+def train_model(calibration_data):
+    # Prepare training data
+    data = np.array(calibration_data)
+    X = data[:, 0].reshape(-1, 1)  # Duty Cycle
+    y = data[:, 1]  # Sensor Value
+
+    # Train regression model
+    model = GradientBoostingRegressor()
+    model.fit(X, y)
+    return model
+
+# Run Calibration phase (Global variables....)
+print("Starting calibration phase...")
+calibration_data = collect_calibration_data(chan0, chan1)
+print("Training regression model...")
+model = train_model(calibration_data)
+print("Training regression model...done")
 
 # ---------------------------
 #    MEASUREMENT THREAD
@@ -85,12 +125,12 @@ def measurement_thread():
                 "DutyCycle_%",
                 "Setpoint",
                 "HYST_LOW",
-                "HYST_HIGH"
+                "HYST_HIGH",
+                "corrected_sensor_difference"
             ]
             writer.writerow(header)
 
             step_counter = 0
-
             while running:
                 current_time = time.time()
                 sensor0_raw = chan0.voltage
@@ -99,12 +139,19 @@ def measurement_thread():
                 filtered_sensor1 = floor_filter.filter(sensor1_raw)
                 sensor_difference = filtered_sensor0 - filtered_sensor1
 
+                # Predict electromagnet's field contribution
+                electromagnet_field = model.predict([[pi.get_PWM_dutycycle(magnet_pin)]])[0]
+                # Subtract electromagnet's contribution
+                corrected_sensor_difference = sensor_difference - electromagnet_field
+                corrected_sensor_difference = corrected_sensor_difference_filter.filter(corrected_sensor_difference)
+
                 # Save measurements
                 sensor_data.append([
                     current_time,
                     filtered_sensor0,
                     filtered_sensor1,
-                    sensor_difference
+                    sensor_difference,
+                    corrected_sensor_difference
                 ])
 
                 # Log the measurement to CSV every step
@@ -117,6 +164,7 @@ def measurement_thread():
                     f"{pid.setpoint:.4f}",
                     f"{HYST_LOW:.4f}",
                     f"{HYST_HIGH:.4f}",
+                    f"{corrected_sensor_difference:.4f}"
                 ]
                 writer.writerow(row)
                 csvfile.flush()
@@ -136,6 +184,8 @@ def measurement_thread():
 # ---------------------------
 def main():
     global running
+
+
     try:
         # Start measurement thread
         thread = threading.Thread(target=measurement_thread)
@@ -149,22 +199,21 @@ def main():
         print("start!")
 
         while running:
-            current_time = time.time() - start_time
-
             # Get the latest measurement
             if sensor_data:
                 latest_data = sensor_data[-1]
-                filtered_sensor0 = latest_data[1]
-                filtered_sensor1 = latest_data[2]
-                sensor_difference = latest_data[3]
+                #filtered_sensor0 = latest_data[1]
+                #filtered_sensor1 = latest_data[2]
+                #sensor_difference = latest_data[3]
+                corrected_sensor_difference = latest_data[-1]
 
                 # Control logic
-                if filtered_sensor0 > HYST_HIGH:
+                if corrected_sensor_difference > HYST_HIGH:
                     new_duty = 100.0
-                elif filtered_sensor0 < HYST_LOW:
+                elif corrected_sensor_difference < HYST_LOW:
                     new_duty = 0.0
                 else:
-                    new_duty = pid(filtered_sensor0)
+                    new_duty = pid(corrected_sensor_difference)
 
                 # pigpio PWM ranges from 0-255
                 pi.set_PWM_dutycycle(magnet_pin, int(new_duty * 255 / 100))
