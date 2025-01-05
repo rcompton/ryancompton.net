@@ -43,7 +43,7 @@ chan1 = AnalogIn(mcp, MCP.P1)  # Sensor 1 (floor)
 # ---------------------------
 pi = pigpio.pi()  # Initialize pigpio
 magnet_pin = 4
-pwm_frequency = 5000  # Increased PWM frequency to reduce noise
+pwm_frequency = 150  # Increased PWM frequency to reduce noise
 initial_duty_cycle = 0  # Start with 0% duty cycle
 pi.set_PWM_frequency(magnet_pin, pwm_frequency)
 pi.set_PWM_dutycycle(magnet_pin, int(initial_duty_cycle * 255 / 100))  # Set initial duty cycle
@@ -178,7 +178,7 @@ def collect_calibration_data(chan0, chan1):
     csv_writer.writerow(header)
 
     # Setup callback for falling edge measurements
-    cb = pi.callback(magnet_pin, pigpio.FALLING_EDGE, measurement_callback)
+    #cb = pi.callback(magnet_pin, pigpio.FALLING_EDGE, measurement_callback)
 
     # Start the measurement thread
     thread = threading.Thread(target=measurement_thread)
@@ -193,7 +193,7 @@ def collect_calibration_data(chan0, chan1):
         time.sleep(0.05) # need to wait longer since the callback/thread take measurements at most every 1ms.
     
     # Stop the measurement thread and callback
-    cb.cancel()
+    #cb.cancel()
     global running
     running = False
     thread.join()
@@ -237,7 +237,7 @@ def measurement_thread():
     while running:
         if pi.read(magnet_pin) == 0:
             take_measurement()
-        time.sleep(0.001)  # Check every 1 ms
+        time.sleep(0.0001)  # Check every 1 microsecond (there's a millisecond sleep in the take_measurement function)
 
 # ---------------------------
 #     MAIN CONTROL LOOP
@@ -272,7 +272,7 @@ def main():
         csv_writer.writerow(header)
 
         # Setup callback for falling edge measurements
-        cb = pi.callback(magnet_pin, pigpio.FALLING_EDGE, measurement_callback)
+        #cb = pi.callback(magnet_pin, pigpio.FALLING_EDGE, measurement_callback)
 
         # Start the measurement thread
         thread = threading.Thread(target=measurement_thread)
@@ -316,7 +316,7 @@ def main():
         running = False
 
     finally:
-        cb.cancel()  # Cancel the callback
+        #cb.cancel()  # Cancel the callback
         thread.join() # join the measurement thread
         pi.set_PWM_dutycycle(magnet_pin, 0)
         pi.stop()
