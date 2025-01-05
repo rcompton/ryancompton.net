@@ -168,32 +168,43 @@ def log_data(current_time, data_array):
 # Function to collect calibration data
 def collect_calibration_data(chan0, chan1):
     global csv_writer, calibration_sensor_data
-
-    duty_cycles = list(range(0, 256))
-    # random.shuffle(duty_cycles)  # Shuffle the duty cycles to randomize the order
+    # Define transitions
+    transitions = [
+        # (start_duty, end_duty, steps, sleep_between_steps, repeats)
+        (0, 100, 5, 0.05, 2),
+        (100, 0, 5, 0.05, 2),
+        (0, 50, 5, 0.05, 2),
+        (50, 0, 5, 0.05, 2),
+        (0, 25, 5, 0.05, 2),
+        (25, 0, 5, 0.05, 2),
+        (0, 15, 5, 0.05, 2),
+        (15, 0, 5, 0.05, 2),
+        (0, 5, 5, 0.05, 2),
+        (5, 0, 5, 0.05, 2),
+        (0, 1, 5, 0.05, 2),
+        (1, 0, 5, 0.05, 2),
+        (1, 255, 50, 0.05, 2),
+        (255, 1, 50, 0.05, 2),
+    ]
 
     # Setup CSV
     csvfile = open("calibration_data.csv", mode="w", newline="")
     csv_writer = csv.writer(csvfile)
     header = ["Time_s", "Sensor0_Raw", "Sensor1_Raw", "DutyCycle"]
-    csv_writer.writerow(header)
 
-    # Setup callback for falling edge measurements
-    # cb = pi.callback(magnet_pin, pigpio.FALLING_EDGE, measurement_callback)
+    csv_writer.writerow(header)
 
     # Start the measurement thread
     thread = threading.Thread(target=measurement_thread)
     thread.start()
 
-    for duty in tqdm(duty_cycles, desc="Calibrating", unit="duty cycle"):
-        pi.set_PWM_dutycycle(magnet_pin, duty)
-        time.sleep(0.05)  # Allow field to stabilize more during calibration
-
-        # Collect multiple samples per duty cycle (measurements are already being taken by the thread and callback)
-        # We just need to wait to allow for enough measurements to be collected
-        time.sleep(
-            0.05
-        )  # need to wait longer since the callback/thread take measurements at most every 1ms.
+    # Perform transitions
+    for start_duty, end_duty, steps, sleep_between_steps, repeats in transitions:
+        for _ in range(repeats):
+            duty_range = np.linspace(start_duty, end_duty, steps)
+            for duty in tqdm(duty_range, desc=f"Calibrating {start_duty} to {end_duty}", unit="duty cycle"):
+                pi.set_PWM_dutycycle(magnet_pin, int(duty))
+                time.sleep(sleep_between_steps)
 
     # Stop the measurement thread and callback
     # cb.cancel()
