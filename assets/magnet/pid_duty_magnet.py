@@ -8,6 +8,7 @@ import csv
 import threading
 import random
 import numpy as np
+import pandas as pd
 from tqdm import tqdm
 
 import adafruit_mcp3xxx.mcp3008 as MCP
@@ -71,32 +72,34 @@ running = True
 sensor_data = []
 mid_filter = MedianFilter(size=15)
 floor_filter = MedianFilter(size=15)
-corrected_sensor_difference_filter = MedianFilter(size=15)
 
 # ---------------------------
 #    CALIBRATION PHASE
 # ---------------------------
 # Function to collect calibration data
 def collect_calibration_data(chan0, chan1):
-    calibration_data = []
     duty_cycles = list(range(0, 256))
-    random.shuffle(duty_cycles)  # Shuffle the duty cycles to randomize the order
+    #random.shuffle(duty_cycles)  # Shuffle the duty cycles to randomize the order
+    dics = []
     for duty in tqdm(duty_cycles, desc="Calibrating", unit="duty cycle"):
         pi.set_PWM_dutycycle(magnet_pin, duty)
         time.sleep(0.01)  # Allow field to stabilize
         for _ in range(10):  # Collect multiple samples per duty cycle
-            sensor_value = chan0.voltage - chan1.voltage
-            calibration_data.append((duty, sensor_value))
+            dics.append({'duty':duty, 'chan0':chan0.voltage, 'chan1':chan1.voltage})
             time.sleep(0.002)  # 2 ms delay
+    calibration_data = pd.DataFrame(dics)
+    calibration_data.to_csv('calibration_data.csv', index=False)
+    pi.set_PWM_dutycycle(magnet_pin, 0.0)  # Turn off electromagnet
     return calibration_data
 
 # Function to train a regression model
-def train_model(calibration_data):
-    # Prepare training data
-    data = np.array(calibration_data)
-    X = data[:, 0].reshape(-1, 1)  # Duty Cycle
-    y = data[:, 1]  # Sensor Value
-
+# The idea is to predict the sensor value of the lower sensor based on the duty cycle and the top sensor value.
+# This will allow us to estimate the electromagnet's field contribution to the sensor values by taking the difference between the actual sensor value and the predicted sensor value.
+def train_model(df):
+    # dutycycle and top sensor
+    X = np.array(df[['duty', 'chan1']])
+    # lower sensor
+    y = np.array(df['chan0'])
     # Train regression model
     model = GradientBoostingRegressor()
     model.fit(X, y)
@@ -121,12 +124,12 @@ def measurement_thread():
                 "Time_s",
                 "Sensor0_Raw",
                 "Sensor1_Raw",
-                "Sensor0-Sensor1",
-                "DutyCycle_%",
+                "DutyCycle",
                 "Setpoint",
                 "HYST_LOW",
                 "HYST_HIGH",
-                "corrected_sensor_difference"
+                "Predicted_Lower_Sensor",
+                "flying_magnets_field"
             ]
             writer.writerow(header)
 
@@ -137,21 +140,20 @@ def measurement_thread():
                 sensor1_raw = chan1.voltage
                 filtered_sensor0 = mid_filter.filter(sensor0_raw)
                 filtered_sensor1 = floor_filter.filter(sensor1_raw)
-                sensor_difference = filtered_sensor0 - filtered_sensor1
+                duty = pi.get_PWM_dutycycle(magnet_pin)
 
                 # Predict electromagnet's field contribution
-                electromagnet_field = model.predict([[pi.get_PWM_dutycycle(magnet_pin)]])[0]
+                predicted_lower_sensor = model.predict(np.array([duty, filtered_sensor1]).reshape(1,-1))[0]
                 # Subtract electromagnet's contribution
-                corrected_sensor_difference = sensor_difference - electromagnet_field
-                corrected_sensor_difference = corrected_sensor_difference_filter.filter(corrected_sensor_difference)
+                flying_magnets_field = filtered_sensor0 - predicted_lower_sensor
 
                 # Save measurements
                 sensor_data.append([
                     current_time,
                     filtered_sensor0,
                     filtered_sensor1,
-                    sensor_difference,
-                    corrected_sensor_difference
+                    predicted_lower_sensor,
+                    flying_magnets_field
                 ])
 
                 # Log the measurement to CSV every step
@@ -159,12 +161,12 @@ def measurement_thread():
                     f"{current_time:.3f}",
                     f"{filtered_sensor0:.4f}",
                     f"{filtered_sensor1:.4f}",
-                    f"{sensor_difference:.4f}",
-                    f"{pi.get_PWM_dutycycle(magnet_pin):.2f}", 
+                    f"{duty:.2f}", 
                     f"{pid.setpoint:.4f}",
                     f"{HYST_LOW:.4f}",
                     f"{HYST_HIGH:.4f}",
-                    f"{corrected_sensor_difference:.4f}"
+                    f"{predicted_lower_sensor:.4f}",
+                    f"{flying_magnets_field:.4f}"
                 ]
                 writer.writerow(row)
                 csvfile.flush()
@@ -201,19 +203,23 @@ def main():
         while running:
             # Get the latest measurement
             if sensor_data:
-                latest_data = sensor_data[-1]
+                #latest_data = sensor_data[-1]
                 #filtered_sensor0 = latest_data[1]
                 #filtered_sensor1 = latest_data[2]
-                #sensor_difference = latest_data[3]
-                corrected_sensor_difference = latest_data[-1]
+                #flying_magnets_field = latest_data[-1]
 
-                # Control logic
-                if corrected_sensor_difference > HYST_HIGH:
-                    new_duty = 100.0
-                elif corrected_sensor_difference < HYST_LOW:
-                    new_duty = 0.0
+                duty = (pi.get_PWM_dutycycle(magnet_pin)/255)*100
+                if duty < 89.0:
+                    new_duty = 90.0
                 else:
-                    new_duty = pid(corrected_sensor_difference)
+                    new_duty = 10.0
+                ## Control logic
+                #if corrected_sensor_difference > HYST_HIGH:
+                #    new_duty = 100.0
+                #elif corrected_sensor_difference < HYST_LOW:
+                #    new_duty = 0.0
+                #else:
+                #    new_duty = pid(corrected_sensor_difference)
 
                 # pigpio PWM ranges from 0-255
                 pi.set_PWM_dutycycle(magnet_pin, int(new_duty * 255 / 100))
