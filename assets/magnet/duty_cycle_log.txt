@@ -1,0 +1,1 @@
+On time: 0.0050 s, Off time: 0.0010 s, Duty cycle: 83.33%
