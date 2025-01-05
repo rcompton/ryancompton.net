@@ -45,7 +45,7 @@ chan1 = AnalogIn(mcp, MCP.P1)  # Sensor 1 (floor)
 # ---------------------------
 pi = pigpio.pi()  # Initialize pigpio
 magnet_pin = 4
-pwm_frequency = 500  # Increased PWM frequency to reduce noise
+pwm_frequency = 5500  # Increased PWM frequency to reduce noise
 initial_duty_cycle = 0  # Start with 0% duty cycle
 pi.set_PWM_frequency(magnet_pin, pwm_frequency)
 pi.set_PWM_dutycycle(
@@ -84,7 +84,7 @@ last_measurement_time = 0  # Global variable to track the last measurement time
 # ---------------------------
 #     MEASUREMENT FUNCTION
 # ---------------------------
-def take_measurement():
+def take_measurement(is_from_callback):
     global sensor_data, csv_writer, last_measurement_time, calibration_sensor_data
 
     current_time = time.time()
@@ -92,19 +92,21 @@ def take_measurement():
     # Take a measurement every 1 ms if the pin is LOW
     if (current_time - last_measurement_time) >= 0.001:
         if pi.read(magnet_pin) == 0:
+            #short delay for magnet field
+            time.sleep(0.001)
             if model:
                 # only log to sensor_data if the model has been trained
-                log_data(current_time, sensor_data)
+                log_data(current_time, is_from_callback, sensor_data)
             else:
                 # otherwise, log to calibration_sensor_data
-                log_data(current_time, calibration_sensor_data)
+                log_data(current_time, is_from_callback, calibration_sensor_data)
             last_measurement_time = current_time
 
 
 # ---------------------------
 #     LOGGING FUNCTION
 # ---------------------------
-def log_data(current_time, data_array):
+def log_data(current_time, is_from_callback, data_array):
     global csv_writer, model
 
     sensor0_raw = chan0.voltage
@@ -133,10 +135,11 @@ def log_data(current_time, data_array):
                 filtered_sensor1,
                 predicted_lower_sensor,
                 flying_magnets_field,
+                is_from_callback,
             ]
         )
     else:
-        data_array.append([current_time, filtered_sensor0, filtered_sensor1, duty])
+        data_array.append([current_time, filtered_sensor0, filtered_sensor1, duty, is_from_callback])
 
     # Log the measurement to CSV
     if csv_writer:
@@ -151,6 +154,7 @@ def log_data(current_time, data_array):
                 f"{HYST_HIGH:.4f}",
                 f"{predicted_lower_sensor:.4f}",
                 f"{flying_magnets_field:.4f}",
+                f"{is_from_callback}",
             ]
         else:
             row = [
@@ -158,6 +162,7 @@ def log_data(current_time, data_array):
                 f"{filtered_sensor0:.4f}",
                 f"{filtered_sensor1:.4f}",
                 f"{duty:.2f}",
+                f"{is_from_callback}",
             ]
         csv_writer.writerow(row)
 
@@ -168,9 +173,13 @@ def log_data(current_time, data_array):
 # Function to collect calibration data
 def collect_calibration_data(chan0, chan1):
     global csv_writer, calibration_sensor_data
+    
+    cb = pi.callback(magnet_pin, pigpio.FALLING_EDGE, measurement_callback)
     # Define transitions
     transitions = [
         # (start_duty, end_duty, steps, sleep_between_steps, repeats)
+        (255,180, 20, 0.1, 2),
+        (100, 255, 30, 0.15, 2),
         (0, 100, 5, 0.05, 2),
         (100, 0, 5, 0.05, 2),
         (0, 50, 5, 0.05, 2),
@@ -183,14 +192,14 @@ def collect_calibration_data(chan0, chan1):
         (5, 0, 5, 0.05, 2),
         (0, 1, 5, 0.05, 2),
         (1, 0, 5, 0.05, 2),
-        (1, 255, 50, 0.05, 2),
-        (255, 1, 50, 0.05, 2),
+        (180,255, 20, 0.1, 2),
+        (100, 1, 50, 0.15, 2),
     ]
 
     # Setup CSV
     csvfile = open("calibration_data.csv", mode="w", newline="")
     csv_writer = csv.writer(csvfile)
-    header = ["Time_s", "Sensor0_Raw", "Sensor1_Raw", "DutyCycle"]
+    header = ["Time_s", "Sensor0_Raw", "Sensor1_Raw", "DutyCycle", "is_from_callback"]
 
     csv_writer.writerow(header)
 
@@ -207,7 +216,7 @@ def collect_calibration_data(chan0, chan1):
                 time.sleep(sleep_between_steps)
 
     # Stop the measurement thread and callback
-    # cb.cancel()
+    cb.cancel()
     global running
     running = False
     thread.join()
@@ -242,7 +251,8 @@ def train_model(df):
 #     MEASUREMENT CALLBACK
 # ---------------------------
 def measurement_callback(gpio, level, tick):
-    take_measurement()
+    time.sleep(0.0001)
+    take_measurement(is_from_callback=True)
 
 
 # ---------------------------
@@ -253,7 +263,7 @@ def measurement_thread():
     global running
     while running:
         if pi.read(magnet_pin) == 0:
-            take_measurement()
+            take_measurement(is_from_callback=False)
         time.sleep(
             0.0001
         )  # Check every 1 microsecond (there's a millisecond sleep in the take_measurement function)
@@ -288,11 +298,12 @@ def main():
             "HYST_HIGH",
             "Predicted_Lower_Sensor",
             "flying_magnets_field",
+            "is_from_callback",
         ]
         csv_writer.writerow(header)
 
         # Setup callback for falling edge measurements
-        # cb = pi.callback(magnet_pin, pigpio.FALLING_EDGE, measurement_callback)
+        cb = pi.callback(magnet_pin, pigpio.FALLING_EDGE, measurement_callback)
 
         # Start the measurement thread
         thread = threading.Thread(target=measurement_thread)
@@ -336,7 +347,7 @@ def main():
         running = False
 
     finally:
-        # cb.cancel()  # Cancel the callback
+        cb.cancel()  # Cancel the callback
         thread.join()  # join the measurement thread
         pi.set_PWM_dutycycle(magnet_pin, 0)
         pi.stop()
