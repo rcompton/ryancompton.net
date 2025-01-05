@@ -48,8 +48,8 @@ pi.set_PWM_dutycycle(magnet_pin, int(initial_duty_cycle * 255 / 100))  # Set ini
 # ---------------------------
 #   HYSTERESIS THRESHOLDS
 # ---------------------------
-HYST_HIGH = 1.3
-HYST_LOW = 1.15
+HYST_HIGH = 1.1
+HYST_LOW = 1.0
 
 # ---------------------------
 #        PID CONTROLLER
