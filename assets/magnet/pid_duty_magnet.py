@@ -45,7 +45,7 @@ chan1 = AnalogIn(mcp, MCP.P1)  # Sensor 1 (floor)
 # ---------------------------
 pi = pigpio.pi()  # Initialize pigpio
 magnet_pin = 4
-pwm_frequency = 150  # Increased PWM frequency to reduce noise
+pwm_frequency = 500  # Increased PWM frequency to reduce noise
 initial_duty_cycle = 0  # Start with 0% duty cycle
 pi.set_PWM_frequency(magnet_pin, pwm_frequency)
 pi.set_PWM_dutycycle(
@@ -303,10 +303,10 @@ def main():
                 # flying_magnets_field = latest_data[-1]
 
                 duty = (pi.get_PWM_dutycycle(magnet_pin) / 255) * 100
-                if duty < 89.0:
-                    new_duty = 90.0
+                if duty < 69.0:
+                    new_duty = 70
                 else:
-                    new_duty = 10.0
+                    new_duty = 30.0
                 ## Control logic
                 # if corrected_sensor_difference > HYST_HIGH:
                 #    new_duty = 100.0
