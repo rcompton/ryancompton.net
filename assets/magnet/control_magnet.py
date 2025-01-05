@@ -52,10 +52,9 @@ spi = busio.SPI(clock=board.SCK, MISO=board.MISO, MOSI=board.MOSI)
 cs = digitalio.DigitalInOut(board.D16)
 mcp = MCP.MCP3008(spi, cs)
 
-# Sensors: P0=Mid, P1=Top, P2=Floor
+# Sensors: P0=Mid, P1=Top
 chan_mid = AnalogIn(mcp, MCP.P0)
 chan_top = AnalogIn(mcp, MCP.P1)
-chan_floor = AnalogIn(mcp, MCP.P2)
 
 print("Starting structured calibration...")
 time.sleep(1)  # Wait for system to stabilize
@@ -70,23 +69,20 @@ GPIO.output(magnet_pin, GPIO.LOW)
 time.sleep(2)
 mid_readings_off = measure_voltages(chan_mid, samples=num_calibration_samples, delay=calibration_delay)
 top_readings_off = measure_voltages(chan_top, samples=num_calibration_samples, delay=calibration_delay)
-floor_readings_off = measure_voltages(chan_floor, samples=num_calibration_samples, delay=calibration_delay)
 
 mid_off_stable, mid_off_range = check_stability(mid_readings_off, threshold=stability_threshold)
 top_off_stable, top_off_range = check_stability(top_readings_off, threshold=stability_threshold)
-floor_off_stable, floor_off_range = check_stability(floor_readings_off, threshold=stability_threshold)
 
-if not (mid_off_stable and top_off_stable and floor_off_stable):
-    print(f"Coil OFF readings unstable. Ranges: Mid={mid_off_range:.5f}, Top={top_off_range:.5f}, Floor={floor_off_range:.5f}")
+if not (mid_off_stable and top_off_stable):
+    print(f"Coil OFF readings unstable. Ranges: Mid={mid_off_range:.5f}, Top={top_off_range:.5f}")
     pwm.stop()
     GPIO.cleanup()
     sys.exit(1)
 
 mid_offset_off = stable_average(mid_readings_off)
 top_offset_off = stable_average(top_readings_off)
-floor_offset_off = stable_average(floor_readings_off)
-print(f"Coil OFF offsets: Mid: {mid_offset_off:.3f}, Top: {top_offset_off:.3f}, Floor: {floor_offset_off:.3f}")
-print(f"Stability (OFF): Mid={mid_off_range:.5f}, Top={top_off_range:.5f}, Floor={floor_off_range:.5f}")
+print(f"Coil OFF offsets: Mid: {mid_offset_off:.3f}, Top: {top_offset_off:.3f}")
+print(f"Stability (OFF): Mid={mid_off_range:.5f}, Top={top_off_range:.5f}")
 
 # ---- Coil ON Calibration ----
 print("Calibrating with coil ON...")
@@ -94,14 +90,12 @@ GPIO.output(magnet_pin, GPIO.HIGH)
 time.sleep(2)
 mid_readings_on = measure_voltages(chan_mid, samples=num_calibration_samples, delay=calibration_delay)
 top_readings_on = measure_voltages(chan_top, samples=num_calibration_samples, delay=calibration_delay)
-floor_readings_on = measure_voltages(chan_floor, samples=num_calibration_samples, delay=calibration_delay)
 
 mid_on_stable, mid_on_range = check_stability(mid_readings_on, threshold=stability_threshold)
 top_on_stable, top_on_range = check_stability(top_readings_on, threshold=stability_threshold)
-floor_on_stable, floor_on_range = check_stability(floor_readings_on, threshold=stability_threshold)
 
-if not (mid_on_stable and top_on_stable and floor_on_stable):
-    print(f"Coil ON readings unstable. Ranges: Mid={mid_on_range:.5f}, Top={top_on_range:.5f}, Floor={floor_on_range:.5f}")
+if not (mid_on_stable and top_on_stable):
+    print(f"Coil ON readings unstable. Ranges: Mid={mid_on_range:.5f}, Top={top_on_range:.5f}")
     GPIO.output(magnet_pin, GPIO.LOW)
     pwm.stop()
     GPIO.cleanup()
@@ -109,9 +103,8 @@ if not (mid_on_stable and top_on_stable and floor_on_stable):
 
 mid_offset_on = stable_average(mid_readings_on)
 top_offset_on = stable_average(top_readings_on)
-floor_offset_on = stable_average(floor_readings_on)
-print(f"Coil ON offsets: Mid: {mid_offset_on:.3f}, Top: {top_offset_on:.3f}, Floor: {floor_offset_on:.3f}")
-print(f"Stability (ON): Mid={mid_on_range:.5f}, Top={top_on_range:.5f}, Floor={floor_on_range:.5f}")
+print(f"Coil ON offsets: Mid: {mid_offset_on:.3f}, Top: {top_offset_on:.3f}")
+print(f"Stability (ON): Mid={mid_on_range:.5f}, Top={top_on_range:.5f}")
 
 # Turn coil off after calibration
 GPIO.output(magnet_pin, GPIO.LOW)
@@ -119,10 +112,9 @@ GPIO.output(magnet_pin, GPIO.LOW)
 # Calculate correction factors
 mid_correction = mid_offset_on - mid_offset_off
 top_correction = top_offset_on - top_offset_off
-floor_correction = floor_offset_on - floor_offset_off
 
 print("Calibration complete.")
-print(f"Mid correction: {mid_correction:.3f}, Top correction: {top_correction:.3f}, Floor correction: {floor_correction:.3f}")
+print(f"Mid correction: {mid_correction:.3f}, Top correction: {top_correction:.3f}")
 
 # Initial Control parameters
 target_levitating_field = -0.01
@@ -135,7 +127,6 @@ pid.output_limits = (0, 100)  # PWM duty cycle range
 
 mid_buffer = []
 top_buffer = []
-floor_buffer = []
 
 step_counter = 0
 start_time = time.time()
@@ -202,22 +193,19 @@ try:
         
         mid_dynamic_offset = mid_offset_off + mid_correction*(duty/100)
         top_dynamic_offset = top_offset_off + top_correction*(duty/100)
-        floor_dynamic_offset = floor_offset_off + floor_correction*(duty/100)
 
         # Raw sensor values, corrected by dynamic offsets
         raw_mid_value = chan_mid.voltage - mid_dynamic_offset
         raw_top_value = chan_top.voltage - top_dynamic_offset
-        raw_floor_value = chan_floor.voltage - floor_dynamic_offset
 
         # Minimal filtering
         filtered_mid = add_reading_and_average(raw_mid_value, mid_buffer, max_size=5)
         filtered_top = add_reading_and_average(raw_top_value, top_buffer, max_size=5)
-        filtered_floor = add_reading_and_average(raw_floor_value, floor_buffer, max_size=5)
 
         # Define levitating_field
         # Example: ((floor + mid)/2) - top
-        levitating_field = filtered_floor
-        #levitating_field = ((filtered_floor + filtered_mid)/2.0) - filtered_top
+        levitating_field = filtered_mid
+        #levitating_field = ((filtered_mid)/2.0) - filtered_top
 
         # PID compute
         output = pid(levitating_field)
@@ -227,7 +215,7 @@ try:
         step_counter += 1
         if step_counter % 100 == 0:
             elapsed_time = time.time() - start_time
-            print(f"Mid(Filt): {filtered_mid:.3f}, Top(Filt): {filtered_top:.3f}, Floor(Filt): {filtered_floor:.3f}, "
+            print(f"Mid(Filt): {filtered_mid:.3f}, Top(Filt): {filtered_top:.3f}, "
                   f"Field: {levitating_field:.6f}, Duty: {output:.2f}, "
                   f"Setpoint: {pid.setpoint:.6f}, Kp: {pid.Kp:.3f}, Ki: {pid.Ki:.3f}, Kd: {pid.Kd:.3f}, "
                   f"Steps/s: {step_counter / elapsed_time:.2f}")

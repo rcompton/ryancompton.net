@@ -1,11 +1,14 @@
+import threading
+import time
+import csv
 import RPi.GPIO as GPIO
 import board
 import busio
 import digitalio
-import time
-import csv
 import adafruit_mcp3xxx.mcp3008 as MCP
 from adafruit_mcp3xxx.analog_in import AnalogIn
+import pandas as pd
+import numpy as np
 
 # ---------------------------
 #    SETUP MCP3008 & SENSORS
@@ -22,38 +25,143 @@ magnet_pin = 4
 GPIO.setup(magnet_pin, GPIO.OUT)
 
 # ---------------------------
-#     FUNCTION TO TEST SPEED
+#    GLOBAL VARIABLES
 # ---------------------------
-def measure_switching_speed():
-    # Output file to record data
-    with open("switching_speed.csv", "w", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerow(["Time (s)", "Hall Sensor Voltage (V)"])  # Header row
+running = True  # Flag to control threads
+sensor_data = []  # List to store timestamp and Hall sensor readings
 
-        # Toggle magnet and read sensor
-        for i in range(4):  # Toggle 50 times
-            start_time = time.time()
-
-            # Turn magnet ON
-            GPIO.output(magnet_pin, GPIO.HIGH)
-            for j in range(100):
-                # Record Hall sensor reading
-                writer.writerow([time.time() - start_time, chan0.voltage])
-                time.sleep(0.0001)
-
-            # Turn magnet OFF
-            GPIO.output(magnet_pin, GPIO.LOW)
-            for j in range(100):
-                # Record Hall sensor reading
-                writer.writerow([time.time() - start_time, chan0.voltage])
-                time.sleep(0.0001)
-
-    print("Measurement completed. Data saved to 'switching_speed.csv'.")
 
 # ---------------------------
-#     RUN TEST AND CLEANUP
+#    SENSOR READING THREAD
 # ---------------------------
-try:
-    measure_switching_speed()
-finally:
-    GPIO.cleanup()
+def read_sensor():
+    global running, sensor_data
+    start_time = time.time()
+    
+    while running:
+        timestamp = time.time() - start_time
+        hall_voltage = chan0.voltage
+        sensor_data.append((timestamp, hall_voltage))
+        time.sleep(0.001)  # Sample every 1 ms
+
+
+# ---------------------------
+#    MAGNET CONTROL THREAD
+# ---------------------------
+def toggle_magnet():
+    global running
+    while running:
+        # Turn magnet ON
+        GPIO.output(magnet_pin, GPIO.HIGH)
+        time.sleep(0.05)  # 50 ms ON duration
+        
+        # Turn magnet OFF
+        GPIO.output(magnet_pin, GPIO.LOW)
+        time.sleep(0.05)  # 50 ms OFF duration
+
+
+# ---------------------------
+#    RISE AND FALL TIME ANALYSIS
+# ---------------------------
+def calculate_rise_fall_times(data):
+    """
+    Calculate rise and fall times (10% to 90%) of the voltage transitions.
+    
+    Args:
+    - data: DataFrame containing time and voltage
+    
+    Returns:
+    - A dictionary with lists of rise times and fall times
+    """
+    curr_time = data["Time (s)"]
+    voltage = data["Hall Sensor Voltage (V)"]
+    rise_times = []
+    fall_times = []
+
+    # Define thresholds for 10% and 90% of steady-state values
+    max_voltage = np.max(voltage)
+    min_voltage = np.min(voltage)
+    threshold_10 = min_voltage + 0.1 * (max_voltage - min_voltage)
+    threshold_90 = min_voltage + 0.9 * (max_voltage - min_voltage)
+
+    rising_start = None
+    falling_start = None
+
+    for i in range(1, len(voltage)):
+        # Detect rising transition
+        if voltage[i - 1] < threshold_10 and voltage[i] >= threshold_10:
+            rising_start = curr_time[i]
+        elif voltage[i - 1] < threshold_90 and voltage[i] >= threshold_90 and rising_start is not None:
+            rise_times.append(curr_time[i] - rising_start)
+            rising_start = None
+
+        # Detect falling transition
+        if voltage[i - 1] > threshold_90 and voltage[i] <= threshold_90:
+            falling_start = curr_time[i]
+        elif voltage[i - 1] > threshold_10 and voltage[i] <= threshold_10 and falling_start is not None:
+            fall_times.append(curr_time[i] - falling_start)
+            falling_start = None
+
+    return {"rise_times": rise_times, "fall_times": fall_times}
+
+
+# ---------------------------
+#    MAIN FUNCTION
+# ---------------------------
+def main():
+    global running, sensor_data
+
+    try:
+        # Start threads
+        sensor_thread = threading.Thread(target=read_sensor)
+        magnet_thread = threading.Thread(target=toggle_magnet)
+        
+        sensor_thread.start()
+        magnet_thread.start()
+        
+        # Run for a specified duration (e.g., 5 seconds)
+        time.sleep(2)
+        
+    finally:
+        # Stop threads
+        running = False
+        sensor_thread.join()
+        magnet_thread.join()
+        GPIO.cleanup()
+
+        # Save sensor data to CSV
+        file_name = "switching_speed_multithreaded.csv"
+        with open(file_name, "w", newline="") as file:
+            writer = csv.writer(file)
+            writer.writerow(["Time (s)", "Hall Sensor Voltage (V)"])
+            writer.writerows(sensor_data)
+        
+        print(f"Data collection completed. Saved to '{file_name}'.")
+
+        # Load the data into a DataFrame
+        data = pd.read_csv(file_name)
+
+        # Analyze rise and fall times
+        transition_times = calculate_rise_fall_times(data)
+        rise_times = transition_times["rise_times"]
+        fall_times = transition_times["fall_times"]
+
+        if rise_times:
+            avg_rise_time = np.mean(rise_times)
+            print(f"Average Rise Time: {avg_rise_time:.6f} seconds")
+            print(f"Individual Rise Times: {rise_times}")
+        else:
+            print("No rise transitions detected in the data.")
+
+        if fall_times:
+            avg_fall_time = np.mean(fall_times)
+            print(f"Average Fall Time: {avg_fall_time:.6f} seconds")
+            print(f"Individual Fall Times: {fall_times}")
+        else:
+            print("No fall transitions detected in the data.")
+
+
+
+# Run the program
+if __name__ == "__main__":
+    main()

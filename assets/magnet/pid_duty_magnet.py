@@ -1,14 +1,28 @@
 import RPi.GPIO as GPIO
+import pigpio
 import board
 import busio
 import digitalio
 import time
 import csv
+import threading
 
 import adafruit_mcp3xxx.mcp3008 as MCP
 from adafruit_mcp3xxx.analog_in import AnalogIn
 
 from simple_pid import PID
+
+from collections import deque
+
+
+class MovingAverage:
+    def __init__(self, size):
+        self.size = size
+        self.buffer = deque(maxlen=size)
+
+    def filter(self, value):
+        self.buffer.append(value)
+        return sum(self.buffer) / len(self.buffer)
 
 # ---------------------------
 #    SETUP MCP3008 & SENSORS
@@ -17,164 +31,153 @@ spi = busio.SPI(clock=board.SCK, MISO=board.MISO, MOSI=board.MOSI)
 cs = digitalio.DigitalInOut(board.D16)
 mcp = MCP.MCP3008(spi, cs)
 
-# Floor sensors
+# Sensors
+chan0 = AnalogIn(mcp, MCP.P0)  # Sensor 0 (magnet)
 chan1 = AnalogIn(mcp, MCP.P1)  # Sensor 1 (floor)
-chan2 = AnalogIn(mcp, MCP.P2)  # Sensor 2 (floor)
 
 # ---------------------------
 #        SETUP PWM
 # ---------------------------
-GPIO.setmode(GPIO.BCM)
+pi = pigpio.pi()  # Initialize pigpio
 magnet_pin = 4
-GPIO.setup(magnet_pin, GPIO.OUT)
-pwm_frequency = 1000
-pwm = GPIO.PWM(magnet_pin, pwm_frequency)
-pwm.start(0)  # start with 0% duty
+pwm_frequency = 5000  # Increased PWM frequency to reduce noise
+initial_duty_cycle = 0  # Start with 0% duty cycle
+pi.set_PWM_frequency(magnet_pin, pwm_frequency)
+pi.set_PWM_dutycycle(magnet_pin, int(initial_duty_cycle * 255 / 100))  # Set initial duty cycle
 
 # ---------------------------
 #   HYSTERESIS THRESHOLDS
 # ---------------------------
-HYST_LOW = 1.805
-HYST_HIGH = 1.830
+HYST_HIGH = 1.3
+HYST_LOW = 1.15
 
 # ---------------------------
 #        PID CONTROLLER
 # ---------------------------
-# We'll tune for the middle region (~1.81).
-setpoint = 1.815
-
-Kp = -20.0
+setpoint = 1.15
+Kp = 0.0
 Ki = 0.0
 Kd = 0.0
-
 pid = PID(Kp, Ki, Kd, setpoint=setpoint)
-pid.output_limits = (0, 100)  # map to duty cycle range
+pid.output_limits = (0, 100)
 
 # ---------------------------
-#    LOG FILE SETUP
+#    GLOBAL VARIABLES
 # ---------------------------
-csv_filename = "hybrid_bangbang_pid_log.csv"
-print_interval = 50
-loop_delay = 0.01
-loop_count = 0
+running = True
+sensor_data = []
+mid_filter = MovingAverage(size=15)
+floor_filter = MovingAverage(size=15)
 
-# Open CSV and write header
-with open(csv_filename, mode='w', newline='') as csvfile:
-    writer = csv.writer(csvfile)
-    writer.writerow([
-        "Time_s",
-        "Sensor1_V",
-        "Sensor2_V",
-        "MeanFloor_V",
-        "DutyCycle_%",
-        "Kp",
-        "Ki",
-        "Kd",
-        "P_term",
-        "I_term",
-        "D_term",
-        "Setpoint",
-        "HYST_LOW",
-        "HYST_HIGH"
-    ])
-
-    print(f"Logging data to {csv_filename}...")
-    start_time = time.time()
-
+# ---------------------------
+#    MEASUREMENT THREAD
+# ---------------------------
+def measurement_thread():
+    global running, sensor_data
     try:
-        while True:
-            loop_count += 1
-
-            # ---------------------------
-            #        READ SENSORS
-            # ---------------------------
-            sensor1_voltage = chan1.voltage
-            sensor2_voltage = chan2.voltage
-            mean_floor_voltage = (sensor1_voltage + sensor2_voltage) / 2.0
-
-            # ---------------------------
-            #   HYBRID BANG–BANG + PID
-            # ---------------------------
-            if mean_floor_voltage > HYST_HIGH:
-                # Too low => slam coil to 100%
-                new_duty = 100.0
-                pid_active = False  # we'll skip PID in this zone
-            elif mean_floor_voltage < HYST_LOW:
-                # Too high => turn coil off
-                new_duty = 0.0
-                pid_active = False
-            else:
-                # In the middle => use PID
-                new_duty = pid(mean_floor_voltage)
-                pid_active = True
-
-            # ---------------------------
-            #    CALCULATE PID TERMS
-            # ---------------------------
-            # The simple-pid library updates internal states after pid(...) call.
-            # We'll approximate the P, I, D terms here:
-            error = pid.setpoint - mean_floor_voltage
-            p_term = pid.Kp * error
-            i_term = pid.Ki * pid._integral
-            # For D-term we need the difference between current error & last error.
-            # After pid(...) is called, _last_error is already updated to 'error',
-            # so we might not get the exact derivative of this cycle. 
-            # We'll do a best-effort approach:
-            # D-term (guard if _last_error is None)
-            if pid._last_error is None:
-                d_term = 0.0
-            else:
-                d_term = pid.Kd * (error - pid._last_error)
-
-            if not pid_active:
-                # If bang–bang region, no real PID contribution
-                p_term = 0.0
-                i_term = 0.0
-                d_term = 0.0
-
-            # ---------------------------
-            #         APPLY DUTY
-            # ---------------------------
-            pwm.ChangeDutyCycle(new_duty)
-
-            # ---------------------------
-            #       LOG DATA ROW
-            # ---------------------------
-            elapsed_time = time.time() - start_time
-            row = [
-                f"{elapsed_time:.3f}",
-                f"{sensor1_voltage:.4f}",
-                f"{sensor2_voltage:.4f}",
-                f"{mean_floor_voltage:.4f}",
-                f"{new_duty:.2f}",
-                f"{pid.Kp:.2f}",
-                f"{pid.Ki:.2f}",
-                f"{pid.Kd:.2f}",
-                f"{p_term:.4f}",
-                f"{i_term:.4f}",
-                f"{d_term:.4f}",
-                f"{pid.setpoint:.4f}",
-                f"{HYST_LOW:.4f}",
-                f"{HYST_HIGH:.4f}",
+        with open("hybrid_bangbang_pid_log.csv", mode="w", newline="") as csvfile:
+            writer = csv.writer(csvfile)
+            header = [
+                "Time_s",
+                "Sensor0_Raw",
+                "Sensor1_Raw",
+                "Sensor0-Sensor1",
+                "DutyCycle_%",
+                "Setpoint",
+                "HYST_LOW",
+                "HYST_HIGH"
             ]
-            writer.writerow(row)
-            csvfile.flush()
+            writer.writerow(header)
 
-            # ---------------------------
-            #   OPTIONAL CONSOLE PRINT
-            # ---------------------------
-            if loop_count % print_interval == 0:
-                print(f"[{elapsed_time:.1f}s] "
-                      f"S1={sensor1_voltage:.3f} V, "
-                      f"S2={sensor2_voltage:.3f} V, "
-                      f"MeanFloor={mean_floor_voltage:.3f} V, "
-                      f"Duty={new_duty:.1f}% "
-                      f"(P={p_term:.1f}, I={i_term:.1f}, D={d_term:.1f})")
+            step_counter = 0
 
-            time.sleep(loop_delay)
+            while running:
+                current_time = time.time()
+                sensor0_raw = chan0.voltage
+                sensor1_raw = chan1.voltage
+                filtered_sensor0 = mid_filter.filter(sensor0_raw)
+                filtered_sensor1 = floor_filter.filter(sensor1_raw)
+                sensor_difference = filtered_sensor0 - filtered_sensor1
 
+                # Save measurements
+                sensor_data.append([
+                    current_time,
+                    filtered_sensor0,
+                    filtered_sensor1,
+                    sensor_difference
+                ])
+
+                # Log the measurement to CSV every step
+                row = [
+                    f"{current_time:.3f}",
+                    f"{filtered_sensor0:.4f}",
+                    f"{filtered_sensor1:.4f}",
+                    f"{sensor_difference:.4f}",
+                    f"{pi.get_PWM_dutycycle(magnet_pin):.2f}", 
+                    f"{pid.setpoint:.4f}",
+                    f"{HYST_LOW:.4f}",
+                    f"{HYST_HIGH:.4f}",
+                ]
+                writer.writerow(row)
+                csvfile.flush()
+
+                # Log to stdout every 1500th step
+                if step_counter % 1500 == 0:
+                    print(list(zip(header, row)))
+
+                step_counter += 1
+                # measure every 1ms
+                time.sleep(0.001)
+    except Exception as e:
+        print(f"Measurement thread error: {e}")
+
+# ---------------------------
+#    MAIN CONTROL LOOP
+# ---------------------------
+def main():
+    global running
+    try:
+        # Start measurement thread
+        thread = threading.Thread(target=measurement_thread)
+        thread.start()
+
+        start_time = time.time()
+        time.sleep(1)
+        print(f'Setpoint: {pid.setpoint}')
+        print(f'hyst limits: low: {HYST_LOW}  high:{HYST_HIGH}')
+        print(f'init voltages: {chan0.voltage}  {chan1.voltage}')
+        print("start!")
+
+        while running:
+            current_time = time.time() - start_time
+
+            # Get the latest measurement
+            if sensor_data:
+                latest_data = sensor_data[-1]
+                filtered_sensor0 = latest_data[1]
+                filtered_sensor1 = latest_data[2]
+                sensor_difference = latest_data[3]
+
+                # Control logic
+                if filtered_sensor0 > HYST_HIGH:
+                    new_duty = 100.0
+                elif filtered_sensor0 < HYST_LOW:
+                    new_duty = 0.0
+                else:
+                    new_duty = pid(filtered_sensor0)
+
+                # pigpio PWM ranges from 0-255
+                pi.set_PWM_dutycycle(magnet_pin, int(new_duty * 255 / 100))
+
+            time.sleep(.75)
     except KeyboardInterrupt:
         print("Stopping control loop.")
+        running = False
+        thread.join()
     finally:
-        pwm.stop()
-        GPIO.cleanup()
+        pi.set_PWM_dutycycle(magnet_pin, 0)
+        pi.stop()
+
+
+if __name__ == "__main__":
+    main()
