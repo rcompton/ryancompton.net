@@ -18,7 +18,6 @@ from simple_pid import PID
 from sklearn.ensemble import GradientBoostingRegressor
 from collections import deque
 
-
 class MedianFilter:
     def __init__(self, size):
         self.size = size
@@ -29,7 +28,7 @@ class MedianFilter:
         return np.median(self.buffer)
 
 # ---------------------------
-#    SETUP MCP3008 & SENSORS
+#     SETUP MCP3008 & SENSORS
 # ---------------------------
 spi = busio.SPI(clock=board.SCK, MISO=board.MISO, MOSI=board.MOSI)
 cs = digitalio.DigitalInOut(board.D16)
@@ -40,7 +39,7 @@ chan0 = AnalogIn(mcp, MCP.P0)  # Sensor 0 (magnet)
 chan1 = AnalogIn(mcp, MCP.P1)  # Sensor 1 (floor)
 
 # ---------------------------
-#        SETUP PWM
+#         SETUP PWM
 # ---------------------------
 pi = pigpio.pi()  # Initialize pigpio
 magnet_pin = 4
@@ -50,13 +49,13 @@ pi.set_PWM_frequency(magnet_pin, pwm_frequency)
 pi.set_PWM_dutycycle(magnet_pin, int(initial_duty_cycle * 255 / 100))  # Set initial duty cycle
 
 # ---------------------------
-#   HYSTERESIS THRESHOLDS
+#    HYSTERESIS THRESHOLDS
 # ---------------------------
 HYST_HIGH = 0
 HYST_LOW = -0.2
 
 # ---------------------------
-#        PID CONTROLLER
+#         PID CONTROLLER
 # ---------------------------
 setpoint = 1.15
 Kp = 0.0
@@ -72,7 +71,9 @@ running = True
 sensor_data = []
 mid_filter = MedianFilter(size=15)
 floor_filter = MedianFilter(size=15)
-
+csv_writer = None  # Global variable for the CSV writer
+model = None # Global variable for calibration model
+last_measurement_time = 0 # Global variable to track the last measurement time
 # ---------------------------
 #    CALIBRATION PHASE
 # ---------------------------
@@ -113,83 +114,101 @@ model = train_model(calibration_data)
 print("Training regression model...done")
 
 # ---------------------------
-#    MEASUREMENT THREAD
+#     MEASUREMENT CALLBACK
 # ---------------------------
+def measurement_callback(gpio, level, tick):
+    take_measurement()
+
+def take_measurement():
+    global sensor_data, csv_writer, last_measurement_time
+
+    current_time = time.time()
+
+    # Take a measurement every 1 ms if the pin is LOW
+    if (current_time - last_measurement_time) >= 0.001:
+        if pi.read(magnet_pin) == 0:
+            log_data(current_time)
+            last_measurement_time = current_time
+
+# ---------------------------
+#     MEASUREMENT THREAD
+# ---------------------------
+# This thread will handle taking measurements every 1 ms when the PWM is off
 def measurement_thread():
-    global running, sensor_data
-    try:
-        with open("hybrid_bangbang_pid_log.csv", mode="w", newline="") as csvfile:
-            writer = csv.writer(csvfile)
-            header = [
-                "Time_s",
-                "Sensor0_Raw",
-                "Sensor1_Raw",
-                "DutyCycle",
-                "Setpoint",
-                "HYST_LOW",
-                "HYST_HIGH",
-                "Predicted_Lower_Sensor",
-                "flying_magnets_field"
-            ]
-            writer.writerow(header)
-
-            step_counter = 0
-            while running:
-                current_time = time.time()
-                sensor0_raw = chan0.voltage
-                sensor1_raw = chan1.voltage
-                filtered_sensor0 = mid_filter.filter(sensor0_raw)
-                filtered_sensor1 = floor_filter.filter(sensor1_raw)
-                duty = pi.get_PWM_dutycycle(magnet_pin)
-
-                # Predict electromagnet's field contribution
-                predicted_lower_sensor = model.predict(np.array([duty, filtered_sensor1]).reshape(1,-1))[0]
-                # Subtract electromagnet's contribution
-                flying_magnets_field = filtered_sensor0 - predicted_lower_sensor
-
-                # Save measurements
-                sensor_data.append([
-                    current_time,
-                    filtered_sensor0,
-                    filtered_sensor1,
-                    predicted_lower_sensor,
-                    flying_magnets_field
-                ])
-
-                # Log the measurement to CSV every step
-                row = [
-                    f"{current_time:.3f}",
-                    f"{filtered_sensor0:.4f}",
-                    f"{filtered_sensor1:.4f}",
-                    f"{duty:.2f}", 
-                    f"{pid.setpoint:.4f}",
-                    f"{HYST_LOW:.4f}",
-                    f"{HYST_HIGH:.4f}",
-                    f"{predicted_lower_sensor:.4f}",
-                    f"{flying_magnets_field:.4f}"
-                ]
-                writer.writerow(row)
-                csvfile.flush()
-
-                # Log to stdout every 1500th step
-                if step_counter % 1500 == 0:
-                    print(list(zip(header, row)))
-
-                step_counter += 1
-                # measure every 1ms
-                time.sleep(0.001)
-    except Exception as e:
-        print(f"Measurement thread error: {e}")
+    global running
+    while running:
+        if pi.read(magnet_pin) == 0:
+            take_measurement()
+        time.sleep(0.001)  # Check every 1 ms
 
 # ---------------------------
-#    MAIN CONTROL LOOP
+#     LOGGING FUNCTION
+# ---------------------------
+def log_data(current_time):
+    global sensor_data, csv_writer
+
+    sensor0_raw = chan0.voltage
+    sensor1_raw = chan1.voltage
+    filtered_sensor0 = mid_filter.filter(sensor0_raw)
+    filtered_sensor1 = floor_filter.filter(sensor1_raw)
+    duty = pi.get_PWM_dutycycle(magnet_pin)
+
+    # Predict electromagnet's field contribution
+    predicted_lower_sensor = model.predict(np.array([duty, filtered_sensor1]).reshape(1,-1))[0]
+    # Subtract electromagnet's contribution
+    flying_magnets_field = filtered_sensor0 - predicted_lower_sensor
+
+    # Save measurements
+    sensor_data.append([
+        current_time,
+        filtered_sensor0,
+        filtered_sensor1,
+        predicted_lower_sensor,
+        flying_magnets_field
+    ])
+
+    # Log the measurement to CSV every step
+    if csv_writer:
+        row = [
+            f"{current_time:.3f}",
+            f"{filtered_sensor0:.4f}",
+            f"{filtered_sensor1:.4f}",
+            f"{duty:.2f}",
+            f"{pid.setpoint:.4f}",
+            f"{HYST_LOW:.4f}",
+            f"{HYST_HIGH:.4f}",
+            f"{predicted_lower_sensor:.4f}",
+            f"{flying_magnets_field:.4f}"
+        ]
+        csv_writer.writerow(row)
+
+# ---------------------------
+#     MAIN CONTROL LOOP
 # ---------------------------
 def main():
-    global running
-
+    global running, csv_writer
 
     try:
-        # Start measurement thread
+        # Setup CSV file
+        csvfile = open("hybrid_bangbang_pid_log.csv", mode="w", newline="")
+        csv_writer = csv.writer(csvfile)
+        header = [
+            "Time_s",
+            "Sensor0_Raw",
+            "Sensor1_Raw",
+            "DutyCycle",
+            "Setpoint",
+            "HYST_LOW",
+            "HYST_HIGH",
+            "Predicted_Lower_Sensor",
+            "flying_magnets_field"
+        ]
+        csv_writer.writerow(header)
+
+        # Setup callback for falling edge measurements
+        cb = pi.callback(magnet_pin, pigpio.FALLING_EDGE, measurement_callback)
+
+        # Start the measurement thread
         thread = threading.Thread(target=measurement_thread)
         thread.start()
 
@@ -224,15 +243,19 @@ def main():
                 # pigpio PWM ranges from 0-255
                 pi.set_PWM_dutycycle(magnet_pin, int(new_duty * 255 / 100))
 
-            time.sleep(.75)
+            time.sleep(0.75)
+
     except KeyboardInterrupt:
         print("Stopping control loop.")
         running = False
-        thread.join()
+
     finally:
+        cb.cancel()  # Cancel the callback
+        thread.join() # join the measurement thread
         pi.set_PWM_dutycycle(magnet_pin, 0)
         pi.stop()
-
+        if csvfile:
+            csvfile.close()
 
 if __name__ == "__main__":
     main()
