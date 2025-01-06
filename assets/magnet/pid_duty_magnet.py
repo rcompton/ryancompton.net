@@ -53,7 +53,7 @@ pi.set_PWM_dutycycle(
 )  # Set initial duty cycle
 
 # ---------------------------
-#    HYSTERESIS THRESHOLDS
+#     HYSTERESIS THRESHOLDS
 # ---------------------------
 HYST_HIGH = 0
 HYST_LOW = -0.2
@@ -69,7 +69,7 @@ pid = PID(Kp, Ki, Kd, setpoint=setpoint)
 pid.output_limits = (0, 100)
 
 # ---------------------------
-#    GLOBAL VARIABLES
+#     GLOBAL VARIABLES
 # ---------------------------
 running = True
 sensor_data = []
@@ -79,6 +79,10 @@ floor_filter = MedianFilter(size=15)
 csv_writer = None  # Global variable for the CSV writer
 model = None  # Global variable for calibration model
 last_measurement_time = 0  # Global variable to track the last measurement time
+
+# FIFO queues for duty cycle and sensor 1 history
+duty_cycle_history = deque(maxlen=10)
+sensor1_history = deque(maxlen=10)
 
 
 # ---------------------------
@@ -92,8 +96,6 @@ def take_measurement(is_from_callback):
     # Take a measurement every 1 ms if the pin is LOW
     if (current_time - last_measurement_time) >= 0.001:
         if pi.read(magnet_pin) == 0:
-            #short delay for magnet field
-            time.sleep(0.001)
             if model:
                 # only log to sensor_data if the model has been trained
                 log_data(current_time, is_from_callback, sensor_data)
@@ -107,7 +109,7 @@ def take_measurement(is_from_callback):
 #     LOGGING FUNCTION
 # ---------------------------
 def log_data(current_time, is_from_callback, data_array):
-    global csv_writer, model
+    global csv_writer, model, duty_cycle_history, sensor1_history
 
     sensor0_raw = chan0.voltage
     sensor1_raw = chan1.voltage
@@ -115,19 +117,24 @@ def log_data(current_time, is_from_callback, data_array):
     filtered_sensor1 = floor_filter.filter(sensor1_raw)
     duty = pi.get_PWM_dutycycle(magnet_pin)
 
+    # Add current duty cycle and sensor 1 reading to history
+    duty_cycle_history.append(duty)
+    sensor1_history.append(filtered_sensor1)
+
     # Predict electromagnet's field contribution (only if model is available)
     if model:
-        predicted_lower_sensor = model.predict(
-            np.array([duty, filtered_sensor1]).reshape(1, -1)
-        )[0]
+        # Prepare features for model prediction
+        features = [duty, filtered_sensor1]
+        features.extend(list(sensor1_history))
+        features.extend(list(duty_cycle_history))
+        # Create a DataFrame with column names
+        feature_names = ["DutyCycle", "Sensor1_Raw"] + [f"Sensor1_Hist_{i}" for i in range(10)] + [f"DutyCycle_Hist_{i}" for i in range(10)]
+        features_df = pd.DataFrame([features], columns=feature_names)
+        predicted_lower_sensor = model.predict(features_df)[0]
         # Subtract electromagnet's contribution
         flying_magnets_field = filtered_sensor0 - predicted_lower_sensor
-    else:
-        predicted_lower_sensor = None
-        flying_magnets_field = None
 
-    # Save measurements
-    if model:
+        # Append data to the appropriate array
         data_array.append(
             [
                 current_time,
@@ -135,50 +142,59 @@ def log_data(current_time, is_from_callback, data_array):
                 filtered_sensor1,
                 predicted_lower_sensor,
                 flying_magnets_field,
-                is_from_callback,
+                is_from_callback
             ]
         )
-    else:
-        data_array.append([current_time, filtered_sensor0, filtered_sensor1, duty, is_from_callback])
 
-    # Log the measurement to CSV
-    if csv_writer:
-        if model:
-            row = [
-                f"{current_time:.3f}",
-                f"{filtered_sensor0:.4f}",
-                f"{filtered_sensor1:.4f}",
-                f"{duty:.2f}",
-                f"{setpoint:.4f}",
-                f"{HYST_LOW:.4f}",
-                f"{HYST_HIGH:.4f}",
-                f"{predicted_lower_sensor:.4f}",
-                f"{flying_magnets_field:.4f}",
-                f"{is_from_callback}",
-            ]
-        else:
-            row = [
-                f"{current_time:.3f}",
-                f"{filtered_sensor0:.4f}",
-                f"{filtered_sensor1:.4f}",
-                f"{duty:.2f}",
-                f"{is_from_callback}",
-            ]
+        # Log the measurement to CSV
+        row = [
+            f"{current_time:.3f}",
+            f"{filtered_sensor0:.4f}",
+            f"{filtered_sensor1:.4f}",
+            f"{duty:.2f}",
+            f"{setpoint:.4f}",
+            f"{HYST_LOW:.4f}",
+            f"{HYST_HIGH:.4f}",
+            f"{predicted_lower_sensor:.4f}",
+            f"{flying_magnets_field:.4f}",
+            f"{is_from_callback}"
+        ]
+        csv_writer.writerow(row)
+    else:
+        # Append data to the appropriate array
+        training_data = [current_time, filtered_sensor0, filtered_sensor1, duty, is_from_callback]
+        training_data.extend(list(sensor1_history))
+        training_data.extend(list(duty_cycle_history))
+        data_array.append(training_data)
+
+        # Log the measurement to CSV
+        row = [
+            f"{current_time:.3f}",
+            f"{filtered_sensor0:.4f}",
+            f"{filtered_sensor1:.4f}",
+            f"{duty:.2f}",
+            f"{is_from_callback}",
+            *[f"{s1_hist:.4f}" for s1_hist in sensor1_history],
+            *[f"{dc_hist:.2f}" for dc_hist in duty_cycle_history],
+        ]
         csv_writer.writerow(row)
 
 
 # ---------------------------
-#    CALIBRATION PHASE
+#     CALIBRATION PHASE
 # ---------------------------
 # Function to collect calibration data
 def collect_calibration_data(chan0, chan1):
-    global csv_writer, calibration_sensor_data
+    global csv_writer, calibration_sensor_data, duty_cycle_history, sensor1_history
     
-    cb = pi.callback(magnet_pin, pigpio.FALLING_EDGE, measurement_callback)
+    # Reset history
+    duty_cycle_history.extend(np.zeros(10))
+    sensor1_history.extend(np.zeros(10))
+
     # Define transitions
     transitions = [
         # (start_duty, end_duty, steps, sleep_between_steps, repeats)
-        (255,180, 20, 0.1, 2),
+        (255, 180, 20, 0.1, 2),
         (100, 255, 30, 0.15, 2),
         (0, 100, 5, 0.05, 2),
         (100, 0, 5, 0.05, 2),
@@ -192,7 +208,7 @@ def collect_calibration_data(chan0, chan1):
         (5, 0, 5, 0.05, 2),
         (0, 1, 5, 0.05, 2),
         (1, 0, 5, 0.05, 2),
-        (180,255, 20, 0.1, 2),
+        (180, 255, 20, 0.1, 2),
         (100, 1, 50, 0.15, 2),
     ]
 
@@ -200,6 +216,8 @@ def collect_calibration_data(chan0, chan1):
     csvfile = open("calibration_data.csv", mode="w", newline="")
     csv_writer = csv.writer(csvfile)
     header = ["Time_s", "Sensor0_Raw", "Sensor1_Raw", "DutyCycle", "is_from_callback"]
+    header.extend([f"Sensor1_Hist_{i}" for i in range(len(sensor1_history))])
+    header.extend([f"DutyCycle_Hist_{i}" for i in range(len(duty_cycle_history))])
 
     csv_writer.writerow(header)
 
@@ -215,8 +233,7 @@ def collect_calibration_data(chan0, chan1):
                 pi.set_PWM_dutycycle(magnet_pin, int(duty))
                 time.sleep(sleep_between_steps)
 
-    # Stop the measurement thread and callback
-    cb.cancel()
+    # Stop the measurement thread
     global running
     running = False
     thread.join()
@@ -228,22 +245,22 @@ def collect_calibration_data(chan0, chan1):
     # Close the CSV file
     csvfile.close()
     csv_writer = None
+    print(header)
 
     calibration_data = pd.DataFrame(calibration_sensor_data, columns=header)
     return calibration_data
 
-
 # Function to train a regression model
-# The idea is to predict the sensor value of the lower sensor based on the duty cycle and the top sensor value.
-# This will allow us to estimate the electromagnet's field contribution to the sensor values by taking the difference between the actual sensor value and the predicted sensor value.
 def train_model(df):
-    # dutycycle and top sensor
-    X = np.array(df[["DutyCycle", "Sensor1_Raw"]])
-    # lower sensor
-    y = np.array(df["Sensor0_Raw"])
+   # Prepare the feature matrix X and target vector y
+    feature_columns = ["DutyCycle", "Sensor1_Raw"] + [f"Sensor1_Hist_{i}" for i in range(10)] + [f"DutyCycle_Hist_{i}" for i in range(10)]
+    X = df[feature_columns]
+    y = df["Sensor0_Raw"]
+
     # Train regression model
     model = GradientBoostingRegressor()
     model.fit(X, y)
+
     return model
 
 
@@ -298,7 +315,7 @@ def main():
             "HYST_HIGH",
             "Predicted_Lower_Sensor",
             "flying_magnets_field",
-            "is_from_callback",
+            "is_from_callback"
         ]
         csv_writer.writerow(header)
 
@@ -319,11 +336,6 @@ def main():
         while running:
             # Get the latest measurement
             if sensor_data:
-                # latest_data = sensor_data[-1]
-                # filtered_sensor0 = latest_data[1]
-                # filtered_sensor1 = latest_data[2]
-                # flying_magnets_field = latest_data[-1]
-
                 duty = (pi.get_PWM_dutycycle(magnet_pin) / 255) * 100
                 if duty < 69.0:
                     new_duty = 70
@@ -331,11 +343,11 @@ def main():
                     new_duty = 30.0
                 ## Control logic
                 # if corrected_sensor_difference > HYST_HIGH:
-                #    new_duty = 100.0
+                #     new_duty = 100.0
                 # elif corrected_sensor_difference < HYST_LOW:
-                #    new_duty = 0.0
+                #     new_duty = 0.0
                 # else:
-                #    new_duty = pid(corrected_sensor_difference)
+                #     new_duty = pid(corrected_sensor_difference)
 
                 # pigpio PWM ranges from 0-255
                 pi.set_PWM_dutycycle(magnet_pin, int(new_duty * 255 / 100))
