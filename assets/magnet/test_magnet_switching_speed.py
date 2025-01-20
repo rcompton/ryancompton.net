@@ -11,7 +11,7 @@ import pandas as pd
 import numpy as np
 
 # ---------------------------
-#    SETUP MCP3008 & SENSORS
+#  SETUP MCP3008 & SENSORS
 # ---------------------------
 spi = busio.SPI(clock=board.SCK, MISO=board.MISO, MOSI=board.MOSI)
 cs = digitalio.DigitalInOut(board.D16)
@@ -25,43 +25,46 @@ magnet_pin = 4
 GPIO.setup(magnet_pin, GPIO.OUT)
 
 # ---------------------------
-#    GLOBAL VARIABLES
+#  GLOBAL VARIABLES
 # ---------------------------
 running = True  # Flag to control threads
-sensor_data = []  # List to store timestamp and Hall sensor readings
+sensor_data = []  # List to store timestamp, Hall sensor readings, and magnet state
+magnet_state = 0 # Variable to store the current magnet state
 
 
 # ---------------------------
-#    SENSOR READING THREAD
+#  SENSOR READING THREAD
 # ---------------------------
 def read_sensor():
-    global running, sensor_data
+    global running, sensor_data, magnet_state
     start_time = time.time()
 
     while running:
         timestamp = time.time() - start_time
         hall_voltage = chan0.voltage
-        sensor_data.append((timestamp, hall_voltage))
-        time.sleep(0.001)  # Sample every 1 ms
+        sensor_data.append((timestamp, hall_voltage, magnet_state))
+        time.sleep(0.0001)  # Sample every 0.1 ms (10 kHz)
 
 
 # ---------------------------
-#    MAGNET CONTROL THREAD
+#  MAGNET CONTROL THREAD
 # ---------------------------
 def toggle_magnet():
-    global running
+    global running, magnet_state
     while running:
         # Turn magnet ON
         GPIO.output(magnet_pin, GPIO.HIGH)
-        time.sleep(0.05)  # 50 ms ON duration
+        magnet_state = 1
+        time.sleep(0.15)  # 150 ms ON duration
 
         # Turn magnet OFF
         GPIO.output(magnet_pin, GPIO.LOW)
-        time.sleep(0.05)  # 50 ms OFF duration
+        magnet_state = 0
+        time.sleep(0.15)  # 150 ms OFF duration
 
 
 # ---------------------------
-#    RISE AND FALL TIME ANALYSIS
+#  RISE AND FALL TIME ANALYSIS
 # ---------------------------
 def calculate_rise_fall_times(data):
     """
@@ -114,7 +117,7 @@ def calculate_rise_fall_times(data):
 
 
 # ---------------------------
-#    MAIN FUNCTION
+#  MAIN FUNCTION
 # ---------------------------
 def main():
     global running, sensor_data
@@ -128,7 +131,7 @@ def main():
         magnet_thread.start()
 
         # Run for a specified duration (e.g., 5 seconds)
-        time.sleep(2)
+        time.sleep(1)
 
     finally:
         # Stop threads
@@ -141,7 +144,7 @@ def main():
         file_name = "switching_speed_multithreaded.csv"
         with open(file_name, "w", newline="") as file:
             writer = csv.writer(file)
-            writer.writerow(["Time (s)", "Hall Sensor Voltage (V)"])
+            writer.writerow(["Time (s)", "Hall Sensor Voltage (V)", "Magnet State"])
             writer.writerows(sensor_data)
 
         print(f"Data collection completed. Saved to '{file_name}'.")
