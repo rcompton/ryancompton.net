@@ -27,18 +27,18 @@ class MedianFilter:
 
 
 # ---------------------------
-#     SETUP MCP3008 & SENSORS
+#        SETUP MCP3008 & SENSORS
 # ---------------------------
 spi = busio.SPI(clock=board.SCK, MISO=board.MISO, MOSI=board.MOSI)
 cs = digitalio.DigitalInOut(board.D16)
 mcp = MCP.MCP3008(spi, cs)
 
 # Sensors
-#chan0 = AnalogIn(mcp, MCP.P0)  # Sensor 0 (magnet)
+# chan0 = AnalogIn(mcp, MCP.P0)    # Sensor 0 (magnet)
 chan1 = AnalogIn(mcp, MCP.P1)  # Sensor 1 (floor)
 
 # ---------------------------
-#         SETUP PWM
+#            SETUP PWM
 # ---------------------------
 pi = pigpio.pi()  # Initialize pigpio
 magnet_pin = 4
@@ -50,15 +50,15 @@ pi.set_PWM_dutycycle(
 )  # Set initial duty cycle
 
 # ---------------------------
-#     HYSTERESIS THRESHOLDS
+#        HYSTERESIS THRESHOLDS
 # ---------------------------
-HYST_HIGH = 1.20
+HYST_HIGH = 1.30
 HYST_LOW = 1.1
 
 # ---------------------------
-#         PID CONTROLLER
+#            PID CONTROLLER
 # ---------------------------
-setpoint = 1.16
+setpoint = 1.2
 Kp = 800.0
 Ki = 0.0
 Kd = 0.01
@@ -66,7 +66,7 @@ pid = PID(Kp, Ki, Kd, setpoint=setpoint)
 pid.output_limits = (0, 100)
 
 # ---------------------------
-#     GLOBAL VARIABLES
+#        GLOBAL VARIABLES
 # ---------------------------
 running = True
 hall_voltage1 = 0.0
@@ -74,12 +74,17 @@ hall_voltage1_filter = MedianFilter(size=3)
 csv_writer = None  # Global variable for the CSV writer
 
 # ---------------------------
-#     MEASUREMENT FUNCTION
+#        MEASUREMENT FUNCTION
 # ---------------------------
 def measurement_thread():
-    global running, hall_voltage1
+    global running, hall_voltage1, csv_writer
     while running:
         hall_voltage1 = hall_voltage1_filter.filter(chan1.voltage)
+
+        # Get PID data
+        error = pid.setpoint - hall_voltage1
+        p, i, d = pid.components
+
         row = [
             time.time(),
             hall_voltage1,
@@ -87,12 +92,16 @@ def measurement_thread():
             setpoint,
             HYST_LOW,
             HYST_HIGH,
+            error,
+            p,
+            i,
+            d,
         ]
         csv_writer.writerow(row)
         time.sleep(0.001)
 
 # ---------------------------
-#     MAIN CONTROL LOOP
+#        MAIN CONTROL LOOP
 # ---------------------------
 def main():
     global running, hall_voltage1, csv_writer
@@ -108,6 +117,10 @@ def main():
             "Setpoint",
             "HYST_LOW",
             "HYST_HIGH",
+            "Error",
+            "P",
+            "I",
+            "D",
         ]
         csv_writer.writerow(header)
 
