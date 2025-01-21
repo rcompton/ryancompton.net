@@ -50,12 +50,6 @@ pi.set_PWM_dutycycle(
 )  # Set initial duty cycle
 
 # ---------------------------
-#        HYSTERESIS THRESHOLDS
-# ---------------------------
-HYST_HIGH = 21.18
-HYST_LOW = -1.12
-
-# ---------------------------
 #            PID CONTROLLER
 # ---------------------------
 setpoint = 1.12
@@ -90,8 +84,6 @@ def measurement_thread():
             hall_voltage1,
             pi.get_PWM_dutycycle(magnet_pin),
             setpoint,
-            HYST_LOW,
-            HYST_HIGH,
             error,
             p,
             i,
@@ -115,8 +107,6 @@ def main():
             "HallVoltage1",
             "DutyCycle",
             "Setpoint",
-            "HYST_LOW",
-            "HYST_HIGH",
             "Error",
             "P",
             "I",
@@ -129,7 +119,6 @@ def main():
         thread.start()
         
         print(f"Setpoint: {setpoint}")
-        print(f"hyst limits: low: {HYST_LOW}  high:{HYST_HIGH}")
         print(f"init voltages: {chan1.voltage}")
         print(f"init duty cycle: {initial_duty_cycle}")
         print(f"init PID: Kp={Kp} Ki={Ki} Kd={Kd}")
@@ -144,12 +133,6 @@ def main():
         while running:
             # let PID determine the duty cycle
             new_duty = pid(hall_voltage1)
-
-            # if outside the hysteresis band, apply full power or turn off
-            if hall_voltage1 > HYST_HIGH:
-                new_duty = 0
-            elif hall_voltage1 < HYST_LOW:
-                new_duty = 100
 
             # pigpio PWM ranges from 0-255
             pi.set_PWM_dutycycle(magnet_pin, int(new_duty * 255 / 100))
