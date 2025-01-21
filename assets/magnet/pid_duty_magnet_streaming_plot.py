@@ -11,11 +11,13 @@ remote_host = os.getenv("INFINITY_MIRROR_IP")
 remote_user = os.getenv("INFINITY_MIRROR_USER")
 remote_password = os.getenv("INFINITY_MIRROR_PASSWORD")
 remote_csv_path = "/home/pi/ryancompton.net/assets/magnet/pid_duty_magnet_data.csv"
-buffer_size = 2000  # Adjust as needed
-initial_y_min_voltage = 1.0  # Adjust based on expected voltage range
-initial_y_max_voltage = 1.5  # Adjust based on expected voltage range
+buffer_size = 200  # Adjust as needed
+initial_y_min_voltage = 0.5  # Adjust based on expected voltage range
+initial_y_max_voltage = 2.0  # Adjust based on expected voltage range
 initial_y_min_duty = 0
 initial_y_max_duty = 255
+initial_y_min_pid = -2  # Adjust based on expected error range
+initial_y_max_pid = 2  # Adjust based on expected error range
 polling_interval = 0.1  # Check for new data every 0.1 seconds (adjust as needed)
 
 # --- Create a Paramiko SSH client ---
@@ -23,7 +25,7 @@ ssh = paramiko.SSHClient()
 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
 # --- Matplotlib setup ---
-fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True, figsize=(12, 8))
+fig, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True, figsize=(12, 8))
 
 # --- Data buffers ---
 time_buffer = deque(maxlen=buffer_size)
@@ -32,6 +34,10 @@ setpoint_buffer = deque(maxlen=buffer_size)
 hyst_low_buffer = deque(maxlen=buffer_size)
 hyst_high_buffer = deque(maxlen=buffer_size)
 duty_cycle_buffer = deque(maxlen=buffer_size)
+error_buffer = deque(maxlen=buffer_size)
+p_buffer = deque(maxlen=buffer_size)
+i_buffer = deque(maxlen=buffer_size)
+d_buffer = deque(maxlen=buffer_size)
 
 # --- Lines for plotting ---
 (hall_voltage_line,) = ax1.plot([], [], label="Hall Sensor Voltage")
@@ -39,12 +45,18 @@ duty_cycle_buffer = deque(maxlen=buffer_size)
 (hyst_low_line,) = ax1.plot([], [], label="Hysteresis Low", color="purple", linestyle=":")
 (hyst_high_line,) = ax1.plot([], [], label="Hysteresis High", color="orange", linestyle=":")
 (duty_cycle_line,) = ax2.plot([], [], label="Duty Cycle", color="red")
+(error_line,) = ax3.plot([], [], label="Error", color="blue")
+(p_line,) = ax3.plot([], [], label="P", color="orange")
+(i_line,) = ax3.plot([], [], label="I", color="green")
+(d_line,) = ax3.plot([], [], label="D", color="purple")
 
 # --- Set initial plot limits ---
 ax1.set_xlim(0, buffer_size)
 ax2.set_xlim(0, buffer_size)
+ax3.set_xlim(0, buffer_size)
 ax1.set_ylim(initial_y_min_voltage, initial_y_max_voltage)
 ax2.set_ylim(initial_y_min_duty, initial_y_max_duty)
+ax3.set_ylim(initial_y_min_pid, initial_y_max_pid)
 
 # --- Add labels and title ---
 ax1.set_ylabel("Voltage (V)")
@@ -57,8 +69,14 @@ ax2.set_ylabel("Duty Cycle")
 ax2.legend()
 ax2.grid(True)
 
+ax3.set_xlabel("Time (s)")
+ax3.set_ylabel("PID Values")
+ax3.legend()
+ax3.grid(True)
+
 # Align the x-axes
 plt.setp(ax1.get_xticklabels(), visible=False)  # Hide x-ticks for the top plot
+plt.setp(ax2.get_xticklabels(), visible=False)
 plt.subplots_adjust(hspace=0.01)  # Remove vertical space between subplots
 
 # --- Function to update the plot ---
@@ -83,7 +101,7 @@ def animate(i, sftp, lines):
                 # Process each new line
                 for line_read in new_lines:
                     line_read = line_read.strip()
-                    #print(f"Received: {line_read}") # Uncomment if you want to see every line read
+                    # print(f"Received: {line_read}") # Uncomment to print every line
 
                     try:
                         data_dict = parse_line_to_dict(line_read)
@@ -94,6 +112,10 @@ def animate(i, sftp, lines):
                             hyst_low_buffer.append(data_dict["HYST_LOW"])
                             hyst_high_buffer.append(data_dict["HYST_HIGH"])
                             duty_cycle_buffer.append(data_dict["DutyCycle"])
+                            error_buffer.append(data_dict["Error"])
+                            p_buffer.append(data_dict["P"])
+                            i_buffer.append(data_dict["I"])
+                            d_buffer.append(data_dict["D"])
 
                     except (ValueError, IndexError):
                         print(f"Skipping invalid data point: {line_read}")
@@ -104,6 +126,10 @@ def animate(i, sftp, lines):
             # Update y-axis limits dynamically (only if needed)
             update_y_limits(ax1, hall_voltage_buffer, initial_y_min_voltage, initial_y_max_voltage)
             update_y_limits(ax2, duty_cycle_buffer, initial_y_min_duty, initial_y_max_duty)
+            update_y_limits(ax3, error_buffer, initial_y_min_pid, initial_y_max_pid)  # Update for error
+            update_y_limits(ax3, p_buffer, initial_y_min_pid, initial_y_max_pid)  # Update for P
+            update_y_limits(ax3, i_buffer, initial_y_min_pid, initial_y_max_pid)  # Update for I
+            update_y_limits(ax3, d_buffer, initial_y_min_pid, initial_y_max_pid)  # Update for D
 
             # Update plot data efficiently
             hall_voltage_line.set_data(range(len(hall_voltage_buffer)), hall_voltage_buffer)
@@ -111,6 +137,10 @@ def animate(i, sftp, lines):
             hyst_low_line.set_data(range(len(hyst_low_buffer)), hyst_low_buffer)
             hyst_high_line.set_data(range(len(hyst_high_buffer)), hyst_high_buffer)
             duty_cycle_line.set_data(range(len(duty_cycle_buffer)), duty_cycle_buffer)
+            error_line.set_data(range(len(error_buffer)), error_buffer)
+            p_line.set_data(range(len(p_buffer)), p_buffer)
+            i_line.set_data(range(len(i_buffer)), i_buffer)
+            d_line.set_data(range(len(d_buffer)), d_buffer)
 
             # Force a redraw of the plot
             fig.canvas.draw()
@@ -136,6 +166,10 @@ def parse_line_to_dict(line):
             "Setpoint": float(parts[3]),
             "HYST_LOW": float(parts[4]),
             "HYST_HIGH": float(parts[5]),
+            "Error": float(parts[6]),
+            "P": float(parts[7]),
+            "I": float(parts[8]),
+            "D": float(parts[9]),
         }
     except (ValueError, IndexError):
         print(f"Could not parse line: {line}")
@@ -165,8 +199,25 @@ try:
     last_file_size = 0
 
     # --- Run the animation ---
-    lines = (hall_voltage_line, setpoint_line, hyst_low_line, hyst_high_line, duty_cycle_line)
-    ani = animation.FuncAnimation(fig, animate, fargs=(sftp, lines), interval=polling_interval * 1000, blit=False, save_count=50)
+    lines = (
+        hall_voltage_line,
+        setpoint_line,
+        hyst_low_line,
+        hyst_high_line,
+        duty_cycle_line,
+        error_line,
+        p_line,
+        i_line,
+        d_line,
+    )
+    ani = animation.FuncAnimation(
+        fig,
+        animate,
+        fargs=(sftp, lines),
+        interval=polling_interval * 1000,
+        blit=False,
+        save_count=50,
+    )
 
     plt.show(block=True)  # Use block=True to keep the window open
 
