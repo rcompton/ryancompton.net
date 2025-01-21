@@ -11,21 +11,21 @@ remote_host = os.getenv("INFINITY_MIRROR_IP")
 remote_user = os.getenv("INFINITY_MIRROR_USER")
 remote_password = os.getenv("INFINITY_MIRROR_PASSWORD")
 remote_csv_path = "/home/pi/ryancompton.net/assets/magnet/pid_duty_magnet_data.csv"
-buffer_size = 200  # Adjust as needed
-initial_y_min_voltage = 0.5  # Adjust based on expected voltage range
-initial_y_max_voltage = 2.0  # Adjust based on expected voltage range
+buffer_size = 900  # Adjust as needed
+initial_y_min_voltage = 1.0  # Adjust based on expected voltage range
+initial_y_max_voltage = 1.33  # Adjust based on expected voltage range
 initial_y_min_duty = 0
 initial_y_max_duty = 255
 initial_y_min_pid = -2  # Adjust based on expected error range
 initial_y_max_pid = 2  # Adjust based on expected error range
-polling_interval = 0.1  # Check for new data every 0.1 seconds (adjust as needed)
+polling_interval = 0.02 # Check for new data every 0.1 seconds (adjust as needed)
 
 # --- Create a Paramiko SSH client ---
 ssh = paramiko.SSHClient()
 ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
 # --- Matplotlib setup ---
-fig, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True, figsize=(12, 8))
+fig, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True, figsize=(15, 8))
 
 # --- Data buffers ---
 time_buffer = deque(maxlen=buffer_size)
@@ -61,23 +61,24 @@ ax3.set_ylim(initial_y_min_pid, initial_y_max_pid)
 # --- Add labels and title ---
 ax1.set_ylabel("Voltage (V)")
 ax1.set_title("Hall Sensor Voltage, Duty Cycle, Setpoint, and Hysteresis")
-ax1.legend()
+ax1.legend(loc="upper left")
 ax1.grid(True)
 
 ax2.set_xlabel("Time (s)")
 ax2.set_ylabel("Duty Cycle")
-ax2.legend()
+ax2.legend(loc="upper left")
 ax2.grid(True)
 
 ax3.set_xlabel("Time (s)")
 ax3.set_ylabel("PID Values")
-ax3.legend()
+ax3.legend(loc="upper left")
 ax3.grid(True)
 
 # Align the x-axes
 plt.setp(ax1.get_xticklabels(), visible=False)  # Hide x-ticks for the top plot
 plt.setp(ax2.get_xticklabels(), visible=False)
-plt.subplots_adjust(hspace=0.01)  # Remove vertical space between subplots
+plt.setp(ax3.get_xticklabels(), visible=False)
+plt.subplots_adjust(hspace=0.1)  # Remove vertical space between subplots
 
 # --- Function to update the plot ---
 def animate(i, sftp, lines):
@@ -124,12 +125,12 @@ def animate(i, sftp, lines):
             last_file_size = current_file_size
 
             # Update y-axis limits dynamically (only if needed)
-            update_y_limits(ax1, hall_voltage_buffer, initial_y_min_voltage, initial_y_max_voltage)
-            update_y_limits(ax2, duty_cycle_buffer, initial_y_min_duty, initial_y_max_duty)
-            update_y_limits(ax3, error_buffer, initial_y_min_pid, initial_y_max_pid)  # Update for error
-            update_y_limits(ax3, p_buffer, initial_y_min_pid, initial_y_max_pid)  # Update for P
-            update_y_limits(ax3, i_buffer, initial_y_min_pid, initial_y_max_pid)  # Update for I
-            update_y_limits(ax3, d_buffer, initial_y_min_pid, initial_y_max_pid)  # Update for D
+            #update_y_limits(ax1, hall_voltage_buffer, initial_y_min_voltage, initial_y_max_voltage)
+            #update_y_limits(ax2, duty_cycle_buffer, initial_y_min_duty, initial_y_max_duty)
+            #update_y_limits(ax3, error_buffer, initial_y_min_pid, initial_y_max_pid)  # Update for error
+            #update_y_limits(ax3, p_buffer, initial_y_min_pid, initial_y_max_pid)  # Update for P
+            #update_y_limits(ax3, i_buffer, initial_y_min_pid, initial_y_max_pid)  # Update for I
+            #update_y_limits(ax3, d_buffer, initial_y_min_pid, initial_y_max_pid)  # Update for D
 
             # Update plot data efficiently
             hall_voltage_line.set_data(range(len(hall_voltage_buffer)), hall_voltage_buffer)
