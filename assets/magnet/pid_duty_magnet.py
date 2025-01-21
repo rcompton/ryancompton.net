@@ -58,12 +58,12 @@ HYST_LOW = -1.12
 # ---------------------------
 #            PID CONTROLLER
 # ---------------------------
-setpoint = 1.10
-Kp = 200  # Start with a lower Kp
-Ki = 4
-Kd = 6.0
+setpoint = 1.12
+Kp = 190  # Start with a lower Kp
+Ki = 0.5
+Kd = 5.0
 pid = PID(Kp, Ki, Kd, setpoint=setpoint)
-pid.output_limits = (20, 100)  # Keep output within 0-100% duty cycle
+pid.output_limits = (25, 100)  # Keep output within 0-100% duty cycle
 
 # ---------------------------
 #        GLOBAL VARIABLES
@@ -98,7 +98,7 @@ def measurement_thread():
             d,
         ]
         csv_writer.writerow(row)
-        time.sleep(0.001)
+        time.sleep(0.0001)
 
 # ---------------------------
 #        MAIN CONTROL LOOP
@@ -136,9 +136,9 @@ def main():
         print(f"init PWM frequency: {pwm_frequency}")
         print(f"init output limits: {pid.output_limits}")
 
-        print("Waiting for start... position the magnet")
-        for i in tqdm(range(5)):
-            time.sleep(1)
+        #print("Waiting for start... position the magnet")
+        #for i in tqdm(range(5)):
+        #    time.sleep(1)
         print("start!!")
 
         while running:
