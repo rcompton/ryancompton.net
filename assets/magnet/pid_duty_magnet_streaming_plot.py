@@ -18,7 +18,7 @@ initial_y_min_duty = 0
 initial_y_max_duty = 255
 initial_y_min_pid = -2  # Adjust based on expected error range
 initial_y_max_pid = 2  # Adjust based on expected error range
-polling_interval = 0.02 # Check for new data every 0.1 seconds (adjust as needed)
+polling_interval = 0.02  # Check for new data every 0.1 seconds (adjust as needed)
 
 # --- Create a Paramiko SSH client ---
 ssh = paramiko.SSHClient()
@@ -42,8 +42,12 @@ d_buffer = deque(maxlen=buffer_size)
 # --- Lines for plotting ---
 (hall_voltage_line,) = ax1.plot([], [], label="Hall Sensor Voltage")
 (setpoint_line,) = ax1.plot([], [], label="Setpoint", color="green", linestyle="-.")
-(hyst_low_line,) = ax1.plot([], [], label="Hysteresis Low", color="purple", linestyle=":")
-(hyst_high_line,) = ax1.plot([], [], label="Hysteresis High", color="orange", linestyle=":")
+(hyst_low_line,) = ax1.plot(
+    [], [], label="Hysteresis Low", color="purple", linestyle=":"
+)
+(hyst_high_line,) = ax1.plot(
+    [], [], label="Hysteresis High", color="orange", linestyle=":"
+)
 (duty_cycle_line,) = ax2.plot([], [], label="Duty Cycle", color="red")
 (error_line,) = ax3.plot([], [], label="Error", color="blue")
 (p_line,) = ax3.plot([], [], label="P", color="orange")
@@ -79,6 +83,7 @@ plt.setp(ax1.get_xticklabels(), visible=False)  # Hide x-ticks for the top plot
 plt.setp(ax2.get_xticklabels(), visible=False)
 plt.setp(ax3.get_xticklabels(), visible=False)
 plt.subplots_adjust(hspace=0.1)  # Remove vertical space between subplots
+
 
 # --- Function to update the plot ---
 def animate(i, sftp, lines):
@@ -125,15 +130,17 @@ def animate(i, sftp, lines):
             last_file_size = current_file_size
 
             # Update y-axis limits dynamically (only if needed)
-            #update_y_limits(ax1, hall_voltage_buffer, initial_y_min_voltage, initial_y_max_voltage)
-            #update_y_limits(ax2, duty_cycle_buffer, initial_y_min_duty, initial_y_max_duty)
-            #update_y_limits(ax3, error_buffer, initial_y_min_pid, initial_y_max_pid)  # Update for error
-            #update_y_limits(ax3, p_buffer, initial_y_min_pid, initial_y_max_pid)  # Update for P
-            #update_y_limits(ax3, i_buffer, initial_y_min_pid, initial_y_max_pid)  # Update for I
-            #update_y_limits(ax3, d_buffer, initial_y_min_pid, initial_y_max_pid)  # Update for D
+            # update_y_limits(ax1, hall_voltage_buffer, initial_y_min_voltage, initial_y_max_voltage)
+            # update_y_limits(ax2, duty_cycle_buffer, initial_y_min_duty, initial_y_max_duty)
+            # update_y_limits(ax3, error_buffer, initial_y_min_pid, initial_y_max_pid)  # Update for error
+            # update_y_limits(ax3, p_buffer, initial_y_min_pid, initial_y_max_pid)  # Update for P
+            # update_y_limits(ax3, i_buffer, initial_y_min_pid, initial_y_max_pid)  # Update for I
+            # update_y_limits(ax3, d_buffer, initial_y_min_pid, initial_y_max_pid)  # Update for D
 
             # Update plot data efficiently
-            hall_voltage_line.set_data(range(len(hall_voltage_buffer)), hall_voltage_buffer)
+            hall_voltage_line.set_data(
+                range(len(hall_voltage_buffer)), hall_voltage_buffer
+            )
             setpoint_line.set_data(range(len(setpoint_buffer)), setpoint_buffer)
             hyst_low_line.set_data(range(len(hyst_low_buffer)), hyst_low_buffer)
             hyst_high_line.set_data(range(len(hyst_high_buffer)), hyst_high_buffer)
@@ -151,6 +158,7 @@ def animate(i, sftp, lines):
         print(f"Error in animate function: {e}")
 
     return lines
+
 
 # --- Helper functions ---
 def parse_line_to_dict(line):
@@ -176,6 +184,7 @@ def parse_line_to_dict(line):
         print(f"Could not parse line: {line}")
         return None
 
+
 def update_y_limits(ax, buffer, initial_min, initial_max):
     if buffer:
         min_val = min(buffer)
@@ -186,6 +195,7 @@ def update_y_limits(ax, buffer, initial_min, initial_max):
         elif min_val < ax.get_ylim()[0]:
             ax.set_ylim(min_val * 0.9, ax.get_ylim()[1])  # Decrease lower limit
             fig.canvas.draw()
+
 
 # --- Connect to SSH ---
 try:
@@ -229,4 +239,3 @@ finally:
     if ssh:
         ssh.close()
         print("SSH connection closed.")
-

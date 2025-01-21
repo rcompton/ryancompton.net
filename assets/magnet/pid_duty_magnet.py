@@ -73,6 +73,7 @@ hall_voltage1 = 0.0
 hall_voltage1_filter = MedianFilter(size=3)
 csv_writer = None  # Global variable for the CSV writer
 
+
 # ---------------------------
 #        MEASUREMENT FUNCTION
 # ---------------------------
@@ -99,6 +100,7 @@ def measurement_thread():
         ]
         csv_writer.writerow(row)
         time.sleep(0.001)
+
 
 # ---------------------------
 #        MAIN CONTROL LOOP
@@ -127,7 +129,7 @@ def main():
         # Start the measurement thread
         thread = threading.Thread(target=measurement_thread)
         thread.start()
-        
+
         print(f"Setpoint: {setpoint}")
         print(f"hyst limits: low: {HYST_LOW}  high:{HYST_HIGH}")
         print(f"init voltages: {chan1.voltage}")
