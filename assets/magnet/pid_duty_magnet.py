@@ -52,18 +52,18 @@ pi.set_PWM_dutycycle(
 # ---------------------------
 #        HYSTERESIS THRESHOLDS
 # ---------------------------
-HYST_HIGH = 1.40
-HYST_LOW = 1.0
+HYST_HIGH = 1.30
+HYST_LOW = 1.1
 
 # ---------------------------
 #            PID CONTROLLER
 # ---------------------------
-setpoint = 1.25
-Kp = 250.0
-Ki = 0.5
-Kd = 5
+setpoint = 1.2
+Kp = 400  # Start with a lower Kp
+Ki = 0.0
+Kd = 0.01
 pid = PID(Kp, Ki, Kd, setpoint=setpoint)
-pid.output_limits = (0, 100)
+pid.output_limits = (0, 100)  # Keep output within 0-100% duty cycle
 
 # ---------------------------
 #        GLOBAL VARIABLES
@@ -72,7 +72,6 @@ running = True
 hall_voltage1 = 0.0
 hall_voltage1_filter = MedianFilter(size=3)
 csv_writer = None  # Global variable for the CSV writer
-
 
 # ---------------------------
 #        MEASUREMENT FUNCTION
@@ -101,7 +100,6 @@ def measurement_thread():
         csv_writer.writerow(row)
         time.sleep(0.001)
 
-
 # ---------------------------
 #        MAIN CONTROL LOOP
 # ---------------------------
@@ -129,25 +127,26 @@ def main():
         # Start the measurement thread
         thread = threading.Thread(target=measurement_thread)
         thread.start()
-
+        
         print(f"Setpoint: {setpoint}")
         print(f"hyst limits: low: {HYST_LOW}  high:{HYST_HIGH}")
         print(f"init voltages: {chan1.voltage}")
         print("start!")
 
         while running:
-            duty = (pi.get_PWM_dutycycle(magnet_pin) / 255) * 100
-            # Control logic
+            # let PID determine the duty cycle
+            new_duty = pid(hall_voltage1)
+
+            # if outside the hysteresis band, apply full power or turn off
             if hall_voltage1 > HYST_HIGH:
-                new_duty = 0.0
+                new_duty = 0
             elif hall_voltage1 < HYST_LOW:
-                new_duty = 100.0
-            else:
-                new_duty = pid(hall_voltage1)
-                # pigpio PWM ranges from 0-255
+                new_duty = 100
+
+            # pigpio PWM ranges from 0-255
             pi.set_PWM_dutycycle(magnet_pin, int(new_duty * 255 / 100))
 
-            time.sleep(0.0001)
+            time.sleep(0.001)
 
     except KeyboardInterrupt:
         print("Stopping control loop.")
