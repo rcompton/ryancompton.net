@@ -6,8 +6,6 @@ import time
 import csv
 import threading
 import numpy as np
-import pandas as pd
-from tqdm import tqdm
 
 import adafruit_mcp3xxx.mcp3008 as MCP
 from adafruit_mcp3xxx.analog_in import AnalogIn
@@ -34,7 +32,6 @@ cs = digitalio.DigitalInOut(board.D16)
 mcp = MCP.MCP3008(spi, cs)
 
 # Sensors
-# chan0 = AnalogIn(mcp, MCP.P0)    # Sensor 0 (magnet)
 chan1 = AnalogIn(mcp, MCP.P1)  # Sensor 1 (floor)
 
 # ---------------------------
@@ -42,7 +39,7 @@ chan1 = AnalogIn(mcp, MCP.P1)  # Sensor 1 (floor)
 # ---------------------------
 pi = pigpio.pi()  # Initialize pigpio
 magnet_pin = 4
-pwm_frequency = 5500  # Increased PWM frequency to reduce noise
+pwm_frequency = 5500 
 initial_duty_cycle = 0  # Start with 0% duty cycle
 pi.set_PWM_frequency(magnet_pin, pwm_frequency)
 pi.set_PWM_dutycycle(
@@ -53,7 +50,7 @@ pi.set_PWM_dutycycle(
 #            PID CONTROLLER
 # ---------------------------
 setpoint = 1.11
-Kp = 250  # Start with a lower Kp
+Kp = 250 
 Ki = 0.75
 Kd = 5.0
 pid = PID(Kp, Ki, Kd, setpoint=setpoint)
@@ -125,18 +122,13 @@ def main():
         print(f"init PWM frequency: {pwm_frequency}")
         print(f"init output limits: {pid.output_limits}")
 
-        #print("Waiting for start... position the magnet")
-        #for i in tqdm(range(5)):
-        #    time.sleep(1)
         print("start!!")
 
         while running:
             # let PID determine the duty cycle
             new_duty = pid(hall_voltage1)
-
             # pigpio PWM ranges from 0-255
             pi.set_PWM_dutycycle(magnet_pin, int(new_duty * 255 / 100))
-
             time.sleep(0.0001)
 
     except KeyboardInterrupt:
