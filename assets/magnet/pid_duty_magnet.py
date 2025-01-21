@@ -52,12 +52,12 @@ pi.set_PWM_dutycycle(
 # ---------------------------
 #            PID CONTROLLER
 # ---------------------------
-setpoint = 1.12
-Kp = 190  # Start with a lower Kp
-Ki = 0.5
+setpoint = 1.11
+Kp = 200  # Start with a lower Kp
+Ki = 0.75
 Kd = 5.0
 pid = PID(Kp, Ki, Kd, setpoint=setpoint)
-pid.output_limits = (25, 100)  # Keep output within 0-100% duty cycle
+pid.output_limits = (25, 100)
 
 # ---------------------------
 #        GLOBAL VARIABLES
