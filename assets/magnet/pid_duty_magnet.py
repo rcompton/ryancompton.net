@@ -58,10 +58,10 @@ HYST_LOW = -1.12
 # ---------------------------
 #            PID CONTROLLER
 # ---------------------------
-setpoint = 1.15
-Kp = 159  # Start with a lower Kp
-Ki = 1.0
-Kd = 25.0
+setpoint = 1.10
+Kp = 200  # Start with a lower Kp
+Ki = 4
+Kd = 6.0
 pid = PID(Kp, Ki, Kd, setpoint=setpoint)
 pid.output_limits = (20, 100)  # Keep output within 0-100% duty cycle
 
@@ -131,7 +131,15 @@ def main():
         print(f"Setpoint: {setpoint}")
         print(f"hyst limits: low: {HYST_LOW}  high:{HYST_HIGH}")
         print(f"init voltages: {chan1.voltage}")
-        print("start!")
+        print(f"init duty cycle: {initial_duty_cycle}")
+        print(f"init PID: Kp={Kp} Ki={Ki} Kd={Kd}")
+        print(f"init PWM frequency: {pwm_frequency}")
+        print(f"init output limits: {pid.output_limits}")
+
+        print("Waiting for start... position the magnet")
+        for i in tqdm(range(5)):
+            time.sleep(1)
+        print("start!!")
 
         while running:
             # let PID determine the duty cycle
