@@ -5,20 +5,22 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from collections import deque
 import pandas as pd
+import seaborn as sns
+sns.set_style("darkgrid")
 
 # --- Configuration ---
 remote_host = os.getenv("INFINITY_MIRROR_IP")
 remote_user = os.getenv("INFINITY_MIRROR_USER")
 remote_password = os.getenv("INFINITY_MIRROR_PASSWORD")
 remote_csv_path = "/home/pi/ryancompton.net/assets/magnet/pid_duty_magnet_data.csv"
-buffer_size = 900  # Adjust as needed
-initial_y_min_voltage = 1.1  # Adjust based on expected voltage range
-initial_y_max_voltage = 1.5  # Adjust based on expected voltage range
+buffer_size = 1000  # Adjust as needed
+initial_y_min_voltage = 0.8  # Adjust based on expected voltage range
+initial_y_max_voltage = 1.2  # Adjust based on expected voltage range
 initial_y_min_duty = 0
 initial_y_max_duty = 255
-initial_y_min_pid = -2  # Adjust based on expected error range
-initial_y_max_pid = 2  # Adjust based on expected error range
-polling_interval = 0.02  # Check for new data every 0.1 seconds (adjust as needed)
+initial_y_min_pid = -10  # Adjust based on expected error range
+initial_y_max_pid = 40  # Adjust based on expected error range
+polling_interval = 0.005  # Check for new data every 0.1 seconds (adjust as needed)
 
 # --- Create a Paramiko SSH client ---
 ssh = paramiko.SSHClient()
@@ -31,8 +33,6 @@ fig, (ax1, ax2, ax3) = plt.subplots(3, 1, sharex=True, figsize=(15, 8))
 time_buffer = deque(maxlen=buffer_size)
 hall_voltage_buffer = deque(maxlen=buffer_size)
 setpoint_buffer = deque(maxlen=buffer_size)
-hyst_low_buffer = deque(maxlen=buffer_size)
-hyst_high_buffer = deque(maxlen=buffer_size)
 duty_cycle_buffer = deque(maxlen=buffer_size)
 error_buffer = deque(maxlen=buffer_size)
 p_buffer = deque(maxlen=buffer_size)
@@ -42,12 +42,6 @@ d_buffer = deque(maxlen=buffer_size)
 # --- Lines for plotting ---
 (hall_voltage_line,) = ax1.plot([], [], label="Hall Sensor Voltage")
 (setpoint_line,) = ax1.plot([], [], label="Setpoint", color="green", linestyle="-.")
-(hyst_low_line,) = ax1.plot(
-    [], [], label="Hysteresis Low", color="purple", linestyle=":"
-)
-(hyst_high_line,) = ax1.plot(
-    [], [], label="Hysteresis High", color="orange", linestyle=":"
-)
 (duty_cycle_line,) = ax2.plot([], [], label="Duty Cycle", color="red")
 (error_line,) = ax3.plot([], [], label="Error", color="blue")
 (p_line,) = ax3.plot([], [], label="P", color="orange")
@@ -64,7 +58,7 @@ ax3.set_ylim(initial_y_min_pid, initial_y_max_pid)
 
 # --- Add labels and title ---
 ax1.set_ylabel("Voltage (V)")
-ax1.set_title("Hall Sensor Voltage, Duty Cycle, Setpoint, and Hysteresis")
+ax1.set_title("Hall Sensor Voltage, Duty Cycle, Setpoint")
 ax1.legend(loc="upper left")
 ax1.grid(True)
 
@@ -82,7 +76,7 @@ ax3.grid(True)
 plt.setp(ax1.get_xticklabels(), visible=False)  # Hide x-ticks for the top plot
 plt.setp(ax2.get_xticklabels(), visible=False)
 plt.setp(ax3.get_xticklabels(), visible=False)
-plt.subplots_adjust(hspace=0.1)  # Remove vertical space between subplots
+plt.subplots_adjust(hspace=0.25)  # Remove vertical space between subplots
 
 
 # --- Function to update the plot ---
@@ -95,7 +89,7 @@ def animate(i, sftp, lines):
 
         # Check if the file has grown since the last iteration
         if current_file_size > last_file_size:
-            print("New data detected. Reading...")
+            print(f"New data detected. Reading...\t {i}")
 
             # Read any new lines appended to the file
             with sftp.open(remote_csv_path, "r") as f:
@@ -115,8 +109,6 @@ def animate(i, sftp, lines):
                             time_buffer.append(data_dict["Time_s"])
                             hall_voltage_buffer.append(data_dict["HallVoltage1"])
                             setpoint_buffer.append(data_dict["Setpoint"])
-                            hyst_low_buffer.append(data_dict["HYST_LOW"])
-                            hyst_high_buffer.append(data_dict["HYST_HIGH"])
                             duty_cycle_buffer.append(data_dict["DutyCycle"])
                             error_buffer.append(data_dict["Error"])
                             p_buffer.append(data_dict["P"])
@@ -142,8 +134,6 @@ def animate(i, sftp, lines):
                 range(len(hall_voltage_buffer)), hall_voltage_buffer
             )
             setpoint_line.set_data(range(len(setpoint_buffer)), setpoint_buffer)
-            hyst_low_line.set_data(range(len(hyst_low_buffer)), hyst_low_buffer)
-            hyst_high_line.set_data(range(len(hyst_high_buffer)), hyst_high_buffer)
             duty_cycle_line.set_data(range(len(duty_cycle_buffer)), duty_cycle_buffer)
             error_line.set_data(range(len(error_buffer)), error_buffer)
             p_line.set_data(range(len(p_buffer)), p_buffer)
@@ -173,12 +163,10 @@ def parse_line_to_dict(line):
             "HallVoltage1": float(parts[1]),
             "DutyCycle": int(parts[2]),
             "Setpoint": float(parts[3]),
-            "HYST_LOW": float(parts[4]),
-            "HYST_HIGH": float(parts[5]),
-            "Error": float(parts[6]),
-            "P": float(parts[7]),
-            "I": float(parts[8]),
-            "D": float(parts[9]),
+            "Error": float(parts[4]),
+            "P": float(parts[5]),
+            "I": float(parts[6]),
+            "D": float(parts[7]),
         }
     except (ValueError, IndexError):
         print(f"Could not parse line: {line}")
@@ -213,8 +201,6 @@ try:
     lines = (
         hall_voltage_line,
         setpoint_line,
-        hyst_low_line,
-        hyst_high_line,
         duty_cycle_line,
         error_line,
         p_line,
