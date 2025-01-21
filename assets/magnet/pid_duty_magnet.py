@@ -52,18 +52,18 @@ pi.set_PWM_dutycycle(
 # ---------------------------
 #        HYSTERESIS THRESHOLDS
 # ---------------------------
-HYST_HIGH = 1.30
-HYST_LOW = 1.1
+HYST_HIGH = 21.18
+HYST_LOW = -1.12
 
 # ---------------------------
 #            PID CONTROLLER
 # ---------------------------
-setpoint = 1.2
-Kp = 400  # Start with a lower Kp
-Ki = 0.0
-Kd = 0.01
+setpoint = 1.15
+Kp = 159  # Start with a lower Kp
+Ki = 1.0
+Kd = 25.0
 pid = PID(Kp, Ki, Kd, setpoint=setpoint)
-pid.output_limits = (0, 100)  # Keep output within 0-100% duty cycle
+pid.output_limits = (20, 100)  # Keep output within 0-100% duty cycle
 
 # ---------------------------
 #        GLOBAL VARIABLES
@@ -146,7 +146,7 @@ def main():
             # pigpio PWM ranges from 0-255
             pi.set_PWM_dutycycle(magnet_pin, int(new_duty * 255 / 100))
 
-            time.sleep(0.001)
+            time.sleep(0.0001)
 
     except KeyboardInterrupt:
         print("Stopping control loop.")
