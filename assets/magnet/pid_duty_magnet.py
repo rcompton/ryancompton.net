@@ -6,6 +6,7 @@ import time
 import csv
 import threading
 import numpy as np
+import sys  # Import the sys module
 
 import adafruit_mcp3xxx.mcp3008 as MCP
 from adafruit_mcp3xxx.analog_in import AnalogIn
@@ -39,7 +40,7 @@ chan1 = AnalogIn(mcp, MCP.P1)  # Sensor 1 (floor)
 # ---------------------------
 pi = pigpio.pi()  # Initialize pigpio
 magnet_pin = 4
-pwm_frequency = 5500 
+pwm_frequency = 5500
 initial_duty_cycle = 0  # Start with 0% duty cycle
 pi.set_PWM_frequency(magnet_pin, pwm_frequency)
 pi.set_PWM_dutycycle(
@@ -49,10 +50,10 @@ pi.set_PWM_dutycycle(
 # ---------------------------
 #            PID CONTROLLER
 # ---------------------------
-setpoint = 1.30
-Kp = 350
+setpoint = 1.2  # Initial setpoint
+Kp = 300
 Ki = 5.0
-Kd = 5.0
+Kd = 8.0
 pid = PID(Kp, Ki, Kd, setpoint=setpoint)
 pid.output_limits = (35, 100)
 
@@ -63,6 +64,7 @@ running = True
 hall_voltage1 = 0.0
 hall_voltage1_filter = MedianFilter(size=3)
 csv_writer = None  # Global variable for the CSV writer
+new_setpoint = None  # Global variable for new setpoint from user input
 
 # ---------------------------
 #        MEASUREMENT FUNCTION
@@ -80,7 +82,7 @@ def measurement_thread():
             time.time(),
             hall_voltage1,
             pi.get_PWM_dutycycle(magnet_pin),
-            setpoint,
+            pid.setpoint,
             error,
             p,
             i,
@@ -90,10 +92,26 @@ def measurement_thread():
         time.sleep(0.0001)
 
 # ---------------------------
+#        USER INPUT FUNCTION
+# ---------------------------
+def user_input_thread():
+    global running, new_setpoint
+    while running:
+        try:
+            user_input = input("Enter new setpoint (or 'q' to quit): ")
+            if user_input.lower() == "q":
+                running = False
+            else:
+                new_setpoint = float(user_input)
+                print(f"New setpoint requested: {new_setpoint}")
+        except ValueError:
+            print("Invalid input. Please enter a number or 'q' to quit.")
+
+# ---------------------------
 #        MAIN CONTROL LOOP
 # ---------------------------
 def main():
-    global running, hall_voltage1, csv_writer
+    global running, hall_voltage1, csv_writer, new_setpoint
 
     try:
         # Setup CSV file
@@ -111,13 +129,14 @@ def main():
         ]
         csv_writer.writerow(header)
 
-        # Create a deque to store the most recent 2000 measurements
-        measurements = deque(maxlen=2000)
-
         # Start the measurement thread
-        thread = threading.Thread(target=measurement_thread)
-        thread.start()
-        
+        measurement_thread_instance = threading.Thread(target=measurement_thread)
+        measurement_thread_instance.start()
+
+        # Start the user input thread
+        input_thread_instance = threading.Thread(target=user_input_thread)
+        input_thread_instance.start()
+
         print(f"Setpoint: {setpoint}")
         print(f"init voltages: {chan1.voltage}")
         print(f"init duty cycle: {initial_duty_cycle}")
@@ -128,34 +147,26 @@ def main():
         print("start!!")
 
         while running:
+            # Update setpoint if requested by user
+            if new_setpoint is not None:
+                pid.setpoint = new_setpoint
+                print(f"Setpoint updated to: {pid.setpoint}")
+                new_setpoint = None
+
             # let PID determine the duty cycle
             new_duty = pid(hall_voltage1)
             # pigpio PWM ranges from 0-255
             pi.set_PWM_dutycycle(magnet_pin, int(new_duty * 255 / 100))
-            
-            # Add the new measurement to the deque
-            measurements.append([
-                time.time(),
-                hall_voltage1,
-                new_duty,
-                setpoint,
-                error,
-                pid.P,
-                pid.I,
-                pid.D,
-            ])
-            
-            time.sleep(0.0001)
 
-        # Write the measurements to the CSV file
-        csv_writer.writerows(measurements)
+            time.sleep(0.001)
 
     except KeyboardInterrupt:
         print("Stopping control loop.")
         running = False
 
     finally:
-        thread.join()  # join the measurement thread
+        measurement_thread_instance.join()  # join the measurement thread
+        input_thread_instance.join()  # join the input thread
         pi.set_PWM_dutycycle(magnet_pin, 0)
         pi.stop()
         if csvfile:
@@ -164,3 +175,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
