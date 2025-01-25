@@ -13,14 +13,14 @@ remote_host = os.getenv("INFINITY_MIRROR_IP")
 remote_user = os.getenv("INFINITY_MIRROR_USER")
 remote_password = os.getenv("INFINITY_MIRROR_PASSWORD")
 remote_csv_path = "/home/pi/ryancompton.net/assets/magnet/pid_duty_magnet_data.csv"
-buffer_size = 800  # Adjust as needed
+buffer_size = 2000  # Adjust as needed
 initial_y_min_voltage = 0.9  # Adjust based on expected voltage range
-initial_y_max_voltage = 1.3  # Adjust based on expected voltage range
+initial_y_max_voltage = 1.6  # Adjust based on expected voltage range
 initial_y_min_duty = 0
 initial_y_max_duty = 255
 initial_y_min_pid = -10  # Adjust based on expected error range
 initial_y_max_pid = 40  # Adjust based on expected error range
-polling_interval = 0.005  # Check for new data every 0.1 seconds (adjust as needed)
+polling_interval = 0.001  # Check for new data every 0.1 seconds (adjust as needed)
 
 # --- Create a Paramiko SSH client ---
 ssh = paramiko.SSHClient()
