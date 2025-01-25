@@ -111,6 +111,9 @@ def main():
         ]
         csv_writer.writerow(header)
 
+        # Create a deque to store the most recent 2000 measurements
+        measurements = deque(maxlen=2000)
+
         # Start the measurement thread
         thread = threading.Thread(target=measurement_thread)
         thread.start()
@@ -129,7 +132,23 @@ def main():
             new_duty = pid(hall_voltage1)
             # pigpio PWM ranges from 0-255
             pi.set_PWM_dutycycle(magnet_pin, int(new_duty * 255 / 100))
+            
+            # Add the new measurement to the deque
+            measurements.append([
+                time.time(),
+                hall_voltage1,
+                new_duty,
+                setpoint,
+                error,
+                pid.P,
+                pid.I,
+                pid.D,
+            ])
+            
             time.sleep(0.0001)
+
+        # Write the measurements to the CSV file
+        csv_writer.writerows(measurements)
 
     except KeyboardInterrupt:
         print("Stopping control loop.")
