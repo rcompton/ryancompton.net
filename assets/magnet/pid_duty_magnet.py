@@ -6,7 +6,7 @@ import time
 import csv
 import threading
 import numpy as np
-import sys  # Import the sys module
+import sys
 
 import adafruit_mcp3xxx.mcp3008 as MCP
 from adafruit_mcp3xxx.analog_in import AnalogIn
@@ -26,7 +26,7 @@ class MedianFilter:
 
 
 # ---------------------------
-#        SETUP MCP3008 & SENSORS
+#       SETUP MCP3008 & SENSORS
 # ---------------------------
 spi = busio.SPI(clock=board.SCK, MISO=board.MISO, MOSI=board.MOSI)
 cs = digitalio.DigitalInOut(board.D16)
@@ -36,7 +36,7 @@ mcp = MCP.MCP3008(spi, cs)
 chan1 = AnalogIn(mcp, MCP.P1)  # Sensor 1 (floor)
 
 # ---------------------------
-#            SETUP PWM
+#           SETUP PWM
 # ---------------------------
 pi = pigpio.pi()  # Initialize pigpio
 magnet_pin = 4
@@ -48,26 +48,32 @@ pi.set_PWM_dutycycle(
 )  # Set initial duty cycle
 
 # ---------------------------
-#            PID CONTROLLER
+#       PID CONTROLLER
 # ---------------------------
-setpoint = 1.2  # Initial setpoint
+setpoint = 1.21  # Initial setpoint
 Kp = 300
 Ki = 5.0
-Kd = 8.0
+Kd = 6.0
 pid = PID(Kp, Ki, Kd, setpoint=setpoint)
 pid.output_limits = (35, 100)
 
 # ---------------------------
-#        GLOBAL VARIABLES
+#       GLOBAL VARIABLES
 # ---------------------------
 running = True
 hall_voltage1 = 0.0
 hall_voltage1_filter = MedianFilter(size=3)
 csv_writer = None  # Global variable for the CSV writer
 new_setpoint = None  # Global variable for new setpoint from user input
+new_Kp = None
+new_Ki = None
+new_Kd = None
+new_pwm_frequency = None
+new_output_limits = None
+
 
 # ---------------------------
-#        MEASUREMENT FUNCTION
+#       MEASUREMENT FUNCTION
 # ---------------------------
 def measurement_thread():
     global running, hall_voltage1, csv_writer
@@ -91,27 +97,57 @@ def measurement_thread():
         csv_writer.writerow(row)
         time.sleep(0.0001)
 
-# ---------------------------
-#        USER INPUT FUNCTION
-# ---------------------------
-def user_input_thread():
-    global running, new_setpoint
-    while running:
-        try:
-            user_input = input("Enter new setpoint (or 'q' to quit): ")
-            if user_input.lower() == "q":
-                running = False
-            else:
-                new_setpoint = float(user_input)
-                print(f"New setpoint requested: {new_setpoint}")
-        except ValueError:
-            print("Invalid input. Please enter a number or 'q' to quit.")
 
 # ---------------------------
-#        MAIN CONTROL LOOP
+#       USER INPUT FUNCTION
+# ---------------------------
+def user_input_thread():
+    global running, new_setpoint, new_Kp, new_Ki, new_Kd, new_pwm_frequency, new_output_limits, hall_voltage1, pwm_frequency
+    while running:
+        try:
+            prompt = (
+                f"HV1: {hall_voltage1:.3f}, SP: {pid.setpoint}, "
+                f"Kp: {pid.Kp}, Ki: {pid.Ki}, Kd: {pid.Kd}, "
+                f"Freq: {pwm_frequency}, Limits: {pid.output_limits} | "
+                f"Enter command: "
+            )
+            user_input = input(prompt)
+            parts = user_input.split()
+            command = parts[0].lower()
+
+            if command == "q":
+                running = False
+            elif command == "setpoint":
+                new_setpoint = float(parts[1])
+                print(f"New setpoint requested: {new_setpoint}")
+            elif command == "kp":
+                new_Kp = float(parts[1])
+                print(f"New Kp requested: {new_Kp}")
+            elif command == "ki":
+                new_Ki = float(parts[1])
+                print(f"New Ki requested: {new_Ki}")
+            elif command == "kd":
+                new_Kd = float(parts[1])
+                print(f"New Kd requested: {new_Kd}")
+            elif command == "freq":
+                new_pwm_frequency = int(parts[1])
+                print(f"New PWM frequency requested: {new_pwm_frequency}")
+            elif command == "limits":
+                new_output_limits = (float(parts[1]), float(parts[2]))
+                print(f"New output limits requested: {new_output_limits}")
+            else:
+                print("Invalid command.")
+        except ValueError:
+            print("Invalid input. Please enter a valid command.")
+        except IndexError:
+            print("Not enough arguments for this command.")
+
+
+# ---------------------------
+#       MAIN CONTROL LOOP
 # ---------------------------
 def main():
-    global running, hall_voltage1, csv_writer, new_setpoint
+    global running, hall_voltage1, csv_writer, new_setpoint, new_Kp, new_Ki, new_Kd, new_pwm_frequency, new_output_limits, pwm_frequency
 
     try:
         # Setup CSV file
@@ -147,11 +183,32 @@ def main():
         print("start!!")
 
         while running:
-            # Update setpoint if requested by user
+            # Update parameters if requested by user
             if new_setpoint is not None:
                 pid.setpoint = new_setpoint
                 print(f"Setpoint updated to: {pid.setpoint}")
                 new_setpoint = None
+            if new_Kp is not None:
+                pid.Kp = new_Kp
+                print(f"Kp updated to: {pid.Kp}")
+                new_Kp = None
+            if new_Ki is not None:
+                pid.Ki = new_Ki
+                print(f"Ki updated to: {pid.Ki}")
+                new_Ki = None
+            if new_Kd is not None:
+                pid.Kd = new_Kd
+                print(f"Kd updated to: {pid.Kd}")
+                new_Kd = None
+            if new_pwm_frequency is not None:
+                pwm_frequency = new_pwm_frequency # Update the global variable
+                pi.set_PWM_frequency(magnet_pin, new_pwm_frequency)
+                print(f"PWM frequency updated to: {new_pwm_frequency}")
+                new_pwm_frequency = None
+            if new_output_limits is not None:
+                pid.output_limits = new_output_limits
+                print(f"Output limits updated to: {pid.output_limits}")
+                new_output_limits = None
 
             # let PID determine the duty cycle
             new_duty = pid(hall_voltage1)
@@ -175,4 +232,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
