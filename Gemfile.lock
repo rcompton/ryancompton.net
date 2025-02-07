@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/jekyll/minima
-  revision: 6b9b78dad3e5c9f733c901e10287465735b36169
+  revision: 93b192192c0777018c9ac4daadaafd5af5a4f750
   specs:
     minima (3.0.0.dev)
       jekyll (>= 3.5, < 5.0)
@@ -1505,8 +1505,8 @@ GEM
       jekyll (>= 3.7, < 5.0)
     jekyll-redirect-from (0.16.0)
       jekyll (>= 3.3, < 5.0)
-    jekyll-sass-converter (3.0.0)
-      sass-embedded (~> 1.54)
+    jekyll-sass-converter (3.1.0)
+      sass-embedded (~> 1.75)
     jekyll-seo-tag (2.8.0)
       jekyll (>= 3.8, < 5.0)
     jekyll-watch (2.2.1)
