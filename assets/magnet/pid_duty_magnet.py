@@ -50,7 +50,7 @@ pi.set_PWM_dutycycle(
 # ---------------------------
 #       PID CONTROLLER
 # ---------------------------
-setpoint = 0.9  # Initial setpoint
+setpoint = 1.0  # Initial setpoint
 Kp = 250
 Ki = 5.0
 Kd = 6.0
