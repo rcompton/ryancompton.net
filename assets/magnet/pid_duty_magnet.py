@@ -14,6 +14,8 @@ from adafruit_mcp3xxx.analog_in import AnalogIn
 from simple_pid import PID
 from collections import deque
 
+import rerun as rr  # Import the rerun SDK
+
 
 class MedianFilter:
     def __init__(self, size):
@@ -63,7 +65,7 @@ pid.output_limits = (35, 100)
 running = True
 hall_voltage1 = 0.0
 hall_voltage1_filter = MedianFilter(size=3)
-csv_writer = None  # Global variable for the CSV writer
+# csv_writer = None  # No longer needed with Rerun
 new_setpoint = None  # Global variable for new setpoint from user input
 new_Kp = None
 new_Ki = None
@@ -76,7 +78,7 @@ new_output_limits = None
 #       MEASUREMENT FUNCTION
 # ---------------------------
 def measurement_thread():
-    global running, hall_voltage1, csv_writer
+    global running, hall_voltage1  # , csv_writer
     while running:
         hall_voltage1 = hall_voltage1_filter.filter(chan1.voltage)
 
@@ -84,17 +86,15 @@ def measurement_thread():
         error = pid.setpoint - hall_voltage1
         p, i, d = pid.components
 
-        row = [
-            time.time(),
-            hall_voltage1,
-            pi.get_PWM_dutycycle(magnet_pin),
-            pid.setpoint,
-            error,
-            p,
-            i,
-            d,
-        ]
-        csv_writer.writerow(row)
+        # Log data to Rerun
+        rr.log("hall_voltage1", rr.Scalar(hall_voltage1))
+        rr.log("duty_cycle", rr.Scalar(pi.get_PWM_dutycycle(magnet_pin) / 255.0 * 100))  # Normalize to 0-100
+        rr.log("setpoint", rr.Scalar(pid.setpoint))
+        rr.log("error", rr.Scalar(error))
+        rr.log("pid/P", rr.Scalar(p))
+        rr.log("pid/I", rr.Scalar(i))
+        rr.log("pid/D", rr.Scalar(d))
+
         time.sleep(0.0001)
 
 
@@ -147,24 +147,14 @@ def user_input_thread():
 #       MAIN CONTROL LOOP
 # ---------------------------
 def main():
-    global running, hall_voltage1, csv_writer, new_setpoint, new_Kp, new_Ki, new_Kd, new_pwm_frequency, new_output_limits, pwm_frequency
+    global running, hall_voltage1, new_setpoint, new_Kp, new_Ki, new_Kd, new_pwm_frequency, new_output_limits, pwm_frequency
+
+    # Initialize Rerun
+    rr.init("magnet_control")  # Application name for Rerun
+    rr.connect() # Connect to the Rerun Viewer (make sure it's running!)
+
 
     try:
-        # Setup CSV file
-        csvfile = open("pid_duty_magnet_data.csv", mode="w", newline="")
-        csv_writer = csv.writer(csvfile)
-        header = [
-            "Time_s",
-            "HallVoltage1",
-            "DutyCycle",
-            "Setpoint",
-            "Error",
-            "P",
-            "I",
-            "D",
-        ]
-        csv_writer.writerow(header)
-
         # Start the measurement thread
         measurement_thread_instance = threading.Thread(target=measurement_thread)
         measurement_thread_instance.start()
@@ -201,7 +191,7 @@ def main():
                 print(f"Kd updated to: {pid.Kd}")
                 new_Kd = None
             if new_pwm_frequency is not None:
-                pwm_frequency = new_pwm_frequency # Update the global variable
+                pwm_frequency = new_pwm_frequency  # Update the global variable
                 pi.set_PWM_frequency(magnet_pin, new_pwm_frequency)
                 print(f"PWM frequency updated to: {new_pwm_frequency}")
                 new_pwm_frequency = None
@@ -226,8 +216,7 @@ def main():
         input_thread_instance.join()  # join the input thread
         pi.set_PWM_dutycycle(magnet_pin, 0)
         pi.stop()
-        if csvfile:
-            csvfile.close()
+        # Rerun automatically disconnects on program exit
 
 
 if __name__ == "__main__":
