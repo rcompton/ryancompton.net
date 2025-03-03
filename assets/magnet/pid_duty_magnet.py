@@ -85,16 +85,18 @@ def measurement_thread():
         p, i, d = pid.components
 
         # Log data to Rerun
-        rr.set_time_seconds("loop_time", time.time()) # Assuming you have this
+          # --- Rerun Logging ---
+        rr.set_time_seconds("loop_time", time.time())  # All data shares this timeline!
+        rr.set_time_range("loop_time", TimeRange(time.time() - 5.0, time.time()))
 
-        # Log data to Rerun, strategically using paths:
-        rr.log("overview/hall_voltage1", rr.Scalar(hall_voltage1))
-        rr.log("overview/setpoint", rr.Scalar(pid.setpoint))
-        rr.log("duty_cycle/duty_cycle", rr.Scalar(pi.get_PWM_dutycycle(magnet_pin) / 255.0 * 100))  # Normalize to 0-100
-        rr.log("pid/error", rr.Scalar(error))
-        rr.log("pid/P", rr.Scalar(p))
-        rr.log("pid/I", rr.Scalar(i))
-        rr.log("pid/D", rr.Scalar(d))
+        # Log data to Rerun, using separate paths for each plot:
+        rr.log("voltage_plot/hall_voltage1", rr.Scalar(hall_voltage1))
+        rr.log("voltage_plot/setpoint", rr.Scalar(setpoint))
+        rr.log("duty_cycle_plot/duty_cycle", rr.Scalar(pi.get_PWM_dutycycle(magnet_pin) / 255.0 * 100))
+        rr.log("pid_plot/error", rr.Scalar(error))
+        rr.log("pid_plot/P", rr.Scalar(p))
+        rr.log("pid_plot/I", rr.Scalar(i))
+        rr.log("pid_plot/D", rr.Scalar(d))
 
         time.sleep(0.001)
 
