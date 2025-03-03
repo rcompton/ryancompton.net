@@ -87,7 +87,6 @@ def measurement_thread():
         # Log data to Rerun
           # --- Rerun Logging ---
         rr.set_time_seconds("loop_time", time.time())  # All data shares this timeline!
-        rr.set_time_range("loop_time", TimeRange(time.time() - 5.0, time.time()))
 
         # Log data to Rerun, using separate paths for each plot:
         rr.log("voltage_plot/hall_voltage1", rr.Scalar(hall_voltage1))
