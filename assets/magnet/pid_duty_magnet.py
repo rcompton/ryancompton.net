@@ -3,10 +3,8 @@ import board
 import busio
 import digitalio
 import time
-import csv
 import threading
 import numpy as np
-import sys
 
 import adafruit_mcp3xxx.mcp3008 as MCP
 from adafruit_mcp3xxx.analog_in import AnalogIn
@@ -87,15 +85,18 @@ def measurement_thread():
         p, i, d = pid.components
 
         # Log data to Rerun
-        rr.log("hall_voltage1", rr.Scalar(hall_voltage1))
-        rr.log("duty_cycle", rr.Scalar(pi.get_PWM_dutycycle(magnet_pin) / 255.0 * 100))  # Normalize to 0-100
-        rr.log("setpoint", rr.Scalar(pid.setpoint))
-        rr.log("error", rr.Scalar(error))
+        rr.set_time_seconds("loop_time", time.time()) # Assuming you have this
+
+        # Log data to Rerun, strategically using paths:
+        rr.log("overview/hall_voltage1", rr.Scalar(hall_voltage1))
+        rr.log("overview/setpoint", rr.Scalar(pid.setpoint))
+        rr.log("duty_cycle/duty_cycle", rr.Scalar(pi.get_PWM_dutycycle(magnet_pin) / 255.0 * 100))  # Normalize to 0-100
+        rr.log("pid/error", rr.Scalar(error))
         rr.log("pid/P", rr.Scalar(p))
         rr.log("pid/I", rr.Scalar(i))
         rr.log("pid/D", rr.Scalar(d))
 
-        time.sleep(0.0001)
+        time.sleep(0.001)
 
 
 # ---------------------------
