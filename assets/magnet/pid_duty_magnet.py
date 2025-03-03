@@ -153,6 +153,7 @@ def main():
 
     # Initialize Rerun
     rr.init("magnet_control") 
+    rec = rr.memory_recording()
     rr.connect("192.168.86.39:9876") 
 
     try:
