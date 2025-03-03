@@ -150,9 +150,8 @@ def main():
     global running, hall_voltage1, new_setpoint, new_Kp, new_Ki, new_Kd, new_pwm_frequency, new_output_limits, pwm_frequency
 
     # Initialize Rerun
-    rr.init("magnet_control")  # Application name for Rerun
-    rr.connect() # Connect to the Rerun Viewer (make sure it's running!)
-
+    rr.init("magnet_control") 
+    rr.connect("192.168.86.39:9876") 
 
     try:
         # Start the measurement thread
