@@ -13,6 +13,7 @@ from simple_pid import PID
 from collections import deque
 
 import rerun as rr  # Import the rerun SDK
+import rerun.blueprint as rrb
 
 
 class MedianFilter:
@@ -85,19 +86,22 @@ def measurement_thread():
         p, i, d = pid.components
 
         # Log data to Rerun
-          # --- Rerun Logging ---
+        # --- Rerun Logging ---
         rr.set_time_seconds("loop_time", time.time())  # All data shares this timeline!
 
         # Log data to Rerun, using separate paths for each plot:
         rr.log("voltage_plot/hall_voltage1", rr.Scalar(hall_voltage1))
         rr.log("voltage_plot/setpoint", rr.Scalar(setpoint))
-        rr.log("duty_cycle_plot/duty_cycle", rr.Scalar(pi.get_PWM_dutycycle(magnet_pin) / 255.0 * 100))
+        rr.log(
+            "duty_cycle_plot/duty_cycle",
+            rr.Scalar(pi.get_PWM_dutycycle(magnet_pin) / 255.0 * 100),
+        )
         rr.log("pid_plot/error", rr.Scalar(error))
         rr.log("pid_plot/P", rr.Scalar(p))
         rr.log("pid_plot/I", rr.Scalar(i))
         rr.log("pid_plot/D", rr.Scalar(d))
 
-        time.sleep(0.001)
+        time.sleep(0.01)
 
 
 # ---------------------------
@@ -152,8 +156,38 @@ def main():
     global running, hall_voltage1, new_setpoint, new_Kp, new_Ki, new_Kd, new_pwm_frequency, new_output_limits, pwm_frequency
 
     # Initialize Rerun
-    rr.init("magnet_control") 
-    rr.connect("192.168.86.39:9876") 
+    rr.init("magnet_control")
+    rr.connect("192.168.86.39:9876")
+    rrb.send_blueprint(
+        rrb.Blueprint(
+            rrb.Vertical(
+                rrb.TimeSeriesView(
+                    origin="/voltage_plot",
+                    time_ranges=rrb.VisibleTimeRange(
+                        "loop_time",
+                        start=rrb.TimeRangeBoundary.cursor_relative(seconds=-5.0),
+                        end=rrb.TimeRangeBoundary.cursor_relative(),
+                    ),
+                ),
+                rrb.TimeSeriesView(
+                    origin="/duty_cycle_plot",
+                    time_ranges=rrb.VisibleTimeRange(
+                        "loop_time",
+                        start=rrb.TimeRangeBoundary.cursor_relative(seconds=-5.0),
+                        end=rrb.TimeRangeBoundary.cursor_relative(),
+                    ),
+                ),
+                rrb.TimeSeriesView(
+                    origin="/pid_plot",
+                    time_ranges=rrb.VisibleTimeRange(
+                        "loop_time",
+                        start=rrb.TimeRangeBoundary.cursor_relative(seconds=-5.0),
+                        end=rrb.TimeRangeBoundary.cursor_relative(),
+                    ),
+                ),
+            )
+        )
+    )
 
     try:
         # Start the measurement thread
