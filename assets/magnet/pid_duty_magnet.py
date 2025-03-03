@@ -51,10 +51,10 @@ pi.set_PWM_dutycycle(
 # ---------------------------
 #       PID CONTROLLER
 # ---------------------------
-setpoint = 1.0  # Initial setpoint
-Kp = 250
-Ki = 5.0
-Kd = 6.0
+setpoint = 1.09  # Initial setpoint
+Kp = 125
+Ki = 2.0
+Kd = 5.0
 pid = PID(Kp, Ki, Kd, setpoint=setpoint)
 pid.output_limits = (35, 100)
 
@@ -91,7 +91,7 @@ def measurement_thread():
 
         # Log data to Rerun, using separate paths for each plot:
         rr.log("voltage_plot/hall_voltage1", rr.Scalar(hall_voltage1))
-        rr.log("voltage_plot/setpoint", rr.Scalar(setpoint))
+        rr.log("voltage_plot/setpoint", rr.Scalar(pid.setpoint))
         rr.log(
             "duty_cycle_plot/duty_cycle",
             rr.Scalar(pi.get_PWM_dutycycle(magnet_pin) / 255.0 * 100),
