@@ -158,7 +158,7 @@ def main():
     # Initialize Rerun
     rr.init("magnet_control")
     rr.connect("192.168.86.39:9876")
-    rrb.send_blueprint(
+    rr.send_blueprint(
         rrb.Blueprint(
             rrb.Vertical(
                 rrb.TimeSeriesView(
