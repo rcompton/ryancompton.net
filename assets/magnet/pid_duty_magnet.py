@@ -81,7 +81,7 @@ def measurement_thread():
     while running:
 
         # Get PID data
-        error = 10*(pid.setpoint - hall_voltage1)
+        error = pid.setpoint - hall_voltage1
         p, i, d = pid.components
 
         # Log data to Rerun
@@ -95,7 +95,7 @@ def measurement_thread():
             "duty_cycle_plot/duty_cycle",
             rr.Scalar(pi.get_PWM_dutycycle(magnet_pin) / 255.0 * 100),
         )
-        rr.log("pid_plot/error", rr.Scalar(error))
+        rr.log("error_plot/error", rr.Scalar(error))
         rr.log("pid_plot/P", rr.Scalar(p))
         rr.log("pid_plot/I", rr.Scalar(i))
         rr.log("pid_plot/D", rr.Scalar(d))
@@ -162,6 +162,14 @@ def main():
             rrb.Vertical(
                 rrb.TimeSeriesView(
                     origin="/voltage_plot",
+                    time_ranges=rrb.VisibleTimeRange(
+                        "loop_time",
+                        start=rrb.TimeRangeBoundary.cursor_relative(seconds=-5.0),
+                        end=rrb.TimeRangeBoundary.cursor_relative(),
+                    ),
+                ),
+                rrb.TimeSeriesView(
+                    origin="/error_plot",
                     time_ranges=rrb.VisibleTimeRange(
                         "loop_time",
                         start=rrb.TimeRangeBoundary.cursor_relative(seconds=-5.0),
