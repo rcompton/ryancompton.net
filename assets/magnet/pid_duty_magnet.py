@@ -79,7 +79,6 @@ new_output_limits = None
 def measurement_thread():
     global running, hall_voltage1  # , csv_writer
     while running:
-        hall_voltage1 = hall_voltage1_filter.filter(chan1.voltage)
 
         # Get PID data
         error = pid.setpoint - hall_voltage1
@@ -101,7 +100,7 @@ def measurement_thread():
         rr.log("pid_plot/I", rr.Scalar(i))
         rr.log("pid_plot/D", rr.Scalar(d))
 
-        time.sleep(0.001)
+        time.sleep(0.01)
 
 
 # ---------------------------
@@ -236,6 +235,7 @@ def main():
                 new_output_limits = None
 
             # let PID determine the duty cycle
+            hall_voltage1 = hall_voltage1_filter.filter(chan1.voltage)
             new_duty = pid(hall_voltage1)
             # pigpio PWM ranges from 0-255
             pi.set_PWM_dutycycle(magnet_pin, int(new_duty * 255 / 100))
