@@ -101,7 +101,7 @@ def measurement_thread():
         rr.log("pid_plot/I", rr.Scalar(i))
         rr.log("pid_plot/D", rr.Scalar(d))
 
-        time.sleep(0.01)
+        time.sleep(0.001)
 
 
 # ---------------------------
