@@ -51,8 +51,8 @@ pi.set_PWM_dutycycle(
 # ---------------------------
 #       PID CONTROLLER
 # ---------------------------
-setpoint = 1.09  # Initial setpoint
-Kp = 125
+setpoint = 1.05  # Initial setpoint
+Kp = 200
 Ki = 2.0
 Kd = 5.0
 pid = PID(Kp, Ki, Kd, setpoint=setpoint)
@@ -81,7 +81,7 @@ def measurement_thread():
     while running:
 
         # Get PID data
-        error = pid.setpoint - hall_voltage1
+        error = 10*(pid.setpoint - hall_voltage1)
         p, i, d = pid.components
 
         # Log data to Rerun
@@ -100,7 +100,7 @@ def measurement_thread():
         rr.log("pid_plot/I", rr.Scalar(i))
         rr.log("pid_plot/D", rr.Scalar(d))
 
-        time.sleep(0.01)
+        time.sleep(0.02)
 
 
 # ---------------------------
@@ -240,7 +240,7 @@ def main():
             # pigpio PWM ranges from 0-255
             pi.set_PWM_dutycycle(magnet_pin, int(new_duty * 255 / 100))
 
-            time.sleep(0.001)
+            time.sleep(0.0005)
 
     except KeyboardInterrupt:
         print("Stopping control loop.")
