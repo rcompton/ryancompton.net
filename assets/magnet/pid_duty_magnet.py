@@ -244,12 +244,9 @@ def main():
                 print(f"Output limits updated to: {pid.output_limits}")
                 new_output_limits = None
 
-            # Update the setpoint to follow a square wave
+            # Update the setpoint to follow a sinusoi
             current_time = time.time()
-            if int((current_time - start_time) / 1.5) % 2 == 0:
-                pid.setpoint = setpoint + 0.01
-            else:
-                pid.setpoint = setpoint - 0.01
+            pid.setpoint = setpoint + 0.025 * np.sin( np.pi * (current_time - start_time) )
 
             # let PID determine the duty cycle
             hall_voltage1 = hall_voltage1_filter.filter(chan1.voltage)
