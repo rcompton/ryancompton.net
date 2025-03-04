@@ -51,7 +51,7 @@ pi.set_PWM_dutycycle(
 # ---------------------------
 #       PID CONTROLLER
 # ---------------------------
-setpoint = 1.03  # Initial setpoint
+setpoint = 1.07  # Initial setpoint
 Kp = 180
 Ki = 5.0
 Kd = 5.0
@@ -244,9 +244,9 @@ def main():
                 print(f"Output limits updated to: {pid.output_limits}")
                 new_output_limits = None
 
-            # Update the setpoint to follow a sinusoid
+            # Update the setpoint to follow a sinusoi
             current_time = time.time()
-            pid.setpoint = setpoint + 0.01 * np.sin(2 * np.pi * (current_time - start_time) / 3)
+            pid.setpoint = setpoint + 0.025 * np.sin( np.pi * (current_time - start_time) )
 
             # let PID determine the duty cycle
             hall_voltage1 = hall_voltage1_filter.filter(chan1.voltage)
