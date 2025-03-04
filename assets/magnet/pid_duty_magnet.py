@@ -51,9 +51,9 @@ pi.set_PWM_dutycycle(
 # ---------------------------
 #       PID CONTROLLER
 # ---------------------------
-setpoint = 1.05  # Initial setpoint
-Kp = 200
-Ki = 2.0
+setpoint = 1.03  # Initial setpoint
+Kp = 180
+Ki = 5.0
 Kd = 5.0
 pid = PID(Kp, Ki, Kd, setpoint=setpoint)
 pid.output_limits = (35, 100)
