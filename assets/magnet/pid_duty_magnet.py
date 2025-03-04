@@ -214,6 +214,8 @@ def main():
 
         print("start!!")
 
+        start_time = time.time()
+
         while running:
             # Update parameters if requested by user
             if new_setpoint is not None:
@@ -241,6 +243,10 @@ def main():
                 pid.output_limits = new_output_limits
                 print(f"Output limits updated to: {pid.output_limits}")
                 new_output_limits = None
+
+            # Update the setpoint to follow a sinusoid
+            current_time = time.time()
+            pid.setpoint = setpoint + 0.01 * np.sin(2 * np.pi * (current_time - start_time) / 3)
 
             # let PID determine the duty cycle
             hall_voltage1 = hall_voltage1_filter.filter(chan1.voltage)
