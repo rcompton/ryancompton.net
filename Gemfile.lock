@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/jekyll/minima
-  revision: 6b9b78dad3e5c9f733c901e10287465735b36169
+  revision: bcfb3b9fe28e6a6e504d8142a56fc278a209d1dc
   specs:
     minima (3.0.0.dev)
       jekyll (>= 3.5, < 5.0)
@@ -1473,10 +1473,10 @@ GEM
     ffi (1.17.1-x86_64-darwin)
     ffi (1.17.1-x86_64-linux-gnu)
     forwardable-extended (2.6.0)
-    google-protobuf (4.29.3-x86_64-darwin)
+    google-protobuf (4.30.0-x86_64-darwin)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.29.3-x86_64-linux)
+    google-protobuf (4.30.0-x86_64-linux)
       bigdecimal
       rake (>= 13)
     http_parser.rb (0.8.0)
@@ -1505,14 +1505,14 @@ GEM
       jekyll (>= 3.7, < 5.0)
     jekyll-redirect-from (0.16.0)
       jekyll (>= 3.3, < 5.0)
-    jekyll-sass-converter (3.0.0)
-      sass-embedded (~> 1.54)
+    jekyll-sass-converter (3.1.0)
+      sass-embedded (~> 1.75)
     jekyll-seo-tag (2.8.0)
       jekyll (>= 3.8, < 5.0)
     jekyll-watch (2.2.1)
       listen (~> 3.0)
     jmespath (1.6.2)
-    json (2.9.1)
+    json (2.10.1)
     kramdown (2.5.1)
       rexml (>= 3.3.9)
     kramdown-parser-gfm (1.1.0)
@@ -1529,12 +1529,12 @@ GEM
     rb-fsevent (0.11.2)
     rb-inotify (0.11.1)
       ffi (~> 1.0)
-    rexml (3.4.0)
+    rexml (3.4.1)
     rouge (4.5.1)
     safe_yaml (1.0.5)
-    sass-embedded (1.83.4-x86_64-darwin)
+    sass-embedded (1.85.1-x86_64-darwin)
       google-protobuf (~> 4.29)
-    sass-embedded (1.83.4-x86_64-linux-gnu)
+    sass-embedded (1.85.1-x86_64-linux-gnu)
       google-protobuf (~> 4.29)
     terminal-table (3.0.2)
       unicode-display_width (>= 1.1.1, < 3)
