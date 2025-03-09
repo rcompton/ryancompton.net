@@ -291,7 +291,7 @@ def main():
                 duty_cycle_change_count = 0
                 start_time = time.time()
 
-            time.sleep(0.0005)
+            time.sleep(0.0001)
 
     except KeyboardInterrupt:
         print("Stopping control loop.")
