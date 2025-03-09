@@ -268,7 +268,7 @@ def main():
 
             # Update the setpoint to follow a sinusoi
             current_time = time.time()
-            pid.setpoint = setpoint + 0.025 * np.sin(np.pi * (current_time - start_time))
+            #pid.setpoint = setpoint + 0.025 * np.sin(np.pi * (current_time - start_time))
 
             # let PID determine the duty cycle
             hall_voltage1 = hall_voltage1_filter.filter(chan1.voltage)
