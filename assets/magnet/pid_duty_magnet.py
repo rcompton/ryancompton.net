@@ -72,13 +72,14 @@ new_Kd = None
 new_pwm_frequency = None
 new_output_limits = None
 ips = 0.0  # Initialize Iteratrions Per Second (IPS)
-
+duty_cycle_changes_per_second = 0.0
+previous_duty_cycle = -1
 
 # ---------------------------
 #       MEASUREMENT FUNCTION
 # ---------------------------
 def measurement_thread():
-    global running, hall_voltage1, ips
+    global running, hall_voltage1, ips, duty_cycle_changes_per_second
 
     while running:
         # Get PID data
@@ -100,8 +101,8 @@ def measurement_thread():
         rr.log("pid_plot/P", rr.Scalar(p))
         rr.log("pid_plot/I", rr.Scalar(i))
         rr.log("pid_plot/D", rr.Scalar(d))
-        rr.log("performance/main_iterations_per_second", rr.Scalar(ips))  # Log the global ips
-
+        rr.log("performance/main_iterations_per_second", rr.Scalar(ips))
+        rr.log("performance/duty_cycle_changes_per_second", rr.Scalar(duty_cycle_changes_per_second))
         time.sleep(0.05)
 
 
@@ -154,7 +155,7 @@ def user_input_thread():
 #       MAIN CONTROL LOOP
 # ---------------------------
 def main():
-    global running, hall_voltage1, new_setpoint, new_Kp, new_Ki, new_Kd, new_pwm_frequency, new_output_limits, pwm_frequency, ips  # Add 'ips' here
+    global running, hall_voltage1, new_setpoint, new_Kp, new_Ki, new_Kd, new_pwm_frequency, new_output_limits, pwm_frequency, ips, duty_cycle_changes_per_second, previous_duty_cycle
 
     # Initialize Rerun
     rr.init("magnet_control")
@@ -195,13 +196,22 @@ def main():
                     ),
                 ),
                 rrb.TimeSeriesView( # Add the IPS plot
-                    origin="/performance",
+                    origin="/performance/main_iterations_per_second",
                     time_ranges=rrb.VisibleTimeRange(
                         "loop_time",
                         start=rrb.TimeRangeBoundary.cursor_relative(seconds=-5.0),
                         end=rrb.TimeRangeBoundary.cursor_relative(),
                     ),
                 ),
+                rrb.TimeSeriesView( # Add the duty cycle changes plot
+                    origin="/performance/duty_cycle_changes_per_second",
+                    time_ranges=rrb.VisibleTimeRange(
+                        "loop_time",
+                        start=rrb.TimeRangeBoundary.cursor_relative(seconds=-5.0),
+                        end=rrb.TimeRangeBoundary.cursor_relative(),
+                    ),
+                ),
+
             )
         )
     )
@@ -225,6 +235,7 @@ def main():
         print("start!!")
 
         loop_count = 0
+        duty_cycle_change_count = 0
         start_time = time.time()
 
         while running:
@@ -262,15 +273,22 @@ def main():
             # let PID determine the duty cycle
             hall_voltage1 = hall_voltage1_filter.filter(chan1.voltage)
             new_duty = pid(hall_voltage1)
-            # pigpio PWM ranges from 0-255
-            pi.set_PWM_dutycycle(magnet_pin, int(new_duty * 255 / 100))
+            new_duty_int = int(new_duty * 255 / 100)
+            pi.set_PWM_dutycycle(magnet_pin, new_duty_int)
 
+            # Check if the duty cycle has changed
+            if new_duty_int != previous_duty_cycle:
+                duty_cycle_change_count += 1
+                previous_duty_cycle = new_duty_int
             # Update the global IPS counter
             loop_count += 1
             elapsed_time = time.time() - start_time
             if elapsed_time >= 1.0:
-                ips = loop_count / elapsed_time  # Assign to the global variable
+                ips = loop_count / elapsed_time
+                duty_cycle_changes_per_second = duty_cycle_change_count / elapsed_time
+
                 loop_count = 0
+                duty_cycle_change_count = 0
                 start_time = time.time()
 
             time.sleep(0.0005)
@@ -289,3 +307,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
