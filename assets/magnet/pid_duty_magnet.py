@@ -71,15 +71,16 @@ new_Ki = None
 new_Kd = None
 new_pwm_frequency = None
 new_output_limits = None
+ips = 0.0  # Initialize Iteratrions Per Second (IPS)
 
 
 # ---------------------------
 #       MEASUREMENT FUNCTION
 # ---------------------------
 def measurement_thread():
-    global running, hall_voltage1  # , csv_writer
-    while running:
+    global running, hall_voltage1, ips
 
+    while running:
         # Get PID data
         error = pid.setpoint - hall_voltage1
         p, i, d = pid.components
@@ -99,6 +100,7 @@ def measurement_thread():
         rr.log("pid_plot/P", rr.Scalar(p))
         rr.log("pid_plot/I", rr.Scalar(i))
         rr.log("pid_plot/D", rr.Scalar(d))
+        rr.log("performance/main_iterations_per_second", rr.Scalar(ips))  # Log the global ips
 
         time.sleep(0.05)
 
@@ -152,7 +154,7 @@ def user_input_thread():
 #       MAIN CONTROL LOOP
 # ---------------------------
 def main():
-    global running, hall_voltage1, new_setpoint, new_Kp, new_Ki, new_Kd, new_pwm_frequency, new_output_limits, pwm_frequency
+    global running, hall_voltage1, new_setpoint, new_Kp, new_Ki, new_Kd, new_pwm_frequency, new_output_limits, pwm_frequency, ips  # Add 'ips' here
 
     # Initialize Rerun
     rr.init("magnet_control")
@@ -192,6 +194,14 @@ def main():
                         end=rrb.TimeRangeBoundary.cursor_relative(),
                     ),
                 ),
+                rrb.TimeSeriesView( # Add the IPS plot
+                    origin="/performance",
+                    time_ranges=rrb.VisibleTimeRange(
+                        "loop_time",
+                        start=rrb.TimeRangeBoundary.cursor_relative(seconds=-5.0),
+                        end=rrb.TimeRangeBoundary.cursor_relative(),
+                    ),
+                ),
             )
         )
     )
@@ -214,6 +224,7 @@ def main():
 
         print("start!!")
 
+        loop_count = 0
         start_time = time.time()
 
         while running:
@@ -246,13 +257,21 @@ def main():
 
             # Update the setpoint to follow a sinusoi
             current_time = time.time()
-            pid.setpoint = setpoint + 0.025 * np.sin( np.pi * (current_time - start_time) )
+            pid.setpoint = setpoint + 0.025 * np.sin(np.pi * (current_time - start_time))
 
             # let PID determine the duty cycle
             hall_voltage1 = hall_voltage1_filter.filter(chan1.voltage)
             new_duty = pid(hall_voltage1)
             # pigpio PWM ranges from 0-255
             pi.set_PWM_dutycycle(magnet_pin, int(new_duty * 255 / 100))
+
+            # Update the global IPS counter
+            loop_count += 1
+            elapsed_time = time.time() - start_time
+            if elapsed_time >= 1.0:
+                ips = loop_count / elapsed_time  # Assign to the global variable
+                loop_count = 0
+                start_time = time.time()
 
             time.sleep(0.0005)
 
@@ -270,4 +289,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
