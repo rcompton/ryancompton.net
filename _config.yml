@@ -37,6 +37,7 @@ author:
 plugins:
   - jekyll-feed
   - jekyll-redirect-from
+  - jekyll-seo-tag
 
 theme: minima
 minima:
@@ -53,9 +54,11 @@ minima:
       url: "https://stackoverflow.com/users/424631/dranxo"
   header_pages:
     - about.md
+  show_excerpts: true
 
-#show_excerpts: true
-#excerpt_separator: <!--more-->
+excerpt_separator: <!--more-->
+
+lang: en-US
 
 # Exclude from processing.
 # The following items will not be processed, by default.
