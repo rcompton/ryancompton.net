@@ -42,15 +42,20 @@ theme: minima
 minima:
   skin: dark
   social_links:
-    - {platform: github, user_url: "https://github.com/rcompton" }
-    - {platform: linkedin, user_url: "https://www.linkedin.com/in/⇉ryan-compton⇇-2503941a" }
-    - {platform: stackoverflow, user_url: "https://stackoverflow.com/users/424631/dranxo" }
+    - title: "GitHub"
+      icon: "github"
+      url: "https://github.com/rcompton"
+    - title: "LinkedIn"
+      icon: "linkedin"
+      url: "https://www.linkedin.com/in/%E2%87%89ryan-compton%E2%87%87-2503941a/"
+    - title: "Stack Overflow"
+      icon: "stack-overflow"
+      url: "https://stackoverflow.com/users/424631/dranxo"
+  header_pages:
+    - about.md
 
-header_pages:
-  - about.markdown
-
-show_excerpts: true
-excerpt_separator: <!--more-->
+#show_excerpts: true
+#excerpt_separator: <!--more-->
 
 # Exclude from processing.
 # The following items will not be processed, by default.
