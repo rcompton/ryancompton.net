@@ -34,7 +34,7 @@ cs = digitalio.DigitalInOut(board.D16)
 mcp = MCP.MCP3008(spi, cs)
 
 # Sensors
-chan1 = AnalogIn(mcp, MCP.P1)  # Sensor 1 (floor)
+chan0 = AnalogIn(mcp, MCP.P0)  # Sensor 0 (floor)
 
 # ---------------------------
 #           SETUP PWM
@@ -62,9 +62,8 @@ pid.output_limits = (35, 100)
 #       GLOBAL VARIABLES
 # ---------------------------
 running = True
-hall_voltage1 = 0.0
-hall_voltage1_filter = MedianFilter(size=3)
-# csv_writer = None  # No longer needed with Rerun
+hall_voltage0 = 0.0
+hall_voltage0_filter = MedianFilter(size=3)
 new_setpoint = None  # Global variable for new setpoint from user input
 new_Kp = None
 new_Ki = None
@@ -79,11 +78,11 @@ previous_duty_cycle = -1
 #       MEASUREMENT FUNCTION
 # ---------------------------
 def measurement_thread():
-    global running, hall_voltage1, ips, duty_cycle_changes_per_second
+    global running, hall_voltage0, ips, duty_cycle_changes_per_second
 
     while running:
         # Get PID data
-        error = pid.setpoint - hall_voltage1
+        error = pid.setpoint - hall_voltage0
         p, i, d = pid.components
 
         # Log data to Rerun
@@ -91,8 +90,8 @@ def measurement_thread():
         rr.set_time_seconds("loop_time", time.time())  # All data shares this timeline!
 
         # Log data to Rerun, using separate paths for each plot:
-        rr.log("voltage_plot/hall_voltage1", rr.Scalar(hall_voltage1))
-        #rr.log("voltage_plot/setpoint", rr.Scalar(pid.setpoint))
+        rr.log("voltage_plot/hall_voltage0", rr.Scalar(hall_voltage0))
+        rr.log("voltage_plot/setpoint", rr.Scalar(pid.setpoint))
         rr.log(
             "duty_cycle_plot/duty_cycle",
             rr.Scalar(pi.get_PWM_dutycycle(magnet_pin) / 255.0 * 100),
@@ -110,11 +109,11 @@ def measurement_thread():
 #       USER INPUT FUNCTION
 # ---------------------------
 def user_input_thread():
-    global running, new_setpoint, new_Kp, new_Ki, new_Kd, new_pwm_frequency, new_output_limits, hall_voltage1, pwm_frequency
+    global running, new_setpoint, new_Kp, new_Ki, new_Kd, new_pwm_frequency, new_output_limits, hall_voltage0, pwm_frequency
     while running:
         try:
             prompt = (
-                f"HV1: {hall_voltage1:.3f}, SP: {pid.setpoint}, "
+                f"HV1: {hall_voltage0:.3f}, SP: {pid.setpoint}, "
                 f"Kp: {pid.Kp}, Ki: {pid.Ki}, Kd: {pid.Kd}, "
                 f"Freq: {pwm_frequency}, Limits: {pid.output_limits} | "
                 f"Enter command: "
@@ -155,7 +154,7 @@ def user_input_thread():
 #       MAIN CONTROL LOOP
 # ---------------------------
 def main():
-    global running, hall_voltage1, new_setpoint, new_Kp, new_Ki, new_Kd, new_pwm_frequency, new_output_limits, pwm_frequency, ips, duty_cycle_changes_per_second, previous_duty_cycle
+    global running, hall_voltage0, new_setpoint, new_Kp, new_Ki, new_Kd, new_pwm_frequency, new_output_limits, pwm_frequency, ips, duty_cycle_changes_per_second, previous_duty_cycle
 
     # Initialize Rerun
     rr.init("magnet_control")
@@ -226,7 +225,7 @@ def main():
         input_thread_instance.start()
 
         print(f"Setpoint: {setpoint}")
-        print(f"init voltages: {chan1.voltage}")
+        print(f"init voltages: {chan0.voltage}")
         print(f"init duty cycle: {initial_duty_cycle}")
         print(f"init PID: Kp={Kp} Ki={Ki} Kd={Kd}")
         print(f"init PWM frequency: {pwm_frequency}")
@@ -271,8 +270,8 @@ def main():
             #pid.setpoint = setpoint + 0.025 * np.sin(np.pi * (current_time - start_time))
 
             # let PID determine the duty cycle
-            hall_voltage1 = hall_voltage1_filter.filter(chan1.voltage)
-            new_duty = pid(hall_voltage1)
+            hall_voltage0 = hall_voltage0_filter.filter(chan0.voltage)
+            new_duty = pid(hall_voltage0)
             new_duty_int = int(new_duty * 255 / 100)
             pi.set_PWM_dutycycle(magnet_pin, new_duty_int)
 
