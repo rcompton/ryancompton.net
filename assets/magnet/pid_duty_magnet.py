@@ -92,7 +92,7 @@ def measurement_thread():
 
         # Log data to Rerun, using separate paths for each plot:
         rr.log("voltage_plot/hall_voltage1", rr.Scalar(hall_voltage1))
-        rr.log("voltage_plot/setpoint", rr.Scalar(pid.setpoint))
+        #rr.log("voltage_plot/setpoint", rr.Scalar(pid.setpoint))
         rr.log(
             "duty_cycle_plot/duty_cycle",
             rr.Scalar(pi.get_PWM_dutycycle(magnet_pin) / 255.0 * 100),
