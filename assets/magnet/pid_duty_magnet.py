@@ -52,8 +52,8 @@ pi.set_PWM_dutycycle(
 #       PID CONTROLLER
 # ---------------------------
 setpoint = 1.07  # Initial setpoint
-Kp = 180
-Ki = 5.0
+Kp = 170
+Ki = 10.0
 Kd = 5.0
 pid = PID(Kp, Ki, Kd, setpoint=setpoint)
 pid.output_limits = (35, 100)
@@ -163,10 +163,10 @@ def main():
 
     # Define initial Y-ranges based on starting values
     initial_setpoint_val = setpoint # Capture the initial setpoint
-    voltage_plot_min_y = initial_setpoint_val - 0.02
-    voltage_plot_max_y = initial_setpoint_val + 0.02
-    error_plot_min_y = -0.02
-    error_plot_max_y = 0.02
+    voltage_plot_min_y = initial_setpoint_val - 0.1
+    voltage_plot_max_y = initial_setpoint_val + 0.1
+    error_plot_min_y = -0.05
+    error_plot_max_y = 0.05
 
     rr.send_blueprint(
         rrb.Blueprint(
