@@ -156,9 +156,17 @@ def user_input_thread():
 def main():
     global running, hall_voltage0, new_setpoint, new_Kp, new_Ki, new_Kd, new_pwm_frequency, new_output_limits, pwm_frequency, ips, duty_cycle_changes_per_second, previous_duty_cycle
 
-    # Initialize Rerun
+    # ----- Rerun Initialization and Blueprint -----
     rr.init("magnet_control")
     rr.connect("192.168.86.39:9876")
+
+    # Define initial Y-ranges based on starting values
+    initial_setpoint_val = setpoint # Capture the initial setpoint
+    voltage_plot_min_y = initial_setpoint_val - 0.02
+    voltage_plot_max_y = initial_setpoint_val + 0.02
+    error_plot_min_y = -0.02
+    error_plot_max_y = 0.02
+
     rr.send_blueprint(
         rrb.Blueprint(
             rrb.Vertical(
@@ -169,6 +177,8 @@ def main():
                         start=rrb.TimeRangeBoundary.cursor_relative(seconds=-5.0),
                         end=rrb.TimeRangeBoundary.cursor_relative(),
                     ),
+                    # Set fixed Y-range based on initial setpoint +/- 0.02
+                    y_range=rrb.Range1D(min=voltage_plot_min_y, max=voltage_plot_max_y),
                 ),
                 rrb.TimeSeriesView(
                     origin="/error_plot",
@@ -177,6 +187,8 @@ def main():
                         start=rrb.TimeRangeBoundary.cursor_relative(seconds=-5.0),
                         end=rrb.TimeRangeBoundary.cursor_relative(),
                     ),
+                    # Set fixed Y-range to +/- 0.02
+                    y_range=rrb.Range1D(min=error_plot_min_y, max=error_plot_max_y),
                 ),
                 rrb.TimeSeriesView(
                     origin="/duty_cycle_plot",
@@ -210,10 +222,10 @@ def main():
                         end=rrb.TimeRangeBoundary.cursor_relative(),
                     ),
                 ),
-
             )
         )
     )
+    # ----- End Rerun Blueprint -----
 
     try:
         # Start the measurement thread
@@ -242,6 +254,9 @@ def main():
             if new_setpoint is not None:
                 pid.setpoint = new_setpoint
                 print(f"Setpoint updated to: {pid.setpoint}")
+                # NOTE: The voltage plot's Y-range in Rerun will NOT update automatically here
+                # You could potentially resend the blueprint, but it's often simpler
+                # to either set a wider initial range or let it auto-scale.
                 new_setpoint = None
             if new_Kp is not None:
                 pid.Kp = new_Kp
@@ -297,8 +312,10 @@ def main():
         running = False
 
     finally:
-        measurement_thread_instance.join()  # join the measurement thread
-        input_thread_instance.join()  # join the input thread
+        if 'measurement_thread_instance' in locals() and measurement_thread_instance.is_alive():
+             measurement_thread_instance.join()  # join the measurement thread
+        if 'input_thread_instance' in locals() and input_thread_instance.is_alive():
+             input_thread_instance.join()  # join the input thread
         pi.set_PWM_dutycycle(magnet_pin, 0)
         pi.stop()
         # Rerun automatically disconnects on program exit
