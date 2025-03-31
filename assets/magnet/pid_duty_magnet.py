@@ -151,14 +151,15 @@ def user_input_thread():
 
 
 # ---------------------------
-#       MAIN CONTROL LOOP
+#      MAIN CONTROL LOOP
 # ---------------------------
 def main():
     global running, hall_voltage0, new_setpoint, new_Kp, new_Ki, new_Kd, new_pwm_frequency, new_output_limits, pwm_frequency, ips, duty_cycle_changes_per_second, previous_duty_cycle
 
     # ----- Rerun Initialization and Blueprint -----
     rr.init("magnet_control")
-    rr.connect("192.168.86.39:9876")
+    # Use connect_tcp instead of connect to address the deprecation warning [cite: 161]
+    rr.connect_tcp("192.168.86.39:9876")
 
     # Define initial Y-ranges based on starting values
     initial_setpoint_val = setpoint # Capture the initial setpoint
@@ -177,8 +178,8 @@ def main():
                         start=rrb.TimeRangeBoundary.cursor_relative(seconds=-5.0),
                         end=rrb.TimeRangeBoundary.cursor_relative(),
                     ),
-                    # Set fixed Y-range based on initial setpoint +/- 0.02
-                    y_range=rrb.Range1D(min=voltage_plot_min_y, max=voltage_plot_max_y),
+                    # Use axis_y with ScalarAxis to set the range [cite: 463, 470]
+                    axis_y=rrb.ScalarAxis(range=(voltage_plot_min_y, voltage_plot_max_y)),
                 ),
                 rrb.TimeSeriesView(
                     origin="/error_plot",
@@ -187,8 +188,8 @@ def main():
                         start=rrb.TimeRangeBoundary.cursor_relative(seconds=-5.0),
                         end=rrb.TimeRangeBoundary.cursor_relative(),
                     ),
-                    # Set fixed Y-range to +/- 0.02
-                    y_range=rrb.Range1D(min=error_plot_min_y, max=error_plot_max_y),
+                    # Use axis_y with ScalarAxis to set the range [cite: 463, 470]
+                    axis_y=rrb.ScalarAxis(range=(error_plot_min_y, error_plot_max_y)),
                 ),
                 rrb.TimeSeriesView(
                     origin="/duty_cycle_plot",
@@ -323,4 +324,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
