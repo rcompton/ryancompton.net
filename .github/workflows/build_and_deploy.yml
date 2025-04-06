@@ -3,32 +3,58 @@ name: Jekyll build and S3 deploy
 on:
   push:
     branches: [ master ]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-  
-env:
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-  AWS_DEFAULT_REGION: 'us-west-2'
+
+# Prevent multiple concurrent runs for the same branch/ref
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
+    # Set permissions for AWS OIDC authentication (preferred) or access keys
+    permissions:
+      id-token: write # Required for OIDC
+      contents: read  # Required for checkout
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Ruby
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Ruby and cache Gems
         uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3'
+          # Automatically runs 'bundle install' and caches Gems
           bundler-cache: true
-      - name: Install dependencies
-        run: bundle install
-      - name: "Build Site"
+
+      # The 'bundle install' step is removed as 'bundler-cache: true' handles it.
+
+      - name: Build Jekyll site
         run: bundle exec jekyll build
         env:
-          JEKYLL_ENV: production
-      - name: "Deploy to AWS S3"
-        run: aws s3 sync ./_site/ s3://${{ secrets.AWS_S3_BUCKET_NAME }} --acl public-read --delete --cache-control max-age=604800
-      - name: "Create AWS Cloudfront Invalidation"
-        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
+          JEKYLL_ENV: production # Ensures production build
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          # Use OIDC (preferred, requires setup in AWS) or Access Keys
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }} # Use if not using OIDC
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # Use if not using OIDC
+          aws-region: us-west-2
+          # role-to-assume: arn:aws:iam::ACCOUNT-ID-WITHOUT-HYPHENS:role/ROLE-NAME # Example for OIDC
+
+      - name: Deploy site to AWS S3
+        run: |
+          aws s3 sync ./_site/ s3://${{ secrets.AWS_S3_BUCKET_NAME }} \
+          --delete \
+          --cache-control max-age=604800,public
+        # Removed --acl public-read. Assumes bucket is private and accessed via CloudFront OAI/OAC.
+        # Added 'public' to cache-control, often useful for CloudFront.
+
+      - name: Invalidate AWS CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+          --distribution-id ${{ secrets.AWS_CLOUDFRONT_DISTRIBUTION_ID }} \
+          --paths "/*"
