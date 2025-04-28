@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/jekyll/minima
-  revision: 79af56ab8c586ebcfaff136c1378b79e0c38abb2
+  revision: 8106bd45c883f556e306a6854206b9f96e0aec7e
   specs:
     minima (3.0.0.dev)
       jekyll (>= 3.5, < 5.0)
@@ -1516,7 +1516,7 @@ GEM
     jekyll-watch (2.2.1)
       listen (~> 3.0)
     jmespath (1.6.2)
-    json (2.10.2)
+    json (2.11.3)
     kramdown (2.5.1)
       rexml (>= 3.3.9)
     kramdown-parser-gfm (1.1.0)
