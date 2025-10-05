@@ -1,4 +1,10 @@
+# Ignore the build output.
 _site/
-s3_website.yml
-assets/magnet/.ipynb_checkpoints/
 
+# Ignore caches
+.sass-cache/
+.jekyll-cache/
+.jekyll-metadata
+
+# Ignore vendor directory
+vendor/bundle/
