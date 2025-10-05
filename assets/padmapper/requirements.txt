@@ -35,7 +35,7 @@ trio==0.27.0
 trio-websocket==0.11.1
 typing_extensions==4.12.2
 tzdata==2024.2
-urllib3==2.2.3
+urllib3==2.5.0
 usaddress==0.5.11
 webdriver-manager==4.0.2
 websocket-client==1.8.0
