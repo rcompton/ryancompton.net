@@ -23,7 +23,7 @@ python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
 pytz==2024.2
 ratelim==0.1.6
-requests==2.32.3
+requests==2.32.4
 s3transfer==0.10.3
 selenium==4.26.1
 six==1.16.0
