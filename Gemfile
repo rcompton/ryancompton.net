@@ -16,6 +16,7 @@ gem "minima", git: "https://github.com/jekyll/minima"
 group :jekyll_plugins do
   gem "jekyll-feed", "~> 0.17"
   gem "jekyll-redirect-from", "~> 0.16.0"
+  gem "html-proofer", "~> 4"
 end
 
 gem 'aws-sdk', '~> 3'

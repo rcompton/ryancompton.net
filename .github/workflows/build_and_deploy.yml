@@ -36,6 +36,9 @@ jobs:
         env:
           JEKYLL_ENV: production # Ensures production build
 
+      - name: Test with HTMLProofer
+        run: bundle exec htmlproofer ./_site
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
