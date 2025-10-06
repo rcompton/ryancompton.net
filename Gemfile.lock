@@ -10,8 +10,16 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
+    Ascii85 (2.0.1)
     addressable (2.8.7)
       public_suffix (>= 2.0.2, < 7.0)
+    afm (1.0.0)
+    async (2.33.0)
+      console (~> 1.29)
+      fiber-annotation
+      io-event (~> 1.11)
+      metrics (~> 0.12)
+      traces (~> 0.18)
     aws-eventstream (1.4.0)
     aws-partitions (1.1110.0)
     aws-sdk (3.3.0)
@@ -1639,6 +1647,10 @@ GEM
     bigdecimal (3.2.3)
     colorator (1.1.0)
     concurrent-ruby (1.3.5)
+    console (1.34.0)
+      fiber-annotation
+      fiber-local (~> 1.1)
+      json
     csv (3.3.5)
     em-websocket (0.5.3)
       eventmachine (>= 0.12.9)
@@ -1649,6 +1661,10 @@ GEM
     ffi (1.17.2-arm64-darwin)
     ffi (1.17.2-x86_64-darwin)
     ffi (1.17.2-x86_64-linux-gnu)
+    fiber-annotation (0.2.0)
+    fiber-local (1.1.0)
+      fiber-storage
+    fiber-storage (1.0.1)
     forwardable-extended (2.6.0)
     google-protobuf (4.32.1-arm64-darwin)
       bigdecimal
@@ -1659,11 +1675,12 @@ GEM
     google-protobuf (4.32.1-x86_64-linux-gnu)
       bigdecimal
       rake (>= 13)
-    html-proofer (4.4.3)
+    hashery (2.1.2)
+    html-proofer (5.0.10)
       addressable (~> 2.3)
-      mercenary (~> 0.3)
+      async (~> 2.1)
       nokogiri (~> 1.13)
-      parallel (~> 1.10)
+      pdf-reader (~> 2.11)
       rainbow (~> 3.0)
       typhoeus (~> 1.3)
       yell (~> 2.0)
@@ -1671,6 +1688,7 @@ GEM
     http_parser.rb (0.8.0)
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
+    io-event (1.14.0)
     jekyll (4.4.1)
       addressable (~> 2.4)
       base64 (~> 0.2)
@@ -1712,15 +1730,21 @@ GEM
       rb-inotify (~> 0.9, >= 0.9.10)
     logger (1.7.0)
     mercenary (0.4.0)
+    metrics (0.15.0)
     nokogiri (1.18.10-arm64-darwin)
       racc (~> 1.4)
     nokogiri (1.18.10-x86_64-darwin)
       racc (~> 1.4)
     nokogiri (1.18.10-x86_64-linux-gnu)
       racc (~> 1.4)
-    parallel (1.27.0)
     pathutil (0.16.2)
       forwardable-extended (~> 2.6)
+    pdf-reader (2.15.0)
+      Ascii85 (>= 1.0, < 3.0, != 2.0.0)
+      afm (>= 0.2.1, < 2)
+      hashery (~> 2.0)
+      ruby-rc4
+      ttfunk
     public_suffix (6.0.2)
     racc (1.8.1)
     rainbow (3.1.1)
@@ -1730,6 +1754,7 @@ GEM
       ffi (~> 1.0)
     rexml (3.4.4)
     rouge (4.6.1)
+    ruby-rc4 (0.1.5)
     safe_yaml (1.0.5)
     sass-embedded (1.93.2-arm64-darwin)
       google-protobuf (~> 4.31)
@@ -1739,6 +1764,9 @@ GEM
       google-protobuf (~> 4.31)
     terminal-table (3.0.2)
       unicode-display_width (>= 1.1.1, < 3)
+    traces (0.18.2)
+    ttfunk (1.8.0)
+      bigdecimal (~> 3.1)
     typhoeus (1.5.0)
       ethon (>= 0.9.0, < 0.16.0)
     unicode-display_width (2.6.0)
@@ -1753,7 +1781,7 @@ PLATFORMS
 
 DEPENDENCIES
   aws-sdk (~> 3)
-  html-proofer (~> 4)
+  html-proofer (~> 5)
   jekyll (~> 4.4.1)
   jekyll-feed (~> 0.17)
   jekyll-redirect-from (~> 0.16.0)
