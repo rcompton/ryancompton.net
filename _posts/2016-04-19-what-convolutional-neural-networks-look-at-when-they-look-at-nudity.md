@@ -55,7 +55,7 @@ Understanding the operation of a convnet requires interpreting the feature activ
 
 ### Occulsion Sensitivity
 
-The image at the top of the post shows photos of [Lena](https://en.wikipedia.org/wiki/Lenna) [Söderberg](http://www.cs.cmu.edu/~chuck/lennapg/lenna.shtml) after 64x64 sliding windows with a stride of 3 have applied of our nsfw model to cropped/occuluded versions of the raw image.
+The image at the top of the post shows photos of [Lena Söderberg](https://en.wikipedia.org/wiki/Lenna) after 64x64 sliding windows with a stride of 3 have applied of our nsfw model to cropped/occuluded versions of the raw image.
 
 To build the heatmap on the left we send each window to our convnet and average the "NSFW" scores over each pixel. When the convnet sees a crop filled with skin it tends to predict "NSFW" which leads to large red regions over Lena's body. To create the heatmap on the right we systematically occlude parts of the raw image and report 1 minus the average "NSFW" scores (i.e. the "SFW" score). When the most NSFW regions are occluded the "SFW" scores increase and we see higher values in the heatmap. To be clear, the below figures have examples of what kind of images were fed into the convnet for each of two experiments above:
 
