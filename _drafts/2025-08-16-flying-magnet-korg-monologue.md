@@ -6,7 +6,7 @@ category:
 tags: ["magnets", "audio"]
 ---
 
-
+https://youtu.be/qTpemqAp6Q0
 
 Years ago, during the start of covid, I wanted to replicate the [Arduino magnetic levitation system](https://mekonik.wordpress.com/2009/03/02/my-first-arduino-project/) I saw my colleague build back in 2009. I know almost nothing about electrical engineering or control systems and when I tried this in 2020 I wasn't even close to making it work. But now armed with LLMs, a 3D printer, and a willingness to buy whatever was needed from AliExpress I made the magnet fly! I even attached it to my Korg Monologue to sonify the control loop. Here's proof:
 
