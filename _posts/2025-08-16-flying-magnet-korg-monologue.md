@@ -10,6 +10,8 @@ Years ago, during the start of covid, I wanted to replicate the [Arduino magneti
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/qTpemqAp6Q0" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
+<!--more-->
+
 ## Background
 
 You can't balance two permanent magnets in the just the right way to get levitation. It's impossible. [Earnshaw's theorem](https://en.wikipedia.org/wiki/Earnshaw%27s_theorem#:~:text=Earnshaw's%20theorem%20states%20that%20a,mathematician%20Samuel%20Earnshaw%20in%201842.) proves it. The hack to make maglev possible is to use one permanent magnet and one dynamic magnet which is controled by some system. The common approach is to use an electromagnet and a [PID loop](https://en.wikipedia.org/wiki/Proportional%E2%80%93integral%E2%80%93derivative_controller) (which is what I ended up doing) but it's also possible to use [gyroscopic stability](https://en.wikipedia.org/wiki/Spin-stabilized_magnetic_levitation), superconductors, diamagnets, or [strong focusing](https://en.wikipedia.org/wiki/Strong_focusing).
