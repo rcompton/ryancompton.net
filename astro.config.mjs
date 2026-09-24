@@ -21,7 +21,7 @@ export default defineConfig({
   integrations: [
     mdx(),
     sitemap({
-      filter: (page) => !page.endsWith('/404'),
+      filter: (page) => !/\/(404|error)$/.test(page),
       // Pages are emitted as .html files (build.format: 'file'); S3 has no extensionless routing.
       serialize: (item) => ({ ...item, url: item.url.replace(/(\/[^/.]+)$/, '$1.html') }),
     }),
