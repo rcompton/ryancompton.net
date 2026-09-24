@@ -13,10 +13,9 @@ concurrency:
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
-    # Set permissions for AWS OIDC authentication (preferred) or access keys
     permissions:
-      id-token: write # Required for OIDC
-      contents: read  # Required for checkout
+      id-token: write # AWS OIDC
+      contents: read
 
     steps:
       - name: Checkout repository
@@ -37,14 +36,13 @@ jobs:
       - name: Sanity-check build
         run: node scripts/check-site.mjs dist
 
-      - name: Configure AWS Credentials
+      - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v6
         with:
-          # Use OIDC (preferred, requires setup in AWS) or Access Keys
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }} # Use if not using OIDC
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }} # Use if not using OIDC
+          # Only master of this repo can assume this role; it can sync the bucket and
+          # invalidate the distribution, nothing else.
+          role-to-assume: arn:aws:iam::535249286932:role/github-actions-ryancompton-net
           aws-region: us-west-2
-          # role-to-assume: arn:aws:iam::ACCOUNT-ID-WITHOUT-HYPHENS:role/ROLE-NAME # Example for OIDC
 
       - name: Deploy site to AWS S3
         run: |
@@ -56,7 +54,6 @@ jobs:
           --delete \
           --exclude "_astro/*" \
           --cache-control max-age=604800,public
-        # Assumes bucket is private and accessed via CloudFront OAI/OAC.
 
       - name: Invalidate AWS CloudFront cache
         run: |
