@@ -34,6 +34,9 @@ jobs:
       - name: Build site
         run: npm run build
 
+      - name: Sanity-check build
+        run: node scripts/check-site.mjs dist
+
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6
         with:
