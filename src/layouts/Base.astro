@@ -1,0 +1,143 @@
+---
+import '../styles/minima.css';
+import 'katex/dist/katex.min.css';
+import '../styles/site.css';
+import { SITE } from '../lib/posts';
+
+interface Props {
+  title?: string;
+  description?: string;
+  published?: Date;
+}
+
+const { title, description, published } = Astro.props;
+const pageTitle = title ? `${title} | ${SITE.title}` : `${SITE.title} | ${SITE.description}`;
+const metaDescription = description || SITE.description;
+const canonical = new URL(Astro.url.pathname.replace(/\/index\.html$/, '/'), SITE.url).href;
+const ogType = published ? 'article' : 'website';
+
+const jsonLd = published
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'BlogPosting',
+      author: { '@type': 'Person', name: SITE.title },
+      datePublished: published.toISOString(),
+      dateModified: published.toISOString(),
+      description: metaDescription,
+      headline: title,
+      mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
+      url: canonical,
+    }
+  : {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      author: { '@type': 'Person', name: SITE.title },
+      description: metaDescription,
+      headline: title ?? SITE.title,
+      name: SITE.title,
+      url: canonical,
+    };
+---
+
+<!doctype html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="generator" content={Astro.generator} />
+    <meta name="author" content={SITE.title} />
+    <meta name="description" content={metaDescription} />
+    <link rel="canonical" href={canonical} />
+    <meta property="og:title" content={title ?? SITE.title} />
+    <meta property="og:description" content={metaDescription} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={SITE.title} />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:type" content={ogType} />
+    {published && <meta property="article:published_time" content={published.toISOString()} />}
+    <meta name="twitter:card" content="summary" />
+    <meta property="twitter:title" content={title ?? SITE.title} />
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    <link rel="alternate" type="application/rss+xml" href={new URL('/feed.xml', SITE.url)} title={SITE.title} />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <meta name="theme-color" content="#181818" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="wrapper">
+        <a class="site-title" rel="author" href="/">{SITE.title}</a>
+        <nav class="site-nav">
+          <input type="checkbox" id="nav-trigger" />
+          <label for="nav-trigger">
+            <span class="menu-icon"></span>
+          </label>
+          <div class="nav-items">
+            <a class="nav-item" href="/about.html">About</a>
+          </div>
+        </nav>
+      </div>
+    </header>
+
+    <main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <slot />
+      </div>
+    </main>
+
+    <link
+      id="fa-stylesheet"
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@7.0.0/css/all.min.css"
+    />
+    <footer class="site-footer h-card">
+      <data class="u-url" value="/"></data>
+      <div class="wrapper">
+        <div class="footer-col-wrapper">
+          <div class="footer-col">
+            <ul class="contact-list">
+              <li class="p-name">{SITE.title}</li>
+              <li><a class="u-email" href={`mailto:${SITE.email}`}>{SITE.email}</a></li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <p>{SITE.description}</p>
+          </div>
+        </div>
+        <div class="social-links">
+          <ul class="social-media-list">
+            <li>
+              <a rel="me" href="https://github.com/rcompton" target="_blank" title="GitHub">
+                <span class="grey fa-brands fa-github fa-lg"></span>
+              </a>
+            </li>
+            <li>
+              <a rel="me" href="https://www.linkedin.com/in/%E2%87%89ryan-compton%E2%87%87-2503941a/" target="_blank" title="LinkedIn">
+                <span class="grey fa-brands fa-linkedin fa-lg"></span>
+              </a>
+            </li>
+            <li>
+              <a rel="me" href="https://stackoverflow.com/users/424631/dranxo" target="_blank" title="Stack Overflow">
+                <span class="grey fa-brands fa-stack-overflow fa-lg"></span>
+              </a>
+            </li>
+            <li>
+              <a href={new URL('/feed.xml', SITE.url).href} target="_blank" title="Subscribe to syndication feed">
+                <svg class="svg-icon grey" viewBox="0 0 16 16">
+                  <path
+                    d="M12.8 16C12.8 8.978 7.022 3.2 0 3.2V0c8.777 0 16 7.223 16 16h-3.2zM2.194 11.61c1.21 0 2.195.985 2.195 2.196 0 1.21-.99 2.194-2.2 2.194C.98 16 0 15.017 0 13.806c0-1.21.983-2.195 2.194-2.195zM10.606 16h-3.11c0-4.113-3.383-7.497-7.496-7.497v-3.11c5.818 0 10.606 4.79 10.606 10.607z"
+                  ></path>
+                </svg>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

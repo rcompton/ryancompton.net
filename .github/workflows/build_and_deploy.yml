@@ -1,4 +1,4 @@
-name: Jekyll build and S3 deploy
+name: Astro build and S3 deploy
 
 on:
   push:
@@ -22,19 +22,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
 
-      - name: Set up Ruby and cache Gems
-        uses: ruby/setup-ruby@v1
+      - name: Set up Node
+        uses: actions/setup-node@v7
         with:
-          ruby-version: '3.4'
-          # Automatically runs 'bundle install' and caches Gems
-          bundler-cache: true
+          node-version-file: .nvmrc
+          cache: npm
 
-      # The 'bundle install' step is removed as 'bundler-cache: true' handles it.
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Build Jekyll site
-        run: bundle exec jekyll build
-        env:
-          JEKYLL_ENV: production # Ensures production build
+      - name: Build site
+        run: npm run build
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6
@@ -47,11 +45,15 @@ jobs:
 
       - name: Deploy site to AWS S3
         run: |
-          aws s3 sync ./_site/ s3://${{ secrets.AWS_S3_BUCKET_NAME }} \
+          # Fingerprinted build output (/_astro/*.hash.css etc.) never changes; cache it for a year.
+          # No --delete here: pages cached by browsers may still reference older hashes.
+          aws s3 sync ./dist/_astro/ s3://${{ secrets.AWS_S3_BUCKET_NAME }}/_astro/ \
+          --cache-control max-age=31536000,public,immutable
+          aws s3 sync ./dist/ s3://${{ secrets.AWS_S3_BUCKET_NAME }} \
           --delete \
+          --exclude "_astro/*" \
           --cache-control max-age=604800,public
-        # Removed --acl public-read. Assumes bucket is private and accessed via CloudFront OAI/OAC.
-        # Added 'public' to cache-control, often useful for CloudFront.
+        # Assumes bucket is private and accessed via CloudFront OAI/OAC.
 
       - name: Invalidate AWS CloudFront cache
         run: |

@@ -1,0 +1,18 @@
+/* Site-specific additions on top of minima. */
+
+/* Code blocks: Shiki sets colors inline; drop minima's inner code box. */
+pre.astro-code {
+  padding: 8px 12px;
+  border-radius: 3px;
+  overflow-x: auto;
+}
+pre.astro-code > code {
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+}

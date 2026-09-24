@@ -1,0 +1,33 @@
+---
+import { render } from 'astro:content';
+import Base from '../../../../layouts/Base.astro';
+import { getPosts, formatDate, type Post } from '../../../../lib/posts';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({
+    params: { year: post.year, month: post.month, day: post.day, slug: post.slug },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props as { post: Post };
+const { Content } = await render(post);
+---
+
+<Base title={post.data.title} description={post.data.description} published={post.date}>
+  <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+    <header class="post-header">
+      <h1 class="post-title p-name" itemprop="name headline">{post.data.title}</h1>
+      <div class="post-meta">
+        <time class="dt-published" datetime={post.date.toISOString()} itemprop="datePublished">
+          {formatDate(post.date)}
+        </time>
+      </div>
+    </header>
+    <div class="post-content e-content" itemprop="articleBody">
+      <Content />
+    </div>
+    <a class="u-url" href={post.url} hidden></a>
+  </article>
+</Base>

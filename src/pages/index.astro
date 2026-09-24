@@ -1,0 +1,24 @@
+---
+import Base from '../layouts/Base.astro';
+import { getPosts, formatDate, excerptHtml } from '../lib/posts';
+
+const posts = await getPosts();
+---
+
+<Base>
+  <div class="home">
+    <ul class="post-list">
+      {
+        posts.map((post) => (
+          <li>
+            <span class="post-meta">{formatDate(post.date)}</span>
+            <h3>
+              <a class="post-link" href={post.url}>{post.data.title}</a>
+            </h3>
+            <Fragment set:html={excerptHtml(post.rendered?.html ?? '')} />
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</Base>

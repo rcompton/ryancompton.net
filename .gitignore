@@ -1,13 +1,12 @@
-# Ignore the build output.
+# Build output and caches
+dist/
+.astro/
+node_modules/
+
+# Old Jekyll build output (safe to delete locally)
 _site/
-
-# Ignore caches
-.sass-cache/
 .jekyll-cache/
-.jekyll-metadata
-
-# Ignore vendor directory
-vendor/bundle/
+vendor/
 
 # Editor / tool cruft
 *.swp
