@@ -1,24 +1,29 @@
 ---
 import Base from '../layouts/Base.astro';
-import { getPosts, formatDate, excerptHtml } from '../lib/posts';
+import { getPosts, formatDate, previewText, type Post } from '../lib/posts';
 
 const posts = await getPosts();
+const years = new Map<string, Post[]>();
+for (const post of posts) years.set(post.year, [...(years.get(post.year) ?? []), post]);
 ---
 
 <Base>
-  <div class="home">
-    <ul class="post-list">
-      {
-        posts.map((post) => (
-          <li>
-            <span class="post-meta">{formatDate(post.date)}</span>
-            <h3>
-              <a class="post-link" href={post.url}>{post.data.title}</a>
-            </h3>
-            <Fragment set:html={excerptHtml(post.rendered?.html ?? '')} />
-          </li>
-        ))
-      }
-    </ul>
-  </div>
+  {
+    [...years].map(([year, yearPosts]) => (
+      <section>
+        <h2 class="year">{year}</h2>
+        <ul class="post-list">
+          {yearPosts.map((post) => (
+            <li>
+              <div class="title">
+                <a href={post.url}>{post.data.title}</a>
+                <time datetime={post.date.toISOString().slice(0, 10)}>{formatDate(post.date).replace(/, \d{4}$/, '')}</time>
+              </div>
+              <p>{previewText(post.rendered?.html ?? '')}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
 </Base>

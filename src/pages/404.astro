@@ -3,23 +3,8 @@ import Base from '../layouts/Base.astro';
 ---
 
 <Base title="Page not found">
-  <div class="container-404">
+  <div class="not-found">
     <h1>404</h1>
-    <p><strong>Page not found. :(</strong></p>
-    <p>The requested page could not be found.</p>
+    <p>That page doesn't exist. <a href="/">Back to all posts</a>.</p>
   </div>
 </Base>
-
-<style>
-  .container-404 {
-    margin: 10px auto;
-    max-width: 600px;
-    text-align: center;
-  }
-  h1 {
-    margin: 30px 0;
-    font-size: 4em;
-    line-height: 1;
-    letter-spacing: -1px;
-  }
-</style>

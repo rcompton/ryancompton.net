@@ -55,3 +55,27 @@ export function excerptHtml(html: string): string {
   const i = html.indexOf('<!--more-->');
   return i === -1 ? html : html.slice(0, i);
 }
+
+const ENTITIES: Record<string, string> = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' };
+const decode = (s: string) =>
+  s.replace(/&(#x?[0-9a-f]+|\w+);/gi, (m, e: string) =>
+    e[0] === '#'
+      ? String.fromCodePoint(e[1].toLowerCase() === 'x' ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10))
+      : (ENTITIES[e] ?? m),
+  );
+
+// A short plain-text preview for the home page: the opening prose paragraphs of the
+// excerpt, skipping paragraphs that are only media, contain math, or are an italic
+// note such as "Originally published at ...".
+export function previewText(html: string, max = 240): string {
+  let text = '';
+  for (const [, inner] of excerptHtml(html).matchAll(/<p>([\s\S]*?)<\/p>/g)) {
+    if (inner.includes('katex') || /^\s*<em>[\s\S]*<\/em>\s*$/.test(inner)) continue;
+    const t = decode(inner.replace(/<[^>]+>/g, '')).replace(/\s+/g, ' ').trim();
+    if (!t) continue;
+    text = text ? `${text} ${t}` : t;
+    if (text.length >= 140) break;
+  }
+  if (text.length <= max) return text;
+  return text.slice(0, text.lastIndexOf(' ', max)).replace(/[\s,;:.–—-]+$/, '') + '…';
+}
