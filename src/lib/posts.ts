@@ -79,3 +79,18 @@ export function previewText(html: string, max = 240): string {
   if (text.length <= max) return text;
   return text.slice(0, text.lastIndexOf(' ', max)).replace(/[\s,;:.–—-]+$/, '') + '…';
 }
+
+export type LeadMedia = { src: string; fallback?: string; alt: string; video: boolean };
+
+// The post's lead picture for the home page: the first image (or YouTube embed, shown as
+// its thumbnail) before <!--more-->, or anywhere in the post if there is no marker.
+export function leadMedia(html: string): LeadMedia | undefined {
+  const m = excerptHtml(html).match(/<img\b[^>]*>|<iframe\b[^>]*\bsrc="https:\/\/www\.youtube\.com\/embed\/([\w-]+)[^"]*"[^>]*>/);
+  if (!m) return undefined;
+  if (m[1]) {
+    const thumb = `https://i.ytimg.com/vi/${m[1]}`;
+    return { src: `${thumb}/maxresdefault.jpg`, fallback: `${thumb}/hqdefault.jpg`, alt: '', video: true };
+  }
+  const attr = (name: string) => decode(m[0].match(new RegExp(`\\b${name}="([^"]*)"`))?.[1] ?? '');
+  return { src: attr('src'), alt: attr('alt'), video: false };
+}

@@ -221,6 +221,50 @@ section:first-child > .year {
   line-clamp: 2;
 }
 
+.post-list .lead {
+  display: block;
+  margin: 0.8rem 0 0.6rem;
+}
+
+.post-list .lead img {
+  display: block;
+  max-width: 100%;
+  max-height: 26rem;
+  border-radius: 6px;
+  background: var(--surface);
+}
+
+.post-list .lead.video {
+  position: relative;
+}
+
+.post-list .lead.video img {
+  width: 100%;
+  max-height: none;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+/* Play badge over video thumbnails. */
+.post-list .lead.video::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background:
+    no-repeat 56% 50% / 38% url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 12'%3E%3Cpath d='M0 0l10 6-10 6z' fill='white'/%3E%3C/svg%3E"),
+    rgb(0 0 0 / 0.6);
+  transform: translate(-50%, -50%);
+  transition: background-color 0.15s;
+}
+
+.post-list .lead.video:hover::after {
+  background-color: rgb(0 0 0 / 0.8);
+}
+
 /* ---------- Posts and pages ---------- */
 
 .post-header {
