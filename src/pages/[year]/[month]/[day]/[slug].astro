@@ -5,29 +5,47 @@ import { getPosts, formatDate, type Post } from '../../../../lib/posts';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
-  return posts.map((post) => ({
+  // posts are newest first, so "newer" is the previous entry and "older" the next one.
+  return posts.map((post, i) => ({
     params: { year: post.year, month: post.month, day: post.day, slug: post.slug },
-    props: { post },
+    props: { post, newer: posts[i - 1], older: posts[i + 1] },
   }));
 }
 
-const { post } = Astro.props as { post: Post };
+const { post, newer, older } = Astro.props as { post: Post; newer?: Post; older?: Post };
 const { Content } = await render(post);
 ---
 
 <Base title={post.data.title} description={post.data.description} published={post.date}>
-  <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+  <article class="h-entry">
     <header class="post-header">
-      <h1 class="post-title p-name" itemprop="name headline">{post.data.title}</h1>
-      <div class="post-meta">
-        <time class="dt-published" datetime={post.date.toISOString()} itemprop="datePublished">
-          {formatDate(post.date)}
-        </time>
+      <h1 class="p-name">{post.data.title}</h1>
+      <div class="meta">
+        <time class="dt-published" datetime={post.date.toISOString().slice(0, 10)}>{formatDate(post.date)}</time>
+        {post.data.tags.length > 0 && <span class="tags">{post.data.tags.join(', ')}</span>}
       </div>
     </header>
-    <div class="post-content e-content" itemprop="articleBody">
+    <div class="prose e-content">
       <Content />
     </div>
-    <a class="u-url" href={post.url} hidden></a>
   </article>
+
+  {
+    (older || newer) && (
+      <nav class="post-nav" aria-label="More posts">
+        {older && (
+          <a class="older" href={older.url}>
+            <span>← Older</span>
+            {older.data.title}
+          </a>
+        )}
+        {newer && (
+          <a class="next" href={newer.url}>
+            <span>Newer →</span>
+            {newer.data.title}
+          </a>
+        )}
+      </nav>
+    )
+  }
 </Base>

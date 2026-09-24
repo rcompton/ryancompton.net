@@ -5,11 +5,11 @@ const { frontmatter } = Astro.props;
 ---
 
 <Base title={frontmatter.title} description={frontmatter.description}>
-  <article class="post">
+  <article>
     <header class="post-header">
-      <h1 class="post-title">{frontmatter.title}</h1>
+      <h1>{frontmatter.title}</h1>
     </header>
-    <div class="post-content">
+    <div class="prose">
       <slot />
     </div>
   </article>

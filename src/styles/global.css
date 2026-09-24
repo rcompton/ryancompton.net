@@ -1,0 +1,522 @@
+/* ryancompton.net — dark, reading-first theme. No web fonts, no external CSS. */
+
+:root {
+  color-scheme: dark;
+
+  --bg: #111315;
+  --surface: #1a1d20;
+  --border: #2a2e33;
+  --text: #d5d8dc;
+  --heading: #f0f2f4;
+  --muted: #8b929a;
+  --accent: #8ab4f8;
+  --accent-hover: #b4cffb;
+
+  --serif: Charter, 'Bitstream Charter', 'Sitka Text', Cambria, Georgia, serif;
+  --sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+
+  --measure: 42rem;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--serif);
+  font-size: 1.1875rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.wrap {
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+a {
+  color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+  text-decoration-color: color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+a:hover {
+  color: var(--accent-hover);
+  text-decoration-color: currentColor;
+}
+
+/* ---------- Site chrome ---------- */
+
+.site-header,
+.site-footer,
+.meta,
+.post-nav,
+.year,
+.post-list,
+h1,
+h2,
+h3,
+h4,
+table {
+  font-family: var(--sans);
+}
+
+.site-header {
+  border-bottom: 1px solid var(--border);
+}
+
+.site-header .wrap {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1.1rem;
+  padding-bottom: 1.1rem;
+}
+
+.site-title {
+  color: var(--heading);
+  font-weight: 650;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+
+.site-title:hover {
+  color: var(--heading);
+}
+
+.site-nav {
+  display: flex;
+  gap: 1.25rem;
+  font-size: 0.95rem;
+}
+
+.site-nav a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.site-nav a:hover,
+.site-nav a[aria-current='page'] {
+  color: var(--heading);
+}
+
+main {
+  padding: 2.75rem 0 3.5rem;
+}
+
+.site-footer {
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.site-footer .wrap {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  padding-top: 1.5rem;
+  padding-bottom: 2rem;
+}
+
+.site-footer ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-footer a {
+  color: var(--muted);
+}
+
+.site-footer a:hover {
+  color: var(--heading);
+}
+
+/* ---------- Home: posts by year ---------- */
+
+.year {
+  margin: 2.25rem 0 0.75rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+section:first-child > .year {
+  margin-top: 0;
+}
+
+.post-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.post-list li {
+  padding: 0.9rem 0;
+  border-top: 1px solid var(--border);
+}
+
+.post-list li:last-child {
+  border-bottom: 1px solid var(--border);
+}
+
+.post-list .title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.post-list .title a {
+  color: var(--heading);
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.35;
+  text-decoration: none;
+}
+
+.post-list .title a:hover {
+  color: var(--accent-hover);
+}
+
+.post-list time {
+  flex: none;
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.post-list p {
+  display: -webkit-box;
+  margin: 0.35rem 0 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-family: var(--serif);
+  font-size: 1rem;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+/* ---------- Posts and pages ---------- */
+
+.post-header {
+  margin-bottom: 2.25rem;
+}
+
+.post-header h1 {
+  margin: 0 0 0.6rem;
+  color: var(--heading);
+  font-size: clamp(1.75rem, 1.2rem + 2.2vw, 2.4rem);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.meta {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.meta .tags::before {
+  content: '·';
+  margin: 0 0.5em;
+}
+
+.prose {
+  overflow-wrap: break-word;
+}
+
+.prose > :first-child {
+  margin-top: 0;
+}
+
+.prose p,
+.prose ul,
+.prose ol,
+.prose blockquote,
+.prose pre,
+.prose table,
+.prose figure {
+  margin: 0 0 1.35rem;
+}
+
+.prose h2,
+.prose h3,
+.prose h4 {
+  margin: 2.5rem 0 0.85rem;
+  color: var(--heading);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.prose h2 {
+  font-size: 1.5rem;
+}
+
+.prose h3 {
+  font-size: 1.25rem;
+}
+
+.prose h4 {
+  font-size: 1.05rem;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.4rem;
+}
+
+.prose li + li,
+.prose li > ul,
+.prose li > ol {
+  margin-top: 0.35rem;
+}
+
+.prose li > p {
+  margin-bottom: 0.5rem;
+}
+
+.prose strong {
+  color: var(--heading);
+}
+
+.prose blockquote {
+  padding: 0.1rem 0 0.1rem 1.1rem;
+  border-left: 3px solid var(--border);
+  color: var(--muted);
+}
+
+.prose hr {
+  margin: 2.5rem 0;
+  border: 0;
+  border-top: 1px solid var(--border);
+}
+
+.prose img,
+.prose video {
+  display: block;
+  max-width: 100%;
+  margin: 1.5rem auto;
+  border-radius: 4px;
+}
+
+.prose img:not([height]) {
+  height: auto;
+}
+
+/* Images inside a paragraph of text stay inline. */
+.prose p img {
+  display: inline-block;
+  margin: 0.25rem 0;
+  vertical-align: middle;
+}
+
+.prose p:has(> img:only-child) img,
+.prose p:has(> a:only-child > img:only-child) img {
+  display: block;
+  margin: 0.5rem auto;
+}
+
+.prose iframe {
+  display: block;
+  max-width: 100%;
+  margin: 1.5rem auto;
+  border: 0;
+}
+
+.prose iframe[src*='youtube'] {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+}
+
+/* ---------- Code ---------- */
+
+code,
+kbd,
+samp {
+  font-family: var(--mono);
+  font-size: 0.84em;
+}
+
+.prose :not(pre) > code {
+  font-size: 0.82em;
+  padding: 0.12em 0.35em;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--heading);
+  overflow-wrap: anywhere;
+}
+
+.prose pre {
+  padding: 1rem 1.15rem;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  tab-size: 4;
+}
+
+.prose pre > code {
+  font-size: 1em;
+}
+
+/* ---------- Tables ---------- */
+
+.prose table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.prose th,
+.prose td {
+  padding: 0.45rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.prose th {
+  border-bottom-color: var(--muted);
+  color: var(--heading);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.prose tbody tr:nth-child(even) {
+  background: color-mix(in srgb, var(--surface) 60%, transparent);
+}
+
+/* ---------- Math ---------- */
+
+.katex {
+  font-size: 1.08em;
+}
+
+.katex-display {
+  margin: 1.25rem 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.25rem 0;
+}
+
+/* ---------- Previous / next ---------- */
+
+.post-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-top: 3.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.post-nav a {
+  display: block;
+  color: var(--heading);
+  text-decoration: none;
+}
+
+.post-nav a:hover {
+  color: var(--accent-hover);
+}
+
+.post-nav span {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+}
+
+.post-nav .next {
+  grid-column: 2;
+  text-align: right;
+}
+
+/* ---------- 404 ---------- */
+
+.not-found {
+  padding: 3rem 0;
+  text-align: center;
+}
+
+.not-found h1 {
+  margin: 0 0 0.5rem;
+  color: var(--heading);
+  font-size: 3.5rem;
+  letter-spacing: -0.03em;
+}
+
+.not-found p {
+  color: var(--muted);
+}
+
+/* ---------- Small screens ---------- */
+
+@media (max-width: 36rem) {
+  body {
+    font-size: 1.0625rem;
+  }
+
+  main {
+    padding-top: 2rem;
+  }
+
+  .post-list .title {
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .post-list time {
+    order: -1;
+  }
+
+  .post-nav {
+    grid-template-columns: 1fr;
+  }
+
+  .post-nav .next {
+    grid-column: 1;
+    text-align: left;
+  }
+}
+
+/* Shiki sets the theme background inline; keep code blocks on the site's surface color. */
+.prose pre.astro-code {
+  background-color: var(--surface) !important;
+}
