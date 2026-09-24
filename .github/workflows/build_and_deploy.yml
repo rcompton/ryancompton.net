@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Ruby and cache Gems
         uses: ruby/setup-ruby@v1
@@ -37,7 +37,7 @@ jobs:
           JEKYLL_ENV: production # Ensures production build
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           # Use OIDC (preferred, requires setup in AWS) or Access Keys
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }} # Use if not using OIDC
