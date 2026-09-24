@@ -1,0 +1,78 @@
+name: PR check
+
+# Builds the PR and its base branch and compares the rendered sites page by page.
+# Dependabot PRs must render identically; minor/patch npm and GitHub Actions
+# updates that pass are merged and deployed automatically.
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out PR
+        uses: actions/checkout@v7
+        with:
+          path: head
+
+      - name: Check out base branch
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: base
+
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: head/.nvmrc
+          cache: npm
+          cache-dependency-path: |
+            head/package-lock.json
+            base/package-lock.json
+
+      - name: Build PR
+        working-directory: head
+        run: npm ci && npm run build
+
+      - name: Sanity-check PR build
+        working-directory: head
+        run: node scripts/check-site.mjs dist
+
+      - name: Build base
+        working-directory: base
+        run: npm ci && npm run build
+
+      - name: Compare with base (strict for Dependabot)
+        run: >-
+          node head/scripts/compare-builds.mjs base/dist head/dist
+          ${{ github.event.pull_request.user.login == 'dependabot[bot]' && '--strict' || '' }}
+
+  automerge:
+    needs: check
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
+    steps:
+      - name: Read Dependabot metadata
+        id: meta
+        uses: dependabot/fetch-metadata@v3
+
+      - name: Merge and deploy
+        if: >-
+          steps.meta.outputs.update-type != 'version-update:semver-major' &&
+          (steps.meta.outputs.package-ecosystem == 'npm_and_yarn' ||
+           steps.meta.outputs.package-ecosystem == 'github_actions')
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: |
+          gh pr merge --squash --delete-branch "$PR_URL"
+          # Pushes made with GITHUB_TOKEN don't trigger other workflows, so start the deploy explicitly.
+          gh workflow run build_and_deploy.yml --ref master --repo "$GITHUB_REPOSITORY"

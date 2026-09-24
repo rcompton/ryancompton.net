@@ -9,7 +9,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "astro check"
+    "check": "astro check",
+    "test": "astro build && node scripts/check-site.mjs dist"
   },
   "dependencies": {
     "@astrojs/markdown-satteri": "^0.4.2",
