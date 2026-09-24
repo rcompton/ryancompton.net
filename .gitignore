@@ -8,3 +8,20 @@ _site/
 
 # Ignore vendor directory
 vendor/bundle/
+
+# Editor / tool cruft
+*.swp
+.DS_Store
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+.hg/
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.dvi
+
+# Scratch copies
+*-Copy[0-9].ipynb
+*_TEST.*

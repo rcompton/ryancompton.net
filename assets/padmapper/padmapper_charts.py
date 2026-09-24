@@ -148,7 +148,7 @@ def write_tsv(df):
             "lagov",
             "screenshot",
         ]
-    ]
+    ].sort_values(["gaddress", "screenshot"])
     dfp.to_csv(
         os.path.join(os.environ["HOME"], "ryancompton.net/assets/taxrentlocations.tsv"),
         sep="\t",
