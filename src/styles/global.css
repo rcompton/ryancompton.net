@@ -20,6 +20,7 @@
 
   --text: 36rem;
   --wide: 56rem;
+  --page: 76rem;
 }
 
 *,
@@ -45,7 +46,7 @@ body {
 }
 
 .wrap {
-  max-width: calc(var(--wide) + 2.5rem);
+  max-width: calc(var(--page) + 2.5rem);
   margin: 0 auto;
   padding: 0 1.25rem;
 }
@@ -137,7 +138,144 @@ main {
   color: var(--heading);
 }
 
-/* ---------- Home: one column, newest first ---------- */
+/* ---------- Home ----------
+   Narrow screens: .feed (one column). Wide screens: .gallery of figure posts
+   beside an .index of every post. */
+
+.gallery,
+.index {
+  display: none;
+}
+
+@media (min-width: 60rem) {
+  .home {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 19rem;
+    gap: 3.5rem;
+    align-items: start;
+  }
+
+  .feed {
+    display: none;
+  }
+
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: 2.25rem 1.75rem;
+  }
+
+  .index {
+    display: block;
+    position: sticky;
+    top: 1.5rem;
+    max-height: calc(100vh - 3rem);
+    overflow-y: auto;
+    padding-left: 1.75rem;
+    border-left: 1px solid var(--rule);
+    scrollbar-width: thin;
+  }
+}
+
+.tile {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.tile .frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  padding: 0.6rem;
+  background: var(--plate);
+  border: 1px solid var(--rule);
+  transition: border-color 0.15s;
+}
+
+.tile .frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.tile .frame.video {
+  position: relative;
+  padding: 0;
+}
+
+.tile .frame.video img {
+  object-fit: cover;
+}
+
+.tile:hover .frame {
+  border-color: var(--muted);
+}
+
+.tile-title {
+  display: block;
+  margin: 0.65rem 0 0.1rem;
+  color: var(--heading);
+  font-size: 1.1rem;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+
+.tile:hover .tile-title {
+  color: var(--accent);
+}
+
+.index-heading,
+.index .year {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1.05rem;
+  font-weight: 400;
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.08em;
+}
+
+.index-heading {
+  color: var(--heading);
+  margin-bottom: 0.75rem;
+}
+
+.index .year {
+  margin-top: 1.1rem;
+}
+
+.index ul {
+  margin: 0.2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.index li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.22rem 0;
+  font-size: 0.95rem;
+  line-height: 1.35;
+}
+
+.index li a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.index li a:hover {
+  color: var(--accent);
+}
+
+.index li .meta {
+  flex: none;
+  font-size: 0.9rem;
+}
 
 .feed {
   max-width: 42rem;
@@ -199,7 +337,8 @@ main {
   object-fit: cover;
 }
 
-.entry .plate.video::after {
+.entry .plate.video::after,
+.tile .frame.video::after {
   content: '';
   position: absolute;
   top: 50%;
