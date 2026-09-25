@@ -1,62 +1,39 @@
 ---
 import Base from '../layouts/Base.astro';
-import { getPosts, formatDate, leadMedia, type LeadMedia, type Post } from '../lib/posts';
+import { getPosts, formatDate, leadMedia } from '../lib/posts';
 
 const posts = await getPosts();
-
-// Posts with a lead figure get their own plate; runs of consecutive text-only posts
-// share a grid cell (up to four per cell) as a short list, so they don't leave holes.
-type Cell = { post: Post; lead: LeadMedia } | { notes: Post[] };
-const cells: Cell[] = [];
-for (const post of posts) {
-  const lead = leadMedia(post.rendered?.html ?? '');
-  const last = cells.at(-1);
-  if (lead) cells.push({ post, lead });
-  else if (last && 'notes' in last && last.notes.length < 4) last.notes.push(post);
-  else cells.push({ notes: [post] });
-}
 let plates = 0;
 ---
 
 <Base>
-  <ul class="index">
+  <ol class="feed">
     {
-      cells.map((cell) =>
-        'notes' in cell ? (
-          <li class="card notes">
-            {cell.notes.map((post) => (
-              <div class="note">
-                <a href={post.url}>
-                  <h2>{post.data.title}</h2>
-                </a>
-                <div class="meta">
-                  <time datetime={post.date.toISOString().slice(0, 10)}>{formatDate(post.date)}</time>
-                  {post.data.tags.length > 0 && <span class="tags">{post.data.tags.join(', ')}</span>}
-                </div>
-              </div>
-            ))}
-          </li>
-        ) : (
-          <li class="card">
-            <a href={cell.post.url}>
-              <div class:list={['frame', { video: cell.lead.video }]}>
-                <img
-                  src={cell.lead.src}
-                  alt=""
-                  loading={plates++ < 4 ? 'eager' : 'lazy'}
-                  decoding="async"
-                  onerror={cell.lead.fallback ? `this.onerror=null;this.src='${cell.lead.fallback}'` : undefined}
-                />
-              </div>
-              <h2>{cell.post.data.title}</h2>
-            </a>
+      posts.map((post) => {
+        const lead = leadMedia(post.rendered?.html ?? '');
+        return (
+          <li class:list={['entry', { 'has-plate': lead }]}>
             <div class="meta">
-              <time datetime={cell.post.date.toISOString().slice(0, 10)}>{formatDate(cell.post.date)}</time>
-              {cell.post.data.tags.length > 0 && <span class="tags">{cell.post.data.tags.join(', ')}</span>}
+              <time datetime={post.date.toISOString().slice(0, 10)}>{formatDate(post.date)}</time>
+              {post.data.tags.length > 0 && <span class="tags">{post.data.tags.join(', ')}</span>}
             </div>
+            <h2>
+              <a href={post.url}>{post.data.title}</a>
+            </h2>
+            {lead && (
+              <a class:list={['plate', { video: lead.video }]} href={post.url} tabindex="-1" aria-hidden="true">
+                <img
+                  src={lead.src}
+                  alt=""
+                  loading={plates++ < 2 ? 'eager' : 'lazy'}
+                  decoding="async"
+                  onerror={lead.fallback ? `this.onerror=null;this.src='${lead.fallback}'` : undefined}
+                />
+              </a>
+            )}
           </li>
-        ),
-      )
+        );
+      })
     }
-  </ul>
+  </ol>
 </Base>
