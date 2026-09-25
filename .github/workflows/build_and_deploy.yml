@@ -50,10 +50,12 @@ jobs:
           # No --delete here: pages cached by browsers may still reference older hashes.
           aws s3 sync ./dist/_astro/ s3://${{ secrets.AWS_S3_BUCKET_NAME }}/_astro/ \
           --cache-control max-age=31536000,public,immutable
+          # Pages, feeds and other assets: browsers recheck after 5 minutes so changes show up quickly;
+          # CloudFront is invalidated on every deploy.
           aws s3 sync ./dist/ s3://${{ secrets.AWS_S3_BUCKET_NAME }} \
           --delete \
           --exclude "_astro/*" \
-          --cache-control max-age=604800,public
+          --cache-control max-age=300,public
 
       - name: Invalidate AWS CloudFront cache
         run: |

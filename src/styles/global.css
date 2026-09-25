@@ -1,18 +1,18 @@
 /* ryancompton.net — a lab notebook: paper, ink, and figures as plates.
-   Light by default, dark when the reader's system asks for it. No web fonts. */
+   No web fonts. */
 
 :root {
-  color-scheme: light dark;
+  color-scheme: dark;
 
-  --paper: #fbf9f4;
-  --plate: #f0ece2;
-  --ink: #23211d;
-  --heading: #14130f;
-  --muted: #6e695f;
-  --rule: #e2ddd1;
-  --accent: #9a3a1c;
-  --accent-hover: #6f2610;
-  --code-bg: #f4f1e9;
+  --paper: #111315;
+  --plate: #1a1d20;
+  --ink: #d5d8dc;
+  --heading: #f0f2f4;
+  --muted: #8b929a;
+  --rule: #2a2e33;
+  --accent: #8ab4f8;
+  --accent-hover: #b4cffb;
+  --code-bg: #1a1d20;
 
   --serif: 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Book Antiqua', Charter, Georgia, serif;
   --sans: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -20,20 +20,6 @@
 
   --text: 36rem;
   --wide: 56rem;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #141311;
-    --plate: #1d1c19;
-    --ink: #e4e0d6;
-    --heading: #f4f1ea;
-    --muted: #9b958a;
-    --rule: #2d2b26;
-    --accent: #e3906a;
-    --accent-hover: #f1b597;
-    --code-bg: #1b1a17;
-  }
 }
 
 *,
@@ -209,24 +195,21 @@ main {
   transform: translate(-50%, -50%);
 }
 
-/* Text-only posts: the plate holds the opening lines instead of a picture. */
-.card .frame.words {
-  align-items: flex-start;
-  justify-content: flex-start;
-  padding: 1.1rem 1.2rem;
+/* A run of text-only posts sharing one cell. */
+.card.notes {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  padding-top: 0.25rem;
 }
 
-.card .frame.words p {
-  display: -webkit-box;
-  margin: 0;
-  overflow: hidden;
-  color: var(--muted);
-  font-size: 1rem;
-  font-style: italic;
-  line-height: 1.5;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 7;
-  line-clamp: 7;
+.card.notes .note + .note {
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--rule);
+}
+
+.card.notes h2 {
+  margin-top: 0;
 }
 
 .card h2 {
@@ -453,13 +436,6 @@ samp {
   background-color: var(--code-bg) !important;
 }
 
-@media (prefers-color-scheme: dark) {
-  .prose pre.astro-code,
-  .prose pre.astro-code span {
-    color: var(--shiki-dark) !important;
-    font-style: var(--shiki-dark-font-style) !important;
-  }
-}
 
 .prose table {
   justify-self: center;

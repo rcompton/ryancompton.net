@@ -17,7 +17,7 @@ export default defineConfig({
       features: { math: { singleDollarTextMath: false } },
       mdastPlugins: [katexPlugin, figuresPlugin],
     }),
-    shikiConfig: { themes: { light: 'github-light', dark: 'github-dark' } },
+    shikiConfig: { theme: 'github-dark' },
   },
   integrations: [
     mdx(),
