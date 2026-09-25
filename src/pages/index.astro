@@ -1,46 +1,43 @@
 ---
 import Base from '../layouts/Base.astro';
-import { getPosts, formatDate, previewText, leadMedia, type Post } from '../lib/posts';
+import { getPosts, formatDate, previewText, leadMedia } from '../lib/posts';
 
 const posts = await getPosts();
-const years = new Map<string, Post[]>();
-for (const post of posts) years.set(post.year, [...(years.get(post.year) ?? []), post]);
-let imagesSeen = 0;
 ---
 
 <Base>
-  {
-    [...years].map(([year, yearPosts]) => (
-      <section>
-        <h2 class="year">{year}</h2>
-        <ul class="post-list">
-          {yearPosts.map((post) => {
-            const html = post.rendered?.html ?? '';
-            const lead = leadMedia(html);
-            const eager = lead && imagesSeen++ < 2;
-            return (
-              <li>
-                <div class="title">
-                  <a href={post.url}>{post.data.title}</a>
-                  <time datetime={post.date.toISOString().slice(0, 10)}>{formatDate(post.date).replace(/, \d{4}$/, '')}</time>
+  <ul class="index">
+    {
+      posts.map((post, i) => {
+        const html = post.rendered?.html ?? '';
+        const lead = leadMedia(html);
+        return (
+          <li class="card">
+            <a href={post.url}>
+              {lead ? (
+                <div class:list={['frame', { video: lead.video }]}>
+                  <img
+                    src={lead.src}
+                    alt=""
+                    loading={i < 4 ? 'eager' : 'lazy'}
+                    decoding="async"
+                    onerror={lead.fallback ? `this.onerror=null;this.src='${lead.fallback}'` : undefined}
+                  />
                 </div>
-                {lead && (
-                  <a class:list={['lead', { video: lead.video }]} href={post.url} tabindex="-1" aria-hidden="true">
-                    <img
-                      src={lead.src}
-                      alt={lead.alt}
-                      loading={eager ? 'eager' : 'lazy'}
-                      decoding="async"
-                      onerror={lead.fallback ? `this.onerror=null;this.src='${lead.fallback}'` : undefined}
-                    />
-                  </a>
-                )}
-                <p>{previewText(html)}</p>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
-    ))
-  }
+              ) : (
+                <div class="frame words">
+                  <p>{previewText(html, 420)}</p>
+                </div>
+              )}
+              <h2>{post.data.title}</h2>
+            </a>
+            <div class="meta">
+              <time datetime={post.date.toISOString().slice(0, 10)}>{formatDate(post.date)}</time>
+              {post.data.tags.length > 0 && <span class="tags">{post.data.tags.join(', ')}</span>}
+            </div>
+          </li>
+        );
+      })
+    }
+  </ul>
 </Base>

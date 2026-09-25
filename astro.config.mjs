@@ -4,6 +4,7 @@ import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import { satteri } from '@astrojs/markdown-satteri';
 import { katexPlugin } from './src/lib/katex-plugin.mjs';
+import { figuresPlugin } from './src/lib/figures-plugin.mjs';
 import { legacyAssets } from './src/lib/legacy-assets.mjs';
 
 export default defineConfig({
@@ -14,9 +15,9 @@ export default defineConfig({
   markdown: {
     processor: satteri({
       features: { math: { singleDollarTextMath: false } },
-      mdastPlugins: [katexPlugin],
+      mdastPlugins: [katexPlugin, figuresPlugin],
     }),
-    shikiConfig: { theme: 'monokai' },
+    shikiConfig: { themes: { light: 'github-light', dark: 'github-dark' } },
   },
   integrations: [
     mdx(),
