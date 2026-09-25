@@ -35,6 +35,7 @@ Add `src/content/posts/YYYY-MM-DD-slug.md`:
 ---
 title: "Post title"
 tags: ["coding"]
+image: "/assets/leads/post-title.png"   # optional
 ---
 
 Intro paragraph shown on the home page.
@@ -45,7 +46,7 @@ Rest of the post.
 ```
 
 - The URL is `/YYYY/MM/DD/slug.html`, taken from the filename.
-- The home page previews the opening paragraphs before `<!--more-->` (the marker is optional).
+- Every post needs a lead picture for the home page: `image:` in front matter, or else the first figure/YouTube video in the post is used. `npm test` fails if a post has none.
 - Math: `$$x^2$$` inline, or `$$` on its own lines for display math (rendered with KaTeX at build time).
 - Use `.mdx` instead of `.md` to embed Astro/JS components in a post.
 - Files under `assets/` are published at `/assets/...`; link them as `/assets/pix/foo.png`.

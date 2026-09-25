@@ -1,4 +1,5 @@
 ---
+image: "/assets/resume/surfleftlane.jpg"
 title: "Rush Hour Surf Report updated"
 tags: ["coding"]
 ---

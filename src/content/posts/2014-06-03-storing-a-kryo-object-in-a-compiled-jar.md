@@ -1,4 +1,5 @@
 ---
+image: "/assets/leads/kryo-jar.png"
 title: "Storing a Kryo object in a compiled jar"
 tags: ["coding"]
 redirect_from:

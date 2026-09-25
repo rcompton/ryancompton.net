@@ -1,4 +1,5 @@
 ---
+image: "/assets/leads/geotagging-twitter-update.png"
 title: "Paper update: Geotagging One Hundred Million Twitter Accounts with Total Variation Minimization"
 tags: ["papers"]
 ---

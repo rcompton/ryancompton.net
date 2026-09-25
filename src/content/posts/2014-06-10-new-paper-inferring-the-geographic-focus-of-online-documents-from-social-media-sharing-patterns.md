@@ -1,4 +1,5 @@
 ---
+image: "/assets/leads/geographic-focus.png"
 title: "New Paper: Inferring the Geographic Focus of Online Documents from Social Media Sharing Patterns"
 tags: ["papers"]
 ---

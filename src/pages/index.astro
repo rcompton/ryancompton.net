@@ -1,79 +1,60 @@
 ---
 import Base from '../layouts/Base.astro';
-import { getPosts, formatDate, leadMedia, type Post } from '../lib/posts';
+import { getPosts, formatDate, leadMedia } from '../lib/posts';
 
-const posts = (await getPosts()).map((post) => ({ post, lead: leadMedia(post.rendered?.html ?? '') }));
-const years = new Map<string, Post[]>();
-for (const { post } of posts) years.set(post.year, [...(years.get(post.year) ?? []), post]);
-const tags = (post: Post) => post.data.tags.join(', ');
-let eager = 0;
+// Every post has a lead picture (front matter `image`, or the first figure in the post).
+const posts = (await getPosts()).map((post) => ({ post, lead: leadMedia(post) }));
 ---
 
 <Base>
-  <div class="home">
-    {/* Wide screens: a gallery of the posts that have a lead figure… */}
-    <section class="gallery" aria-label="Figures">
-      {
-        posts
-          .filter(({ lead }) => lead)
-          .map(({ post, lead }) => (
-            <a class="tile" href={post.url}>
-              <span class:list={['frame', { video: lead!.video }]}>
-                <img
-                  src={lead!.src}
-                  alt=""
-                  loading={eager++ < 6 ? 'eager' : 'lazy'}
-                  decoding="async"
-                  onerror={lead!.fallback ? `this.onerror=null;this.src='${lead!.fallback}'` : undefined}
-                />
-              </span>
-              <span class="tile-title">{post.data.title}</span>
-              <span class="meta">{formatDate(post.date)}</span>
-            </a>
-          ))
-      }
-    </section>
-
-    {/* …and an index of every post. */}
-    <nav class="index" aria-label="All posts">
-      <h2 class="index-heading">Index</h2>
-      {
-        [...years].map(([year, yearPosts]) => (
-          <section>
-            <h3 class="year">{year}</h3>
-            <ul>
-              {yearPosts.map((post) => (
-                <li>
-                  <a href={post.url}>{post.data.title}</a>
-                  <span class="meta">{formatDate(post.date).replace(/, \d{4}$/, '')}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        ))
-      }
-    </nav>
-
-    {/* Narrow screens: one column, newest first, lead picture under each title. */}
-    <ol class="feed">
-      {
-        posts.map(({ post, lead }) => (
-          <li class:list={['entry', { 'has-plate': lead }]}>
-            <div class="meta">
-              <time datetime={post.date.toISOString().slice(0, 10)}>{formatDate(post.date)}</time>
-              {post.data.tags.length > 0 && <span class="tags">{tags(post)}</span>}
-            </div>
-            <h2>
-              <a href={post.url}>{post.data.title}</a>
-            </h2>
+  {/* Wide screens: a gallery of plates. */}
+  <section class="gallery" aria-label="Posts">
+    {
+      posts.map(({ post, lead }, i) => (
+        <a class="tile" href={post.url}>
+          <span class:list={['frame', { video: lead?.video }]}>
             {lead && (
-              <a class:list={['plate', { video: lead.video }]} href={post.url} tabindex="-1" aria-hidden="true">
-                <img src={lead.src} alt="" loading="lazy" decoding="async" />
-              </a>
+              <img
+                src={lead.src}
+                alt=""
+                loading={i < 6 ? 'eager' : 'lazy'}
+                decoding="async"
+                onerror={lead.fallback ? `this.onerror=null;this.src='${lead.fallback}'` : undefined}
+              />
             )}
-          </li>
-        ))
-      }
-    </ol>
-  </div>
+          </span>
+          <span class="tile-title">{post.data.title}</span>
+          <span class="meta">{formatDate(post.date)}</span>
+        </a>
+      ))
+    }
+  </section>
+
+  {/* Narrow screens: one column, newest first, lead picture under each title. */}
+  <ol class="feed">
+    {
+      posts.map(({ post, lead }) => (
+        <li class:list={['entry', { 'has-plate': lead }]}>
+          <div class="meta">
+            <time datetime={post.date.toISOString().slice(0, 10)}>{formatDate(post.date)}</time>
+            {post.data.tags.length > 0 && <span class="tags">{post.data.tags.join(', ')}</span>}
+          </div>
+          <h2>
+            <a href={post.url}>{post.data.title}</a>
+          </h2>
+          {lead && (
+            <a class:list={['plate', { video: lead.video }]} href={post.url} tabindex="-1" aria-hidden="true">
+              <img
+                src={lead.src}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                onerror={lead.fallback ? `this.onerror=null;this.src='${lead.fallback}'` : undefined}
+              />
+            </a>
+          )}
+        </li>
+      ))
+    }
+  </ol>
 </Base>

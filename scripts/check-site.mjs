@@ -66,7 +66,13 @@ for (const page of [...postPages, 'about.html']) {
   }
 }
 
-// 4. Feed and sitemap list every post.
+// 4. Every post has a lead picture on the home page.
+if (exists('index.html')) {
+  const empty = (read('index.html').match(/<span class="frame[^"]*"><\/span>/g) ?? []).length;
+  if (empty) fail(`index.html: ${empty} post(s) without a lead picture (add \`image:\` front matter or a figure)`);
+}
+
+// 5. Feed and sitemap list every post.
 const feed = exists('feed.xml') ? read('feed.xml') : '';
 const sitemap = walk0('sitemap-');
 function walk0(prefix) {

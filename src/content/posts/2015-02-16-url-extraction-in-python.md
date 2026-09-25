@@ -1,4 +1,5 @@
 ---
+image: "/assets/leads/url-extraction.png"
 title: "Url extraction in python"
 tags: ["coding"]
 ---

@@ -82,15 +82,28 @@ export function previewText(html: string, max = 240): string {
 
 export type LeadMedia = { src: string; fallback?: string; alt: string; video: boolean };
 
-// The post's lead picture for the home page: the first image (or YouTube embed, shown as
-// its thumbnail) before <!--more-->, or anywhere in the post if there is no marker.
-export function leadMedia(html: string): LeadMedia | undefined {
-  const m = excerptHtml(html).match(/<img\b[^>]*>|<iframe\b[^>]*\bsrc="https:\/\/www\.youtube\.com\/embed\/([\w-]+)[^"]*"[^>]*>/);
+const YOUTUBE_THUMB = (id: string): LeadMedia => ({
+  src: `https://i.ytimg.com/vi/${id}/maxresdefault.jpg`,
+  fallback: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
+  alt: '',
+  video: true,
+});
+
+const FIRST_MEDIA =
+  /<img\b[^>]*>|<iframe\b[^>]*\bsrc="https:\/\/www\.youtube\.com\/embed\/([\w-]+)[^"]*"[^>]*>|<a\b[^>]*\bhref="https?:\/\/(?:www\.)?youtube\.com\/watch\?v=([\w-]+)[^"]*"/;
+
+function firstMedia(html: string): LeadMedia | undefined {
+  const m = html.match(FIRST_MEDIA);
   if (!m) return undefined;
-  if (m[1]) {
-    const thumb = `https://i.ytimg.com/vi/${m[1]}`;
-    return { src: `${thumb}/maxresdefault.jpg`, fallback: `${thumb}/hqdefault.jpg`, alt: '', video: true };
-  }
+  if (m[1] || m[2]) return YOUTUBE_THUMB(m[1] || m[2]);
   const attr = (name: string) => decode(m[0].match(new RegExp(`\\b${name}="([^"]*)"`))?.[1] ?? '');
   return { src: attr('src'), alt: attr('alt'), video: false };
+}
+
+// The post's lead picture for the home page: the `image` front matter if set, else the
+// first image or YouTube video before <!--more-->, else the first image anywhere.
+export function leadMedia(post: Post): LeadMedia | undefined {
+  if (post.data.image) return { src: post.data.image, alt: '', video: false };
+  const html = post.rendered?.html ?? '';
+  return firstMedia(excerptHtml(html)) ?? firstMedia(html);
 }

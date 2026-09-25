@@ -1,4 +1,5 @@
 ---
+image: "/assets/leads/infinite-jest.png"
 title: "Infinite Jest by the numbers"
 tags: ["books", "coding"]
 ---

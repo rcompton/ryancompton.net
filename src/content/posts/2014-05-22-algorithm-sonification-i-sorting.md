@@ -1,4 +1,5 @@
 ---
+image: "/assets/leads/sorting.png"
 title: "Algorithm Sonification I: Sorting"
 tags: ["audio", "coding"]
 redirect_from:

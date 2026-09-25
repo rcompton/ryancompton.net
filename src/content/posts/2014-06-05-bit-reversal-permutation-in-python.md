@@ -1,4 +1,5 @@
 ---
+image: "/assets/leads/bit-reversal.png"
 title: "Bit-reversal permutation in Python"
 tags: ["coding"]
 ---

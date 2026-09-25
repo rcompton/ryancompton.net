@@ -1,4 +1,5 @@
 ---
+image: "/assets/leads/pom-xml-scala.png"
 title: "Sample pom.xml to build Scala *-jar-with-dependencies.jar"
 tags: ["coding"]
 redirect_from:

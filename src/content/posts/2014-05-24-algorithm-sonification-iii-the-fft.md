@@ -1,4 +1,5 @@
 ---
+image: "/assets/leads/fft.png"
 title: "Algorithm Sonification III: The FFT"
 tags: ["audio", "coding"]
 redirect_from:

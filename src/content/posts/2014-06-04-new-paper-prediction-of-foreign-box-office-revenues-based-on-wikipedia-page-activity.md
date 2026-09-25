@@ -1,4 +1,5 @@
 ---
+image: "/assets/leads/box-office-wikipedia.png"
 title: "New Paper: Prediction of Foreign Box Office Revenues Based on Wikipedia Page Activity"
 tags: ["papers"]
 ---

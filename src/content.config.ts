@@ -12,6 +12,8 @@ const posts = defineCollection({
   schema: z.object({
     title: z.string(),
     description: z.string().optional(),
+    // Lead picture for the home page; defaults to the first figure in the post.
+    image: z.string().optional(),
     tags: z.array(z.string()).default([]),
     category: z.string().nullish(),
     comments: z.boolean().optional(),
