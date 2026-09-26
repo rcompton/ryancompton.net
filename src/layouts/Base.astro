@@ -14,6 +14,9 @@ const pageTitle = title ? `${title} | ${SITE.title}` : `${SITE.title} | ${SITE.d
 const metaDescription = description || SITE.description;
 const canonical = new URL(Astro.url.pathname.replace(/\/index\.html$/, '/'), SITE.url).href;
 const ogType = published ? 'article' : 'website';
+// Google Analytics 4; only in production builds so local previews aren't counted.
+const GA_ID = 'G-VCH113NQZY';
+const analytics = import.meta.env.PROD;
 
 const jsonLd = published
   ? {
@@ -66,6 +69,21 @@ const jsonLd = published
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="shortcut icon" href="/favicon.ico" />
     <meta name="theme-color" content="#111315" />
+    {
+      analytics && (
+        <>
+          <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} />
+          <script is:inline define:vars={{ GA_ID }}>
+            window.dataLayer = window.dataLayer || [];
+            function gtag() {
+              dataLayer.push(arguments);
+            }
+            gtag('js', new Date());
+            gtag('config', GA_ID);
+          </script>
+        </>
+      )
+    }
   </head>
   <body>
     <header class="site-header">
