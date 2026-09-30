@@ -1,8 +1,9 @@
 name: PR check
 
 # Builds the PR and its base branch and compares the rendered sites page by page.
-# Dependabot PRs must render identically; minor/patch npm and GitHub Actions
-# updates that pass are merged and deployed automatically.
+# Dependabot PRs must render identically; minor/patch npm, GitHub Actions and pip
+# updates that pass are merged and deployed automatically. (pip PRs are security
+# updates to the legacy scripts' requirements files, which the site build ignores.)
 
 on:
   pull_request:
@@ -68,7 +69,8 @@ jobs:
         if: >-
           steps.meta.outputs.update-type != 'version-update:semver-major' &&
           (steps.meta.outputs.package-ecosystem == 'npm_and_yarn' ||
-           steps.meta.outputs.package-ecosystem == 'github_actions')
+           steps.meta.outputs.package-ecosystem == 'github_actions' ||
+           steps.meta.outputs.package-ecosystem == 'pip')
         env:
           GH_TOKEN: ${{ github.token }}
           PR_URL: ${{ github.event.pull_request.html_url }}
