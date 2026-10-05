@@ -20,7 +20,7 @@ psycopg2-binary==2.9.10
 PySocks==1.7.1
 python-crfsuite==0.9.11
 python-dateutil==2.9.0.post0
-python-dotenv==1.0.1
+python-dotenv==1.2.2
 pytz==2024.2
 ratelim==0.1.6
 requests==2.33.0
