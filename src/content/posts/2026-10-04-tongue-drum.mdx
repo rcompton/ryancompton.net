@@ -1,0 +1,47 @@
+---
+title: "A tongue drum that lights up"
+description: "A browser tongue drum that listens to a real one, lights up the tongue you hit, and walks a kid through songs."
+tags: ["audio", "javascript"]
+image: "/assets/leads/tongue-drum.svg"
+---
+
+import TongueDrum from '../../components/TongueDrum.astro';
+
+There's an 11-tongue steel tongue drum in the mail for my kid. The [Lumi](https://www.playlumi.com/) piano keyboard teaches songs by lighting up the next key; a steel drum can't light up, but a browser can listen to it. So here's a drum that does: tap the tongues, or press **Start listening** and play a real drum (or a YouTube video of one) and watch the tongue you hit light up.
+
+<TongueDrum />
+
+## Using it
+
+- **Free play** lights up whatever you hit.
+- **Songs** glows the next tongue to play and waits for it. Wrong tongues get a gentle "try again", and **Hear it** plays the song first. **My own song…** takes any tune typed in the drum's numbers, so you can add one from a songbook or tutorial.
+- **Tune to my drum** has you hit each tongue once, lowest first. Until you do, it assumes a C major drum with 1 at middle C.
+
+Most kids' drums number their tongues 1–7 with a dot below for the low octave and a dot above for the high one, and come with songbooks in the same numbers. The colors here are [Boomwhacker](https://en.wikipedia.org/wiki/Boomwhackers) colors by number, so a sheet of colored dot stickers makes the real drum match the screen.
+
+No drum yet? Find a "tongue drum sound test" video, use **Listen to a tab** (Chrome; tick "Share tab audio") or just play it out loud, tune against the video, then play a song from the same channel.
+
+## How it works
+
+My first attempt was the usual pitch detector: autocorrelation on every animation frame, rounded to the nearest note. That's fine for a single note in a quiet room and falls apart on a drum. Notes ring for seconds and overlap, kids songs repeat notes ("twin-kle twin-kle"), and the browser's own voice processing can decide a steady tone is noise and quietly remove it. That last one is a one-line fix:
+
+```js
+getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } })
+```
+
+The rest is two steps.
+
+**When was something hit?** Every ~10 ms, take a short spectrum and add up how much each frequency got louder (spectral flux). A strike is a peak in that sum that stands out from the last quarter second. Comparing against the loudest of the last few frames rather than just the previous one stops tongues that are already ringing from triggering it.
+
+**Which tongue was it?** Compare a 170 ms spectrum just after the strike with one just before. Whatever got louder is the new note; tongues that were already ringing only fade. The catch is a repeated note: hitting a tongue that's still ringing can *reduce* its volume if the mallet catches it out of phase, so a simple "what got louder" misses some of them. Instead each frequency in the "before" spectrum is carried forward to the "after" window at its measured frequency and subtracted as a complex number:
+
+```
+for each frequency bin k:
+  f    = exact frequency, from the phase change between two "before" windows 256 samples apart
+  pred = before[k] · 0.9 · e^(2πi · f · gap)     // where the old ringing should be by now
+  new[k] = |after[k] − pred|²
+```
+
+A tongue that keeps ringing cancels out; one that was hit again leaves a residue either way. That residue, pooled into semitone bands, gets compared (cosine similarity) against one template per tongue. Tuning records those templates from your drum, so wobbly cheap tuning, a weak low note, or laptop speakers that drop the fundamental don't matter. Without tuning the templates are synthesized from the key. In Songs mode it also gives the expected tongue the benefit of the doubt.
+
+It has only been tested on synthetic drums so far: repeated notes, quarter-second gaps, soft mallets, detuned tongues, a 400 Hz high-pass standing in for laptop speakers, and claps it should ignore. The real drum shows up in a couple of weeks.

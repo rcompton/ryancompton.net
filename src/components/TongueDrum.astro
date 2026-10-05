@@ -1,0 +1,422 @@
+---
+// An interactive tongue drum that listens to a real one. Logic in ./tongue-drum/.
+---
+
+<div class="tdrum" data-tongue-drum>
+  <div class="stage">
+    <svg data-el="drum" viewBox="0 0 400 400" role="group" aria-label="Tongue drum"></svg>
+    <canvas data-el="confetti" aria-hidden="true"></canvas>
+  </div>
+
+  <div class="panel">
+    <noscript><p>This needs JavaScript.</p></noscript>
+
+    <div class="row">
+      <button type="button" class="primary" data-el="listen" aria-pressed="false">Start listening</button>
+      <button type="button" data-el="tab" hidden>Listen to a tab</button>
+    </div>
+    <div class="level" aria-hidden="true"><span data-el="meter"></span></div>
+
+    <div class="modes" role="group" aria-label="Mode">
+      <button type="button" data-mode="free" aria-pressed="true">Free play</button>
+      <button type="button" data-mode="song" aria-pressed="false">Songs</button>
+      <button type="button" data-mode="tune" aria-pressed="false">Tune to my drum</button>
+    </div>
+
+    <p class="status" data-el="status" aria-live="polite"></p>
+
+    <div data-panel="song" hidden>
+      <div class="row">
+        <select data-el="song" aria-label="Song"></select>
+        <button type="button" data-el="demo">▶ Hear it</button>
+        <button type="button" data-el="restart">↺ Start over</button>
+      </div>
+      <p class="notation" data-el="notation"></p>
+      <div class="custom" data-el="custom-box" hidden>
+        <textarea data-el="custom" rows="3" spellcheck="false" aria-label="Your song" placeholder="1 1 5 5 6 6 5 | 4 4 3 3 2 2 1"></textarea>
+        <p class="hint">Numbers 1–7 as printed on the drum. Add a comma for the low octave (<code>5,</code>) or an apostrophe for the high one (<code>1'</code>); <code>|</code> starts a new line. Saved in this browser only.</p>
+      </div>
+    </div>
+
+    <div data-panel="tune" hidden>
+      <p class="prompt" data-el="tune-prompt"></p>
+      <div class="row">
+        <button type="button" data-el="tune-back">← Back</button>
+        <button type="button" data-el="tune-cancel">Cancel</button>
+      </div>
+    </div>
+
+    <details class="setup">
+      <summary>Drum setup</summary>
+      <div class="row">
+        <label>Tongues <select data-el="layout"></select></label>
+        <label>Key <select data-el="key"></select></label>
+      </div>
+      <p class="tuned"><span data-el="tuned"></span> <button type="button" class="link" data-el="forget" hidden>Forget tuning</button></p>
+    </details>
+  </div>
+</div>
+
+<script>
+  import { mount } from './tongue-drum/app.ts';
+  document.querySelectorAll<HTMLElement>('[data-tongue-drum]').forEach(mount);
+</script>
+
+<style>
+  .tdrum {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 26rem) minmax(0, 1fr);
+    gap: 1.5rem 2rem;
+    align-items: start;
+    margin: 0.5rem 0 2.5rem;
+    padding: 1.25rem;
+    background: var(--plate);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    font-family: var(--sans);
+    font-size: 1rem;
+    line-height: 1.45;
+  }
+
+  :global(.prose) > .tdrum {
+    grid-column: wide;
+  }
+
+  @media (max-width: 44rem) {
+    .tdrum {
+      grid-template-columns: minmax(0, 1fr);
+      padding: 1rem;
+    }
+  }
+
+  .stage {
+    position: relative;
+    width: 100%;
+    max-width: 26rem;
+    margin: 0 auto;
+  }
+
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  svg :global(.rim) {
+    fill: #2b3036;
+  }
+
+  svg :global(.face) {
+    fill: #1d2125;
+    stroke: #3a4048;
+    stroke-width: 2;
+  }
+
+  svg :global(.hole) {
+    fill: #121416;
+    stroke: #3a4048;
+    stroke-width: 2;
+  }
+
+  svg :global(.tongue) {
+    cursor: pointer;
+    outline: none;
+    transform-box: view-box;
+    transform-origin: 200px 200px;
+  }
+
+  svg :global(.hit) {
+    fill: transparent;
+  }
+
+  svg :global(.body) {
+    fill: var(--c);
+    fill-opacity: 0.5;
+    stroke: rgb(255 255 255 / 0.18);
+    stroke-width: 1.5;
+    transition: stroke 0.2s;
+  }
+
+  svg :global(.tongue:hover .body),
+  svg :global(.tongue:focus-visible .body) {
+    stroke: rgb(255 255 255 / 0.7);
+  }
+
+  svg :global(.tongue.target .body) {
+    stroke: #fff;
+    stroke-width: 4;
+    animation: pulse 1.1s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    50% {
+      fill-opacity: 0.95;
+    }
+  }
+
+  svg :global(.label text) {
+    fill: #fff;
+    font-family: var(--sans);
+    font-weight: 700;
+    paint-order: stroke;
+    stroke: rgb(0 0 0 / 0.55);
+    stroke-width: 3px;
+    pointer-events: none;
+  }
+
+  svg :global(.label circle) {
+    fill: #fff;
+    pointer-events: none;
+  }
+
+  svg :global(.center .label text) {
+    fill: var(--c, #fff);
+  }
+
+  svg :global(.center .label circle) {
+    fill: var(--c, #fff);
+  }
+
+  svg :global(.center text) {
+    fill: var(--muted);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    svg :global(.tongue.target .body) {
+      animation: none;
+      fill-opacity: 0.9;
+    }
+  }
+
+  .panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    min-width: 0;
+  }
+
+  .panel p {
+    margin: 0;
+  }
+
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  button,
+  select {
+    font: inherit;
+    color: var(--ink);
+    background: #24282d;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 0.45rem 0.8rem;
+    min-height: 2.5rem;
+    cursor: pointer;
+  }
+
+  button:hover,
+  select:hover {
+    border-color: var(--muted);
+  }
+
+  button:focus-visible,
+  select:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  button.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #0b1220;
+    font-weight: 600;
+  }
+
+  .tdrum:global(.listening) button.primary {
+    background: transparent;
+    color: var(--accent);
+  }
+
+  button.link {
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--accent);
+    text-decoration: underline;
+  }
+
+  .modes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    background: #15181b;
+    border-radius: 8px;
+  }
+
+  .modes button {
+    flex: 1 1 auto;
+    border-color: transparent;
+    background: transparent;
+    color: var(--muted);
+  }
+
+  .modes button[aria-pressed='true'] {
+    background: #2b3036;
+    color: var(--heading);
+  }
+
+  .level {
+    height: 4px;
+    overflow: hidden;
+    border-radius: 2px;
+    background: #15181b;
+  }
+
+  .level span {
+    display: block;
+    width: 0;
+    height: 100%;
+    background: var(--accent);
+    transition: width 60ms linear;
+  }
+
+  .status {
+    min-height: 1.45em;
+    color: var(--heading);
+  }
+
+  select {
+    max-width: 100%;
+  }
+
+  .notation {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.1rem;
+    margin-top: 0.75rem !important;
+  }
+
+  .notation :global(.phrase) {
+    display: inline-flex;
+    gap: 0.15rem;
+  }
+
+  .tdrum :global(.n) {
+    position: relative;
+    display: inline-block;
+    min-width: 1.1em;
+    padding: 0.35em 0.1em;
+    color: var(--c);
+    font-weight: 700;
+    font-size: 1.15rem;
+    line-height: 1;
+    text-align: center;
+    border-radius: 4px;
+  }
+
+  .tdrum :global(.n[data-oct='-1'])::after,
+  .tdrum :global(.n[data-oct='1'])::before,
+  .tdrum :global(.n[data-oct='2'])::before {
+    position: absolute;
+    left: 0;
+    right: 0;
+    font-size: 0.8em;
+    line-height: 1;
+  }
+
+  .tdrum :global(.n[data-oct='-1'])::after {
+    content: '•';
+    bottom: -0.15em;
+    font-size: 0.5em;
+  }
+
+  .tdrum :global(.n[data-oct='1'])::before {
+    content: '•';
+    top: -0.1em;
+    font-size: 0.5em;
+  }
+
+  .tdrum :global(.n[data-oct='2'])::before {
+    content: '••';
+    top: -0.1em;
+    font-size: 0.5em;
+  }
+
+  .notation :global(.n.done) {
+    opacity: 0.35;
+  }
+
+  .notation :global(.n.now) {
+    background: color-mix(in srgb, var(--c) 25%, transparent);
+    outline: 2px solid var(--c);
+  }
+
+  .custom textarea {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 0.5rem 0.65rem;
+    font: 1.05rem/1.4 var(--mono);
+    color: var(--ink);
+    background: #15181b;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    resize: vertical;
+  }
+
+  .custom .hint {
+    margin-top: 0.4rem !important;
+    color: var(--muted);
+    font-size: 0.875rem;
+  }
+
+  .custom code {
+    font-size: 0.95em;
+  }
+
+  .prompt {
+    font-size: 1.1rem;
+    color: var(--heading);
+  }
+
+  .prompt :global(.n.big) {
+    font-size: 1.6rem;
+    vertical-align: middle;
+  }
+
+  .setup {
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  .setup summary {
+    cursor: pointer;
+  }
+
+  .setup .row {
+    margin: 0.6rem 0;
+  }
+
+  .setup label {
+    display: inline-flex;
+    gap: 0.4rem;
+    align-items: center;
+  }
+</style>
