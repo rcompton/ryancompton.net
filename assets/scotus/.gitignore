@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+# Raw Oyez/LII/SCDB downloads; fetch_cases.py rebuilds them.
+data/cache/
+data/scdb/
+# Run logs
+results/*.log
+results/*.lock

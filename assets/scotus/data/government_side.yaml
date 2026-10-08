@@ -1,0 +1,37 @@
+# Whether the government won, for cases pitting a government (federal, state or
+# local, or its officials) against a private party. Hand-labeled from SCDB's
+# petitioner/respondent/partyWinning codes (data/scdb) and, for the two 2025-term
+# cases SCDB doesn't cover yet, Oyez's winning_party.
+# Left out: private-vs-private cases, government-vs-government cases (Michigan v.
+# EPA, Ohio Adjutant General v. FLRA), and Arthrex (mixed result).
+gov_won:
+  2005_04-885: false    # Katz: state college loses on sovereign immunity
+  2011_10-1016: true    # Coleman: Maryland keeps immunity from FMLA suit
+  2011_10-895: true     # Gonzalez v. Thaler: Texas wins habeas timing
+  2011_10-945: true     # Florence: county jail strip searches upheld
+  2011_10-9646: false   # Miller v. Alabama: mandatory juvenile LWOP struck
+  2012_11-1425: false   # McNeely: warrant needed for blood draw
+  2012_11-702: false    # Moncrieffe: immigrant wins
+  2012_12-98: false     # Wos: North Carolina Medicaid lien struck
+  2013_12-930: true     # Scialabba: USCIS reading upheld
+  2014_13-1034: false   # Mellouli: immigrant wins
+  2014_13-1371: false   # Inclusive Communities: Texas housing agency loses
+  2014_13-1402: true    # Kerry v. Din: visa denial upheld
+  2014_13-485: false    # Wynne: Maryland tax struck
+  2015_14-280: false    # Montgomery: Louisiana prisoner wins
+  2016_15-577: false    # Trinity Lutheran: Missouri loses
+  2016_15-8049: false   # Buck v. Davis: Texas prisoner wins
+  2017_17-586: true     # Abbott v. Perez: Texas maps largely upheld
+  2018_17-1174: true    # Nieves: officers win
+  2019_18-1109: true    # McKinney: Arizona wins
+  2019_18-1195: false   # Espinoza: Montana loses
+  2019_18-1432: false   # Nasrallah: immigrant wins
+  2019_18-1584: true    # Cowpasture: Forest Service (and pipeline) win
+  2019_18-6943: false   # Banister: Texas prisoner wins
+  2020_19-863: false    # Niz-Chavez: immigrant wins
+  2023_22-859: false    # Jarkesy: SEC loses
+  2023_23-14: true      # Diaz: United States wins
+  2023_23-5572: false   # Fischer: January 6 defendant wins
+  2024_23-7483: false   # Esteras: defendant wins
+  2025_24-351: true     # Konan: Postal Service wins
+  2025_25-429: true     # Blanche v. Lau: government wins

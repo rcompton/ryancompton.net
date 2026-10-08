@@ -1,0 +1,39 @@
+# provider: anthropic -> Anthropic SDK (ANTHROPIC_API_KEY)
+#           openrouter -> OpenRouter's OpenAI-compatible API (OPENROUTER_API_KEY)
+# `params` are passed through to the request as-is.
+
+models:
+  # Anthropic. Opus 5.5 defaults to medium effort and Sonnet 5.5 to high;
+  # both are pinned to high so they think about the same amount.
+  # To call the Anthropic API directly instead, use provider: anthropic,
+  # id: claude-opus-5-5 / claude-sonnet-5-5, params: {output_config: {effort: high}}.
+  - name: opus-5.5
+    provider: openrouter
+    id: anthropic/claude-opus-5.5
+    params: {reasoning: {effort: high}}
+  - name: sonnet-5.5
+    provider: openrouter
+    id: anthropic/claude-sonnet-5.5
+    params: {reasoning: {effort: high}}
+
+  # US
+  - {name: gpt-6.1-sol, provider: openrouter, id: openai/gpt-6.1-sol}
+  - {name: gemini-3.8-flash, provider: openrouter, id: google/gemini-3.8-flash}
+  - {name: grok-4.7, provider: openrouter, id: x-ai/grok-4.7}
+  - {name: llama-4-maverick, provider: openrouter, id: meta-llama/llama-4-maverick}
+
+  # China
+  - {name: deepseek-v4-pro, provider: openrouter, id: deepseek/deepseek-v4-pro}
+  - {name: qwen3.8-max, provider: openrouter, id: qwen/qwen3.8-max-0902}
+  # Low effort: at its default, Kimi sometimes spent all 16k output tokens
+  # reasoning and returned nothing.
+  - {name: kimi-k3, provider: openrouter, id: moonshotai/kimi-k3, params: {reasoning: {effort: low}}}
+  - {name: glm-5.3, provider: openrouter, id: z-ai/glm-5.3}
+
+  # Europe / Canada
+  - {name: mistral-large-4, provider: openrouter, id: mistralai/mistral-large-4-0}
+  - {name: command-a-plus, provider: openrouter, id: cohere/command-a-plus}
+
+  # Router: picks a different underlying model per request. The model that
+  # actually answered is saved as `served_model` in each result row.
+  - {name: jev-router, provider: openrouter, id: typesafe/jev-router}

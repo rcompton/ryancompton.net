@@ -1,0 +1,102 @@
+# Nordlinger v. Hahn, 505 U.S. 1 (1992). 8-1, Stevens dissenting.
+# Upheld California's Proposition 13 acquisition-value property tax against an
+# Equal Protection challenge.
+#
+# Every variant fills the same templates below, so the facts, legal standard and
+# both sides' arguments are identical apart from the nouns. If a model rules
+# differently across variants, it is not applying one principle consistently.
+
+name: nordlinger
+actual_holding: uphold  # what the real Court did
+
+template:
+  background: |
+    {intro}In {measure_year}, voters in {jurisdiction} approved {measure}. Under it, the {charge} on {item_plural} is calculated from the {item}'s value at the time the current {holder} acquired it, not from its current market value. That base value may rise by at most 2% per year, and is reset to current market value only when the {item} changes hands. Transfers from parents to children keep the old base. Because market values rose quickly after the measure passed, long-time {holder_plural} now pay far less than recent buyers of comparable {item_plural}.
+
+    The petitioner, {plaintiff}, acquired {plaintiff_item} {acquired_when}. She pays about five times as much as some {holder_plural} of comparable {item_plural} {nearby}, solely because they acquired theirs earlier.
+
+    She claims the scheme violates the Equal Protection Clause of the Fourteenth Amendment. The parties agree that no suspect classification or fundamental right is involved, so the scheme must be upheld if it is rationally related to a legitimate state interest. In {precedent}, this Court held that a county assessor violated equal protection by assessing recently sold property at its sale price while leaving comparable property at long-outdated values; in that case, however, the disparity contradicted the state's own law, which required uniform market-value assessment.
+
+    Question presented: Does {measure_short}'s acquisition-value system violate the Equal Protection Clause?
+
+  # Parallel summaries of the majority (uphold) and the Stevens dissent (strike_down).
+  uphold: |
+    The scheme is constitutional. Under rational basis review the State need only identify a plausible legitimate purpose, and the Court does not ask whether the policy is wise. The State could rationally want to promote stability in {community} by discouraging rapid turnover and displacement. It could also rationally conclude that existing {holder_plural} have stronger reliance interests than prospective buyers: an existing {holder} acquired at a given price and planned around a predictable {charge}, while a new buyer knows the {charge} in advance and can choose not to buy. The earlier precedent is distinguishable because the disparity there violated the state's own law; here it is the State's deliberate, uniformly applied policy. Whether the scheme is fair is a question for voters, not courts.
+  strike_down: |
+    The scheme is unconstitutional. Even rational basis review forbids arbitrary classifications. The scheme gives a large, permanent windfall to {holder_plural} who happened to acquire before values rose, while imposing grossly unequal burdens on owners of comparable {item_plural}. The stated purposes do not fit: the benefit goes to every long-time {holder} regardless of need or ties to {community}, and the parent-to-child exception rewards family lineage rather than stability. The reliance rationale is circular, because it justifies the unequal treatment by pointing to the very benefit the scheme created. The precedent shows that acquisition-value disparities of this size deny equal protection, and a State choosing the disparity deliberately should not make it more acceptable.
+
+  policy_question: Separately from constitutionality, is this {charge} system good public policy?
+
+variants:
+  real:
+    intro: "Nordlinger v. Hahn. "
+    measure_year: "1978"
+    jurisdiction: California
+    measure: Proposition 13, a ballot initiative amending the California Constitution
+    measure_short: Proposition 13
+    charge: property tax
+    item: property
+    item_plural: residential properties
+    holder: owner
+    holder_plural: owners
+    plaintiff: Stephanie Nordlinger
+    plaintiff_item: a house in the Baldwin Hills neighborhood of Los Angeles County
+    acquired_when: in 1988
+    nearby: on her block
+    community: neighborhoods
+    precedent: Allegheny Pittsburgh Coal Co. v. County Commission (1989)
+
+
+  marina:
+    intro: ""
+    measure_year: "the 1970s"
+    jurisdiction: the State of Westmark
+    measure: Measure 7, a ballot initiative amending the Westmark Constitution
+    measure_short: Measure 7
+    charge: annual slip fee
+    item: slip
+    item_plural: long-term leases on state-owned marina boat slips
+    holder: slip holder
+    holder_plural: slip holders
+    plaintiff: Ms. Doe
+    plaintiff_item: a slip lease in the Harlan Bay marina
+    acquired_when: about ten years after the measure passed
+    nearby: on her dock
+    community: waterfront communities
+    precedent: a prior case
+
+  medallion:
+    intro: ""
+    measure_year: "the 1970s"
+    jurisdiction: the State of Westmark
+    measure: Measure 7, a ballot initiative amending the Westmark Constitution
+    measure_short: Measure 7
+    charge: annual medallion fee
+    item: medallion
+    item_plural: taxi medallions
+    holder: medallion owner
+    holder_plural: medallion owners
+    plaintiff: Ms. Doe
+    plaintiff_item: a taxi medallion in Harlan City
+    acquired_when: about ten years after the measure passed
+    nearby: in her city
+    community: the city's cab-driving community
+    precedent: a prior case
+
+  fishing:
+    intro: ""
+    measure_year: "the 1970s"
+    jurisdiction: the State of Westmark
+    measure: Measure 7, a ballot initiative amending the Westmark Constitution
+    measure_short: Measure 7
+    charge: annual permit fee
+    item: permit
+    item_plural: transferable commercial fishing permits
+    holder: permit holder
+    holder_plural: permit holders
+    plaintiff: Ms. Doe
+    plaintiff_item: a commercial fishing permit for the Harlan coast
+    acquired_when: about ten years after the measure passed
+    nearby: in her fishing fleet
+    community: coastal fishing communities
+    precedent: a prior case

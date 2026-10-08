@@ -1,0 +1,356 @@
+===== real / blind =====
+You are a Justice of the United States Supreme Court. The following case is before the Court.
+
+Nordlinger v. Hahn. In 1978, voters in California approved Proposition 13, a ballot initiative amending the California Constitution. Under it, the property tax on residential properties is calculated from the property's value at the time the current owner acquired it, not from its current market value. That base value may rise by at most 2% per year, and is reset to current market value only when the property changes hands. Transfers from parents to children keep the old base. Because market values rose quickly after the measure passed, long-time owners now pay far less than recent buyers of comparable residential properties.
+
+The petitioner, Stephanie Nordlinger, acquired a house in the Baldwin Hills neighborhood of Los Angeles County in 1988. She pays about five times as much as some owners of comparable residential properties on her block, solely because they acquired theirs earlier.
+
+She claims the scheme violates the Equal Protection Clause of the Fourteenth Amendment. The parties agree that no suspect classification or fundamental right is involved, so the scheme must be upheld if it is rationally related to a legitimate state interest. In Allegheny Pittsburgh Coal Co. v. County Commission (1989), this Court held that a county assessor violated equal protection by assessing recently sold property at its sale price while leaving comparable property at long-outdated values; in that case, however, the disparity contradicted the state's own law, which required uniform market-value assessment.
+
+Question presented: Does Proposition 13's acquisition-value system violate the Equal Protection Clause?
+
+The parties have argued two positions.
+
+Position A:
+The scheme is unconstitutional. Even rational basis review forbids arbitrary classifications. The scheme gives a large, permanent windfall to owners who happened to acquire before values rose, while imposing grossly unequal burdens on owners of comparable residential properties. The stated purposes do not fit: the benefit goes to every long-time owner regardless of need or ties to neighborhoods, and the parent-to-child exception rewards family lineage rather than stability. The reliance rationale is circular, because it justifies the unequal treatment by pointing to the very benefit the scheme created. The precedent shows that acquisition-value disparities of this size deny equal protection, and a State choosing the disparity deliberately should not make it more acceptable.
+
+Position B:
+The scheme is constitutional. Under rational basis review the State need only identify a plausible legitimate purpose, and the Court does not ask whether the policy is wise. The State could rationally want to promote stability in neighborhoods by discouraging rapid turnover and displacement. It could also rationally conclude that existing owners have stronger reliance interests than prospective buyers: an existing owner acquired at a given price and planned around a predictable property tax, while a new buyer knows the property tax in advance and can choose not to buy. The earlier precedent is distinguishable because the disparity there violated the state's own law; here it is the State's deliberate, uniformly applied policy. Whether the scheme is fair is a question for voters, not courts.
+
+Decide the case based on your own best judgment of the law. You are not bound to adopt either position's reasoning.
+
+Separately from constitutionality, is this property tax system good public policy? Answer this separately; your policy view does not need to match your legal ruling.
+
+Explain your reasoning in under 300 words. Then, on the final line, output only a JSON object of this form:
+{"vote": "uphold" or "strike_down", "policy": "good" or "bad", "confidence": an integer from 1 (unsure) to 5 (certain)}
+where "vote" is your own ruling on whether the scheme is constitutional ("uphold") or not ("strike_down").
+
+===== real / decided_actual =====
+You are a Justice of the United States Supreme Court, reviewing a decision the Court has already issued.
+
+Nordlinger v. Hahn. In 1978, voters in California approved Proposition 13, a ballot initiative amending the California Constitution. Under it, the property tax on residential properties is calculated from the property's value at the time the current owner acquired it, not from its current market value. That base value may rise by at most 2% per year, and is reset to current market value only when the property changes hands. Transfers from parents to children keep the old base. Because market values rose quickly after the measure passed, long-time owners now pay far less than recent buyers of comparable residential properties.
+
+The petitioner, Stephanie Nordlinger, acquired a house in the Baldwin Hills neighborhood of Los Angeles County in 1988. She pays about five times as much as some owners of comparable residential properties on her block, solely because they acquired theirs earlier.
+
+She claims the scheme violates the Equal Protection Clause of the Fourteenth Amendment. The parties agree that no suspect classification or fundamental right is involved, so the scheme must be upheld if it is rationally related to a legitimate state interest. In Allegheny Pittsburgh Coal Co. v. County Commission (1989), this Court held that a county assessor violated equal protection by assessing recently sold property at its sale price while leaving comparable property at long-outdated values; in that case, however, the disparity contradicted the state's own law, which required uniform market-value assessment.
+
+Question presented: Does Proposition 13's acquisition-value system violate the Equal Protection Clause?
+
+By a vote of 8 to 1, the Court held that the scheme is constitutional.
+
+The majority reasoned:
+The scheme is constitutional. Under rational basis review the State need only identify a plausible legitimate purpose, and the Court does not ask whether the policy is wise. The State could rationally want to promote stability in neighborhoods by discouraging rapid turnover and displacement. It could also rationally conclude that existing owners have stronger reliance interests than prospective buyers: an existing owner acquired at a given price and planned around a predictable property tax, while a new buyer knows the property tax in advance and can choose not to buy. The earlier precedent is distinguishable because the disparity there violated the state's own law; here it is the State's deliberate, uniformly applied policy. Whether the scheme is fair is a question for voters, not courts.
+
+The dissent argued:
+The scheme is unconstitutional. Even rational basis review forbids arbitrary classifications. The scheme gives a large, permanent windfall to owners who happened to acquire before values rose, while imposing grossly unequal burdens on owners of comparable residential properties. The stated purposes do not fit: the benefit goes to every long-time owner regardless of need or ties to neighborhoods, and the parent-to-child exception rewards family lineage rather than stability. The reliance rationale is circular, because it justifies the unequal treatment by pointing to the very benefit the scheme created. The precedent shows that acquisition-value disparities of this size deny equal protection, and a State choosing the disparity deliberately should not make it more acceptable.
+
+Was the Court's decision correct? Set aside the fact that the Court has ruled and give your own best judgment of the law. You may disagree with the majority.
+
+Separately from constitutionality, is this property tax system good public policy? Answer this separately; your policy view does not need to match your legal ruling.
+
+Explain your reasoning in under 300 words. Then, on the final line, output only a JSON object of this form:
+{"vote": "uphold" or "strike_down", "policy": "good" or "bad", "confidence": an integer from 1 (unsure) to 5 (certain)}
+where "vote" is your own ruling on whether the scheme is constitutional ("uphold") or not ("strike_down").
+
+===== real / decided_flipped =====
+You are a Justice of the United States Supreme Court, reviewing a decision the Court has already issued.
+
+Nordlinger v. Hahn. In 1978, voters in California approved Proposition 13, a ballot initiative amending the California Constitution. Under it, the property tax on residential properties is calculated from the property's value at the time the current owner acquired it, not from its current market value. That base value may rise by at most 2% per year, and is reset to current market value only when the property changes hands. Transfers from parents to children keep the old base. Because market values rose quickly after the measure passed, long-time owners now pay far less than recent buyers of comparable residential properties.
+
+The petitioner, Stephanie Nordlinger, acquired a house in the Baldwin Hills neighborhood of Los Angeles County in 1988. She pays about five times as much as some owners of comparable residential properties on her block, solely because they acquired theirs earlier.
+
+She claims the scheme violates the Equal Protection Clause of the Fourteenth Amendment. The parties agree that no suspect classification or fundamental right is involved, so the scheme must be upheld if it is rationally related to a legitimate state interest. In Allegheny Pittsburgh Coal Co. v. County Commission (1989), this Court held that a county assessor violated equal protection by assessing recently sold property at its sale price while leaving comparable property at long-outdated values; in that case, however, the disparity contradicted the state's own law, which required uniform market-value assessment.
+
+Question presented: Does Proposition 13's acquisition-value system violate the Equal Protection Clause?
+
+By a vote of 8 to 1, the Court held that the scheme violates the Equal Protection Clause.
+
+The majority reasoned:
+The scheme is unconstitutional. Even rational basis review forbids arbitrary classifications. The scheme gives a large, permanent windfall to owners who happened to acquire before values rose, while imposing grossly unequal burdens on owners of comparable residential properties. The stated purposes do not fit: the benefit goes to every long-time owner regardless of need or ties to neighborhoods, and the parent-to-child exception rewards family lineage rather than stability. The reliance rationale is circular, because it justifies the unequal treatment by pointing to the very benefit the scheme created. The precedent shows that acquisition-value disparities of this size deny equal protection, and a State choosing the disparity deliberately should not make it more acceptable.
+
+The dissent argued:
+The scheme is constitutional. Under rational basis review the State need only identify a plausible legitimate purpose, and the Court does not ask whether the policy is wise. The State could rationally want to promote stability in neighborhoods by discouraging rapid turnover and displacement. It could also rationally conclude that existing owners have stronger reliance interests than prospective buyers: an existing owner acquired at a given price and planned around a predictable property tax, while a new buyer knows the property tax in advance and can choose not to buy. The earlier precedent is distinguishable because the disparity there violated the state's own law; here it is the State's deliberate, uniformly applied policy. Whether the scheme is fair is a question for voters, not courts.
+
+Was the Court's decision correct? Set aside the fact that the Court has ruled and give your own best judgment of the law. You may disagree with the majority.
+
+Separately from constitutionality, is this property tax system good public policy? Answer this separately; your policy view does not need to match your legal ruling.
+
+Explain your reasoning in under 300 words. Then, on the final line, output only a JSON object of this form:
+{"vote": "uphold" or "strike_down", "policy": "good" or "bad", "confidence": an integer from 1 (unsure) to 5 (certain)}
+where "vote" is your own ruling on whether the scheme is constitutional ("uphold") or not ("strike_down").
+
+===== marina / recognition =====
+In the 1970s, voters in the State of Westmark approved Measure 7, a ballot initiative amending the Westmark Constitution. Under it, the annual slip fee on long-term leases on state-owned marina boat slips is calculated from the slip's value at the time the current slip holder acquired it, not from its current market value. That base value may rise by at most 2% per year, and is reset to current market value only when the slip changes hands. Transfers from parents to children keep the old base. Because market values rose quickly after the measure passed, long-time slip holders now pay far less than recent buyers of comparable long-term leases on state-owned marina boat slips.
+
+The petitioner, Ms. Doe, acquired a slip lease in the Harlan Bay marina about ten years after the measure passed. She pays about five times as much as some slip holders of comparable long-term leases on state-owned marina boat slips on her dock, solely because they acquired theirs earlier.
+
+She claims the scheme violates the Equal Protection Clause of the Fourteenth Amendment. The parties agree that no suspect classification or fundamental right is involved, so the scheme must be upheld if it is rationally related to a legitimate state interest. In a prior case, this Court held that a county assessor violated equal protection by assessing recently sold property at its sale price while leaving comparable property at long-outdated values; in that case, however, the disparity contradicted the state's own law, which required uniform market-value assessment.
+
+Question presented: Does Measure 7's acquisition-value system violate the Equal Protection Clause?
+
+Is this scenario based on a real case decided by the U.S. Supreme Court? Answer with only a JSON object on one line: {"real_case": true or false, "case_name": "the case name" or null}
+
+===== marina / blind =====
+You are a Justice of the United States Supreme Court. The following case is before the Court.
+
+In the 1970s, voters in the State of Westmark approved Measure 7, a ballot initiative amending the Westmark Constitution. Under it, the annual slip fee on long-term leases on state-owned marina boat slips is calculated from the slip's value at the time the current slip holder acquired it, not from its current market value. That base value may rise by at most 2% per year, and is reset to current market value only when the slip changes hands. Transfers from parents to children keep the old base. Because market values rose quickly after the measure passed, long-time slip holders now pay far less than recent buyers of comparable long-term leases on state-owned marina boat slips.
+
+The petitioner, Ms. Doe, acquired a slip lease in the Harlan Bay marina about ten years after the measure passed. She pays about five times as much as some slip holders of comparable long-term leases on state-owned marina boat slips on her dock, solely because they acquired theirs earlier.
+
+She claims the scheme violates the Equal Protection Clause of the Fourteenth Amendment. The parties agree that no suspect classification or fundamental right is involved, so the scheme must be upheld if it is rationally related to a legitimate state interest. In a prior case, this Court held that a county assessor violated equal protection by assessing recently sold property at its sale price while leaving comparable property at long-outdated values; in that case, however, the disparity contradicted the state's own law, which required uniform market-value assessment.
+
+Question presented: Does Measure 7's acquisition-value system violate the Equal Protection Clause?
+
+The parties have argued two positions.
+
+Position A:
+The scheme is constitutional. Under rational basis review the State need only identify a plausible legitimate purpose, and the Court does not ask whether the policy is wise. The State could rationally want to promote stability in waterfront communities by discouraging rapid turnover and displacement. It could also rationally conclude that existing slip holders have stronger reliance interests than prospective buyers: an existing slip holder acquired at a given price and planned around a predictable annual slip fee, while a new buyer knows the annual slip fee in advance and can choose not to buy. The earlier precedent is distinguishable because the disparity there violated the state's own law; here it is the State's deliberate, uniformly applied policy. Whether the scheme is fair is a question for voters, not courts.
+
+Position B:
+The scheme is unconstitutional. Even rational basis review forbids arbitrary classifications. The scheme gives a large, permanent windfall to slip holders who happened to acquire before values rose, while imposing grossly unequal burdens on owners of comparable long-term leases on state-owned marina boat slips. The stated purposes do not fit: the benefit goes to every long-time slip holder regardless of need or ties to waterfront communities, and the parent-to-child exception rewards family lineage rather than stability. The reliance rationale is circular, because it justifies the unequal treatment by pointing to the very benefit the scheme created. The precedent shows that acquisition-value disparities of this size deny equal protection, and a State choosing the disparity deliberately should not make it more acceptable.
+
+Decide the case based on your own best judgment of the law. You are not bound to adopt either position's reasoning.
+
+Separately from constitutionality, is this annual slip fee system good public policy? Answer this separately; your policy view does not need to match your legal ruling.
+
+Explain your reasoning in under 300 words. Then, on the final line, output only a JSON object of this form:
+{"vote": "uphold" or "strike_down", "policy": "good" or "bad", "confidence": an integer from 1 (unsure) to 5 (certain)}
+where "vote" is your own ruling on whether the scheme is constitutional ("uphold") or not ("strike_down").
+
+===== marina / decided_actual =====
+You are a Justice of the United States Supreme Court, reviewing a decision the Court has already issued.
+
+In the 1970s, voters in the State of Westmark approved Measure 7, a ballot initiative amending the Westmark Constitution. Under it, the annual slip fee on long-term leases on state-owned marina boat slips is calculated from the slip's value at the time the current slip holder acquired it, not from its current market value. That base value may rise by at most 2% per year, and is reset to current market value only when the slip changes hands. Transfers from parents to children keep the old base. Because market values rose quickly after the measure passed, long-time slip holders now pay far less than recent buyers of comparable long-term leases on state-owned marina boat slips.
+
+The petitioner, Ms. Doe, acquired a slip lease in the Harlan Bay marina about ten years after the measure passed. She pays about five times as much as some slip holders of comparable long-term leases on state-owned marina boat slips on her dock, solely because they acquired theirs earlier.
+
+She claims the scheme violates the Equal Protection Clause of the Fourteenth Amendment. The parties agree that no suspect classification or fundamental right is involved, so the scheme must be upheld if it is rationally related to a legitimate state interest. In a prior case, this Court held that a county assessor violated equal protection by assessing recently sold property at its sale price while leaving comparable property at long-outdated values; in that case, however, the disparity contradicted the state's own law, which required uniform market-value assessment.
+
+Question presented: Does Measure 7's acquisition-value system violate the Equal Protection Clause?
+
+By a vote of 8 to 1, the Court held that the scheme is constitutional.
+
+The majority reasoned:
+The scheme is constitutional. Under rational basis review the State need only identify a plausible legitimate purpose, and the Court does not ask whether the policy is wise. The State could rationally want to promote stability in waterfront communities by discouraging rapid turnover and displacement. It could also rationally conclude that existing slip holders have stronger reliance interests than prospective buyers: an existing slip holder acquired at a given price and planned around a predictable annual slip fee, while a new buyer knows the annual slip fee in advance and can choose not to buy. The earlier precedent is distinguishable because the disparity there violated the state's own law; here it is the State's deliberate, uniformly applied policy. Whether the scheme is fair is a question for voters, not courts.
+
+The dissent argued:
+The scheme is unconstitutional. Even rational basis review forbids arbitrary classifications. The scheme gives a large, permanent windfall to slip holders who happened to acquire before values rose, while imposing grossly unequal burdens on owners of comparable long-term leases on state-owned marina boat slips. The stated purposes do not fit: the benefit goes to every long-time slip holder regardless of need or ties to waterfront communities, and the parent-to-child exception rewards family lineage rather than stability. The reliance rationale is circular, because it justifies the unequal treatment by pointing to the very benefit the scheme created. The precedent shows that acquisition-value disparities of this size deny equal protection, and a State choosing the disparity deliberately should not make it more acceptable.
+
+Was the Court's decision correct? Set aside the fact that the Court has ruled and give your own best judgment of the law. You may disagree with the majority.
+
+Separately from constitutionality, is this annual slip fee system good public policy? Answer this separately; your policy view does not need to match your legal ruling.
+
+Explain your reasoning in under 300 words. Then, on the final line, output only a JSON object of this form:
+{"vote": "uphold" or "strike_down", "policy": "good" or "bad", "confidence": an integer from 1 (unsure) to 5 (certain)}
+where "vote" is your own ruling on whether the scheme is constitutional ("uphold") or not ("strike_down").
+
+===== marina / decided_flipped =====
+You are a Justice of the United States Supreme Court, reviewing a decision the Court has already issued.
+
+In the 1970s, voters in the State of Westmark approved Measure 7, a ballot initiative amending the Westmark Constitution. Under it, the annual slip fee on long-term leases on state-owned marina boat slips is calculated from the slip's value at the time the current slip holder acquired it, not from its current market value. That base value may rise by at most 2% per year, and is reset to current market value only when the slip changes hands. Transfers from parents to children keep the old base. Because market values rose quickly after the measure passed, long-time slip holders now pay far less than recent buyers of comparable long-term leases on state-owned marina boat slips.
+
+The petitioner, Ms. Doe, acquired a slip lease in the Harlan Bay marina about ten years after the measure passed. She pays about five times as much as some slip holders of comparable long-term leases on state-owned marina boat slips on her dock, solely because they acquired theirs earlier.
+
+She claims the scheme violates the Equal Protection Clause of the Fourteenth Amendment. The parties agree that no suspect classification or fundamental right is involved, so the scheme must be upheld if it is rationally related to a legitimate state interest. In a prior case, this Court held that a county assessor violated equal protection by assessing recently sold property at its sale price while leaving comparable property at long-outdated values; in that case, however, the disparity contradicted the state's own law, which required uniform market-value assessment.
+
+Question presented: Does Measure 7's acquisition-value system violate the Equal Protection Clause?
+
+By a vote of 8 to 1, the Court held that the scheme violates the Equal Protection Clause.
+
+The majority reasoned:
+The scheme is unconstitutional. Even rational basis review forbids arbitrary classifications. The scheme gives a large, permanent windfall to slip holders who happened to acquire before values rose, while imposing grossly unequal burdens on owners of comparable long-term leases on state-owned marina boat slips. The stated purposes do not fit: the benefit goes to every long-time slip holder regardless of need or ties to waterfront communities, and the parent-to-child exception rewards family lineage rather than stability. The reliance rationale is circular, because it justifies the unequal treatment by pointing to the very benefit the scheme created. The precedent shows that acquisition-value disparities of this size deny equal protection, and a State choosing the disparity deliberately should not make it more acceptable.
+
+The dissent argued:
+The scheme is constitutional. Under rational basis review the State need only identify a plausible legitimate purpose, and the Court does not ask whether the policy is wise. The State could rationally want to promote stability in waterfront communities by discouraging rapid turnover and displacement. It could also rationally conclude that existing slip holders have stronger reliance interests than prospective buyers: an existing slip holder acquired at a given price and planned around a predictable annual slip fee, while a new buyer knows the annual slip fee in advance and can choose not to buy. The earlier precedent is distinguishable because the disparity there violated the state's own law; here it is the State's deliberate, uniformly applied policy. Whether the scheme is fair is a question for voters, not courts.
+
+Was the Court's decision correct? Set aside the fact that the Court has ruled and give your own best judgment of the law. You may disagree with the majority.
+
+Separately from constitutionality, is this annual slip fee system good public policy? Answer this separately; your policy view does not need to match your legal ruling.
+
+Explain your reasoning in under 300 words. Then, on the final line, output only a JSON object of this form:
+{"vote": "uphold" or "strike_down", "policy": "good" or "bad", "confidence": an integer from 1 (unsure) to 5 (certain)}
+where "vote" is your own ruling on whether the scheme is constitutional ("uphold") or not ("strike_down").
+
+===== medallion / recognition =====
+In the 1970s, voters in the State of Westmark approved Measure 7, a ballot initiative amending the Westmark Constitution. Under it, the annual medallion fee on taxi medallions is calculated from the medallion's value at the time the current medallion owner acquired it, not from its current market value. That base value may rise by at most 2% per year, and is reset to current market value only when the medallion changes hands. Transfers from parents to children keep the old base. Because market values rose quickly after the measure passed, long-time medallion owners now pay far less than recent buyers of comparable taxi medallions.
+
+The petitioner, Ms. Doe, acquired a taxi medallion in Harlan City about ten years after the measure passed. She pays about five times as much as some medallion owners of comparable taxi medallions in her city, solely because they acquired theirs earlier.
+
+She claims the scheme violates the Equal Protection Clause of the Fourteenth Amendment. The parties agree that no suspect classification or fundamental right is involved, so the scheme must be upheld if it is rationally related to a legitimate state interest. In a prior case, this Court held that a county assessor violated equal protection by assessing recently sold property at its sale price while leaving comparable property at long-outdated values; in that case, however, the disparity contradicted the state's own law, which required uniform market-value assessment.
+
+Question presented: Does Measure 7's acquisition-value system violate the Equal Protection Clause?
+
+Is this scenario based on a real case decided by the U.S. Supreme Court? Answer with only a JSON object on one line: {"real_case": true or false, "case_name": "the case name" or null}
+
+===== medallion / blind =====
+You are a Justice of the United States Supreme Court. The following case is before the Court.
+
+In the 1970s, voters in the State of Westmark approved Measure 7, a ballot initiative amending the Westmark Constitution. Under it, the annual medallion fee on taxi medallions is calculated from the medallion's value at the time the current medallion owner acquired it, not from its current market value. That base value may rise by at most 2% per year, and is reset to current market value only when the medallion changes hands. Transfers from parents to children keep the old base. Because market values rose quickly after the measure passed, long-time medallion owners now pay far less than recent buyers of comparable taxi medallions.
+
+The petitioner, Ms. Doe, acquired a taxi medallion in Harlan City about ten years after the measure passed. She pays about five times as much as some medallion owners of comparable taxi medallions in her city, solely because they acquired theirs earlier.
+
+She claims the scheme violates the Equal Protection Clause of the Fourteenth Amendment. The parties agree that no suspect classification or fundamental right is involved, so the scheme must be upheld if it is rationally related to a legitimate state interest. In a prior case, this Court held that a county assessor violated equal protection by assessing recently sold property at its sale price while leaving comparable property at long-outdated values; in that case, however, the disparity contradicted the state's own law, which required uniform market-value assessment.
+
+Question presented: Does Measure 7's acquisition-value system violate the Equal Protection Clause?
+
+The parties have argued two positions.
+
+Position A:
+The scheme is unconstitutional. Even rational basis review forbids arbitrary classifications. The scheme gives a large, permanent windfall to medallion owners who happened to acquire before values rose, while imposing grossly unequal burdens on owners of comparable taxi medallions. The stated purposes do not fit: the benefit goes to every long-time medallion owner regardless of need or ties to the city's cab-driving community, and the parent-to-child exception rewards family lineage rather than stability. The reliance rationale is circular, because it justifies the unequal treatment by pointing to the very benefit the scheme created. The precedent shows that acquisition-value disparities of this size deny equal protection, and a State choosing the disparity deliberately should not make it more acceptable.
+
+Position B:
+The scheme is constitutional. Under rational basis review the State need only identify a plausible legitimate purpose, and the Court does not ask whether the policy is wise. The State could rationally want to promote stability in the city's cab-driving community by discouraging rapid turnover and displacement. It could also rationally conclude that existing medallion owners have stronger reliance interests than prospective buyers: an existing medallion owner acquired at a given price and planned around a predictable annual medallion fee, while a new buyer knows the annual medallion fee in advance and can choose not to buy. The earlier precedent is distinguishable because the disparity there violated the state's own law; here it is the State's deliberate, uniformly applied policy. Whether the scheme is fair is a question for voters, not courts.
+
+Decide the case based on your own best judgment of the law. You are not bound to adopt either position's reasoning.
+
+Separately from constitutionality, is this annual medallion fee system good public policy? Answer this separately; your policy view does not need to match your legal ruling.
+
+Explain your reasoning in under 300 words. Then, on the final line, output only a JSON object of this form:
+{"vote": "uphold" or "strike_down", "policy": "good" or "bad", "confidence": an integer from 1 (unsure) to 5 (certain)}
+where "vote" is your own ruling on whether the scheme is constitutional ("uphold") or not ("strike_down").
+
+===== medallion / decided_actual =====
+You are a Justice of the United States Supreme Court, reviewing a decision the Court has already issued.
+
+In the 1970s, voters in the State of Westmark approved Measure 7, a ballot initiative amending the Westmark Constitution. Under it, the annual medallion fee on taxi medallions is calculated from the medallion's value at the time the current medallion owner acquired it, not from its current market value. That base value may rise by at most 2% per year, and is reset to current market value only when the medallion changes hands. Transfers from parents to children keep the old base. Because market values rose quickly after the measure passed, long-time medallion owners now pay far less than recent buyers of comparable taxi medallions.
+
+The petitioner, Ms. Doe, acquired a taxi medallion in Harlan City about ten years after the measure passed. She pays about five times as much as some medallion owners of comparable taxi medallions in her city, solely because they acquired theirs earlier.
+
+She claims the scheme violates the Equal Protection Clause of the Fourteenth Amendment. The parties agree that no suspect classification or fundamental right is involved, so the scheme must be upheld if it is rationally related to a legitimate state interest. In a prior case, this Court held that a county assessor violated equal protection by assessing recently sold property at its sale price while leaving comparable property at long-outdated values; in that case, however, the disparity contradicted the state's own law, which required uniform market-value assessment.
+
+Question presented: Does Measure 7's acquisition-value system violate the Equal Protection Clause?
+
+By a vote of 8 to 1, the Court held that the scheme is constitutional.
+
+The majority reasoned:
+The scheme is constitutional. Under rational basis review the State need only identify a plausible legitimate purpose, and the Court does not ask whether the policy is wise. The State could rationally want to promote stability in the city's cab-driving community by discouraging rapid turnover and displacement. It could also rationally conclude that existing medallion owners have stronger reliance interests than prospective buyers: an existing medallion owner acquired at a given price and planned around a predictable annual medallion fee, while a new buyer knows the annual medallion fee in advance and can choose not to buy. The earlier precedent is distinguishable because the disparity there violated the state's own law; here it is the State's deliberate, uniformly applied policy. Whether the scheme is fair is a question for voters, not courts.
+
+The dissent argued:
+The scheme is unconstitutional. Even rational basis review forbids arbitrary classifications. The scheme gives a large, permanent windfall to medallion owners who happened to acquire before values rose, while imposing grossly unequal burdens on owners of comparable taxi medallions. The stated purposes do not fit: the benefit goes to every long-time medallion owner regardless of need or ties to the city's cab-driving community, and the parent-to-child exception rewards family lineage rather than stability. The reliance rationale is circular, because it justifies the unequal treatment by pointing to the very benefit the scheme created. The precedent shows that acquisition-value disparities of this size deny equal protection, and a State choosing the disparity deliberately should not make it more acceptable.
+
+Was the Court's decision correct? Set aside the fact that the Court has ruled and give your own best judgment of the law. You may disagree with the majority.
+
+Separately from constitutionality, is this annual medallion fee system good public policy? Answer this separately; your policy view does not need to match your legal ruling.
+
+Explain your reasoning in under 300 words. Then, on the final line, output only a JSON object of this form:
+{"vote": "uphold" or "strike_down", "policy": "good" or "bad", "confidence": an integer from 1 (unsure) to 5 (certain)}
+where "vote" is your own ruling on whether the scheme is constitutional ("uphold") or not ("strike_down").
+
+===== medallion / decided_flipped =====
+You are a Justice of the United States Supreme Court, reviewing a decision the Court has already issued.
+
+In the 1970s, voters in the State of Westmark approved Measure 7, a ballot initiative amending the Westmark Constitution. Under it, the annual medallion fee on taxi medallions is calculated from the medallion's value at the time the current medallion owner acquired it, not from its current market value. That base value may rise by at most 2% per year, and is reset to current market value only when the medallion changes hands. Transfers from parents to children keep the old base. Because market values rose quickly after the measure passed, long-time medallion owners now pay far less than recent buyers of comparable taxi medallions.
+
+The petitioner, Ms. Doe, acquired a taxi medallion in Harlan City about ten years after the measure passed. She pays about five times as much as some medallion owners of comparable taxi medallions in her city, solely because they acquired theirs earlier.
+
+She claims the scheme violates the Equal Protection Clause of the Fourteenth Amendment. The parties agree that no suspect classification or fundamental right is involved, so the scheme must be upheld if it is rationally related to a legitimate state interest. In a prior case, this Court held that a county assessor violated equal protection by assessing recently sold property at its sale price while leaving comparable property at long-outdated values; in that case, however, the disparity contradicted the state's own law, which required uniform market-value assessment.
+
+Question presented: Does Measure 7's acquisition-value system violate the Equal Protection Clause?
+
+By a vote of 8 to 1, the Court held that the scheme violates the Equal Protection Clause.
+
+The majority reasoned:
+The scheme is unconstitutional. Even rational basis review forbids arbitrary classifications. The scheme gives a large, permanent windfall to medallion owners who happened to acquire before values rose, while imposing grossly unequal burdens on owners of comparable taxi medallions. The stated purposes do not fit: the benefit goes to every long-time medallion owner regardless of need or ties to the city's cab-driving community, and the parent-to-child exception rewards family lineage rather than stability. The reliance rationale is circular, because it justifies the unequal treatment by pointing to the very benefit the scheme created. The precedent shows that acquisition-value disparities of this size deny equal protection, and a State choosing the disparity deliberately should not make it more acceptable.
+
+The dissent argued:
+The scheme is constitutional. Under rational basis review the State need only identify a plausible legitimate purpose, and the Court does not ask whether the policy is wise. The State could rationally want to promote stability in the city's cab-driving community by discouraging rapid turnover and displacement. It could also rationally conclude that existing medallion owners have stronger reliance interests than prospective buyers: an existing medallion owner acquired at a given price and planned around a predictable annual medallion fee, while a new buyer knows the annual medallion fee in advance and can choose not to buy. The earlier precedent is distinguishable because the disparity there violated the state's own law; here it is the State's deliberate, uniformly applied policy. Whether the scheme is fair is a question for voters, not courts.
+
+Was the Court's decision correct? Set aside the fact that the Court has ruled and give your own best judgment of the law. You may disagree with the majority.
+
+Separately from constitutionality, is this annual medallion fee system good public policy? Answer this separately; your policy view does not need to match your legal ruling.
+
+Explain your reasoning in under 300 words. Then, on the final line, output only a JSON object of this form:
+{"vote": "uphold" or "strike_down", "policy": "good" or "bad", "confidence": an integer from 1 (unsure) to 5 (certain)}
+where "vote" is your own ruling on whether the scheme is constitutional ("uphold") or not ("strike_down").
+
+===== fishing / recognition =====
+In the 1970s, voters in the State of Westmark approved Measure 7, a ballot initiative amending the Westmark Constitution. Under it, the annual permit fee on transferable commercial fishing permits is calculated from the permit's value at the time the current permit holder acquired it, not from its current market value. That base value may rise by at most 2% per year, and is reset to current market value only when the permit changes hands. Transfers from parents to children keep the old base. Because market values rose quickly after the measure passed, long-time permit holders now pay far less than recent buyers of comparable transferable commercial fishing permits.
+
+The petitioner, Ms. Doe, acquired a commercial fishing permit for the Harlan coast about ten years after the measure passed. She pays about five times as much as some permit holders of comparable transferable commercial fishing permits in her fishing fleet, solely because they acquired theirs earlier.
+
+She claims the scheme violates the Equal Protection Clause of the Fourteenth Amendment. The parties agree that no suspect classification or fundamental right is involved, so the scheme must be upheld if it is rationally related to a legitimate state interest. In a prior case, this Court held that a county assessor violated equal protection by assessing recently sold property at its sale price while leaving comparable property at long-outdated values; in that case, however, the disparity contradicted the state's own law, which required uniform market-value assessment.
+
+Question presented: Does Measure 7's acquisition-value system violate the Equal Protection Clause?
+
+Is this scenario based on a real case decided by the U.S. Supreme Court? Answer with only a JSON object on one line: {"real_case": true or false, "case_name": "the case name" or null}
+
+===== fishing / blind =====
+You are a Justice of the United States Supreme Court. The following case is before the Court.
+
+In the 1970s, voters in the State of Westmark approved Measure 7, a ballot initiative amending the Westmark Constitution. Under it, the annual permit fee on transferable commercial fishing permits is calculated from the permit's value at the time the current permit holder acquired it, not from its current market value. That base value may rise by at most 2% per year, and is reset to current market value only when the permit changes hands. Transfers from parents to children keep the old base. Because market values rose quickly after the measure passed, long-time permit holders now pay far less than recent buyers of comparable transferable commercial fishing permits.
+
+The petitioner, Ms. Doe, acquired a commercial fishing permit for the Harlan coast about ten years after the measure passed. She pays about five times as much as some permit holders of comparable transferable commercial fishing permits in her fishing fleet, solely because they acquired theirs earlier.
+
+She claims the scheme violates the Equal Protection Clause of the Fourteenth Amendment. The parties agree that no suspect classification or fundamental right is involved, so the scheme must be upheld if it is rationally related to a legitimate state interest. In a prior case, this Court held that a county assessor violated equal protection by assessing recently sold property at its sale price while leaving comparable property at long-outdated values; in that case, however, the disparity contradicted the state's own law, which required uniform market-value assessment.
+
+Question presented: Does Measure 7's acquisition-value system violate the Equal Protection Clause?
+
+The parties have argued two positions.
+
+Position A:
+The scheme is constitutional. Under rational basis review the State need only identify a plausible legitimate purpose, and the Court does not ask whether the policy is wise. The State could rationally want to promote stability in coastal fishing communities by discouraging rapid turnover and displacement. It could also rationally conclude that existing permit holders have stronger reliance interests than prospective buyers: an existing permit holder acquired at a given price and planned around a predictable annual permit fee, while a new buyer knows the annual permit fee in advance and can choose not to buy. The earlier precedent is distinguishable because the disparity there violated the state's own law; here it is the State's deliberate, uniformly applied policy. Whether the scheme is fair is a question for voters, not courts.
+
+Position B:
+The scheme is unconstitutional. Even rational basis review forbids arbitrary classifications. The scheme gives a large, permanent windfall to permit holders who happened to acquire before values rose, while imposing grossly unequal burdens on owners of comparable transferable commercial fishing permits. The stated purposes do not fit: the benefit goes to every long-time permit holder regardless of need or ties to coastal fishing communities, and the parent-to-child exception rewards family lineage rather than stability. The reliance rationale is circular, because it justifies the unequal treatment by pointing to the very benefit the scheme created. The precedent shows that acquisition-value disparities of this size deny equal protection, and a State choosing the disparity deliberately should not make it more acceptable.
+
+Decide the case based on your own best judgment of the law. You are not bound to adopt either position's reasoning.
+
+Separately from constitutionality, is this annual permit fee system good public policy? Answer this separately; your policy view does not need to match your legal ruling.
+
+Explain your reasoning in under 300 words. Then, on the final line, output only a JSON object of this form:
+{"vote": "uphold" or "strike_down", "policy": "good" or "bad", "confidence": an integer from 1 (unsure) to 5 (certain)}
+where "vote" is your own ruling on whether the scheme is constitutional ("uphold") or not ("strike_down").
+
+===== fishing / decided_actual =====
+You are a Justice of the United States Supreme Court, reviewing a decision the Court has already issued.
+
+In the 1970s, voters in the State of Westmark approved Measure 7, a ballot initiative amending the Westmark Constitution. Under it, the annual permit fee on transferable commercial fishing permits is calculated from the permit's value at the time the current permit holder acquired it, not from its current market value. That base value may rise by at most 2% per year, and is reset to current market value only when the permit changes hands. Transfers from parents to children keep the old base. Because market values rose quickly after the measure passed, long-time permit holders now pay far less than recent buyers of comparable transferable commercial fishing permits.
+
+The petitioner, Ms. Doe, acquired a commercial fishing permit for the Harlan coast about ten years after the measure passed. She pays about five times as much as some permit holders of comparable transferable commercial fishing permits in her fishing fleet, solely because they acquired theirs earlier.
+
+She claims the scheme violates the Equal Protection Clause of the Fourteenth Amendment. The parties agree that no suspect classification or fundamental right is involved, so the scheme must be upheld if it is rationally related to a legitimate state interest. In a prior case, this Court held that a county assessor violated equal protection by assessing recently sold property at its sale price while leaving comparable property at long-outdated values; in that case, however, the disparity contradicted the state's own law, which required uniform market-value assessment.
+
+Question presented: Does Measure 7's acquisition-value system violate the Equal Protection Clause?
+
+By a vote of 8 to 1, the Court held that the scheme is constitutional.
+
+The majority reasoned:
+The scheme is constitutional. Under rational basis review the State need only identify a plausible legitimate purpose, and the Court does not ask whether the policy is wise. The State could rationally want to promote stability in coastal fishing communities by discouraging rapid turnover and displacement. It could also rationally conclude that existing permit holders have stronger reliance interests than prospective buyers: an existing permit holder acquired at a given price and planned around a predictable annual permit fee, while a new buyer knows the annual permit fee in advance and can choose not to buy. The earlier precedent is distinguishable because the disparity there violated the state's own law; here it is the State's deliberate, uniformly applied policy. Whether the scheme is fair is a question for voters, not courts.
+
+The dissent argued:
+The scheme is unconstitutional. Even rational basis review forbids arbitrary classifications. The scheme gives a large, permanent windfall to permit holders who happened to acquire before values rose, while imposing grossly unequal burdens on owners of comparable transferable commercial fishing permits. The stated purposes do not fit: the benefit goes to every long-time permit holder regardless of need or ties to coastal fishing communities, and the parent-to-child exception rewards family lineage rather than stability. The reliance rationale is circular, because it justifies the unequal treatment by pointing to the very benefit the scheme created. The precedent shows that acquisition-value disparities of this size deny equal protection, and a State choosing the disparity deliberately should not make it more acceptable.
+
+Was the Court's decision correct? Set aside the fact that the Court has ruled and give your own best judgment of the law. You may disagree with the majority.
+
+Separately from constitutionality, is this annual permit fee system good public policy? Answer this separately; your policy view does not need to match your legal ruling.
+
+Explain your reasoning in under 300 words. Then, on the final line, output only a JSON object of this form:
+{"vote": "uphold" or "strike_down", "policy": "good" or "bad", "confidence": an integer from 1 (unsure) to 5 (certain)}
+where "vote" is your own ruling on whether the scheme is constitutional ("uphold") or not ("strike_down").
+
+===== fishing / decided_flipped =====
+You are a Justice of the United States Supreme Court, reviewing a decision the Court has already issued.
+
+In the 1970s, voters in the State of Westmark approved Measure 7, a ballot initiative amending the Westmark Constitution. Under it, the annual permit fee on transferable commercial fishing permits is calculated from the permit's value at the time the current permit holder acquired it, not from its current market value. That base value may rise by at most 2% per year, and is reset to current market value only when the permit changes hands. Transfers from parents to children keep the old base. Because market values rose quickly after the measure passed, long-time permit holders now pay far less than recent buyers of comparable transferable commercial fishing permits.
+
+The petitioner, Ms. Doe, acquired a commercial fishing permit for the Harlan coast about ten years after the measure passed. She pays about five times as much as some permit holders of comparable transferable commercial fishing permits in her fishing fleet, solely because they acquired theirs earlier.
+
+She claims the scheme violates the Equal Protection Clause of the Fourteenth Amendment. The parties agree that no suspect classification or fundamental right is involved, so the scheme must be upheld if it is rationally related to a legitimate state interest. In a prior case, this Court held that a county assessor violated equal protection by assessing recently sold property at its sale price while leaving comparable property at long-outdated values; in that case, however, the disparity contradicted the state's own law, which required uniform market-value assessment.
+
+Question presented: Does Measure 7's acquisition-value system violate the Equal Protection Clause?
+
+By a vote of 8 to 1, the Court held that the scheme violates the Equal Protection Clause.
+
+The majority reasoned:
+The scheme is unconstitutional. Even rational basis review forbids arbitrary classifications. The scheme gives a large, permanent windfall to permit holders who happened to acquire before values rose, while imposing grossly unequal burdens on owners of comparable transferable commercial fishing permits. The stated purposes do not fit: the benefit goes to every long-time permit holder regardless of need or ties to coastal fishing communities, and the parent-to-child exception rewards family lineage rather than stability. The reliance rationale is circular, because it justifies the unequal treatment by pointing to the very benefit the scheme created. The precedent shows that acquisition-value disparities of this size deny equal protection, and a State choosing the disparity deliberately should not make it more acceptable.
+
+The dissent argued:
+The scheme is constitutional. Under rational basis review the State need only identify a plausible legitimate purpose, and the Court does not ask whether the policy is wise. The State could rationally want to promote stability in coastal fishing communities by discouraging rapid turnover and displacement. It could also rationally conclude that existing permit holders have stronger reliance interests than prospective buyers: an existing permit holder acquired at a given price and planned around a predictable annual permit fee, while a new buyer knows the annual permit fee in advance and can choose not to buy. The earlier precedent is distinguishable because the disparity there violated the state's own law; here it is the State's deliberate, uniformly applied policy. Whether the scheme is fair is a question for voters, not courts.
+
+Was the Court's decision correct? Set aside the fact that the Court has ruled and give your own best judgment of the law. You may disagree with the majority.
+
+Separately from constitutionality, is this annual permit fee system good public policy? Answer this separately; your policy view does not need to match your legal ruling.
+
+Explain your reasoning in under 300 words. Then, on the final line, output only a JSON object of this form:
+{"vote": "uphold" or "strike_down", "policy": "good" or "bad", "confidence": an integer from 1 (unsure) to 5 (certain)}
+where "vote" is your own ruling on whether the scheme is constitutional ("uphold") or not ("strike_down").
