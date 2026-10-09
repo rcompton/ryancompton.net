@@ -1,6 +1,6 @@
 # scotus-probe
 
-How do language models vote on real Supreme Court cases when they read the full opinions and are free to disagree with the Court? Write-up: [Which Supreme Court Justice is your chatbot?](https://ryancompton.net/2026/10/08/ai-supreme-court.html)
+How do language models vote on real Supreme Court cases when they read the full opinions and are free to disagree with the Court?
 
 ## Setup
 
