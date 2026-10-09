@@ -1,23 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 464" font-family="-apple-system, Helvetica, Arial, sans-serif" font-size="12">
-<rect width="680" height="464" fill="white"/>
-<circle cx="120" cy="18" r="5" fill="#64748b"/><text x="130" y="22" fill="#333">votes with the liberal justices on the law</text>
-<circle cx="390" cy="18" r="5" fill="#2563eb"/><text x="400" y="22" fill="#333">prefers the liberal outcome</text>
-<line x1="120.0" y1="40" x2="120.0" y2="424" stroke="#eee"/><text x="120.0" y="440" text-anchor="middle" fill="#666">20%</text>
-<line x1="252.5" y1="40" x2="252.5" y2="424" stroke="#eee"/><text x="252.5" y="440" text-anchor="middle" fill="#666">40%</text>
-<line x1="385.0" y1="40" x2="385.0" y2="424" stroke="#eee"/><text x="385.0" y="440" text-anchor="middle" fill="#666">60%</text>
-<line x1="517.5" y1="40" x2="517.5" y2="424" stroke="#eee"/><text x="517.5" y="440" text-anchor="middle" fill="#666">80%</text>
-<line x1="650.0" y1="40" x2="650.0" y2="424" stroke="#eee"/><text x="650.0" y="440" text-anchor="middle" fill="#666">100%</text>
-<text x="108" y="68.0" text-anchor="end" fill="#111">Grok</text><line x1="214.1" y1="64.0" x2="346.6" y2="64.0" stroke="#cbd5e1" stroke-width="3"/><circle cx="214.1" cy="64.0" r="5.5" fill="#64748b"/><circle cx="346.6" cy="64.0" r="5.5" fill="#2563eb"/>
-<text x="108" y="96.0" text-anchor="end" fill="#111">DeepSeek</text><line x1="325.6" y1="92.0" x2="465.6" y2="92.0" stroke="#cbd5e1" stroke-width="3"/><circle cx="325.6" cy="92.0" r="5.5" fill="#64748b"/><circle cx="465.6" cy="92.0" r="5.5" fill="#2563eb"/>
-<text x="108" y="124.0" text-anchor="end" fill="#111">Gemini</text><line x1="328.0" y1="120.0" x2="464.9" y2="120.0" stroke="#cbd5e1" stroke-width="3"/><circle cx="328.0" cy="120.0" r="5.5" fill="#64748b"/><circle cx="464.9" cy="120.0" r="5.5" fill="#2563eb"/>
-<text x="108" y="152.0" text-anchor="end" fill="#111">Claude Sonnet</text><line x1="345.3" y1="148.0" x2="448.1" y2="148.0" stroke="#cbd5e1" stroke-width="3"/><circle cx="345.3" cy="148.0" r="5.5" fill="#64748b"/><circle cx="448.1" cy="148.0" r="5.5" fill="#2563eb"/>
-<text x="108" y="180.0" text-anchor="end" fill="#111">Command A+</text><line x1="369.3" y1="176.0" x2="526.5" y2="176.0" stroke="#cbd5e1" stroke-width="3"/><circle cx="369.3" cy="176.0" r="5.5" fill="#64748b"/><circle cx="526.5" cy="176.0" r="5.5" fill="#2563eb"/>
-<text x="108" y="208.0" text-anchor="end" fill="#111">Llama</text><line x1="370.0" y1="204.0" x2="414.4" y2="204.0" stroke="#cbd5e1" stroke-width="3"/><circle cx="370.0" cy="204.0" r="5.5" fill="#64748b"/><circle cx="414.4" cy="204.0" r="5.5" fill="#2563eb"/>
-<text x="108" y="236.0" text-anchor="end" fill="#111">Mistral</text><line x1="380.2" y1="232.0" x2="503.2" y2="232.0" stroke="#cbd5e1" stroke-width="3"/><circle cx="380.2" cy="232.0" r="5.5" fill="#64748b"/><circle cx="503.2" cy="232.0" r="5.5" fill="#2563eb"/>
-<text x="108" y="264.0" text-anchor="end" fill="#111">Kimi</text><line x1="386.5" y1="260.0" x2="514.5" y2="260.0" stroke="#cbd5e1" stroke-width="3"/><circle cx="386.5" cy="260.0" r="5.5" fill="#64748b"/><circle cx="514.5" cy="260.0" r="5.5" fill="#2563eb"/>
-<text x="108" y="292.0" text-anchor="end" fill="#111">Claude Opus</text><line x1="391.7" y1="288.0" x2="451.6" y2="288.0" stroke="#cbd5e1" stroke-width="3"/><circle cx="391.7" cy="288.0" r="5.5" fill="#64748b"/><circle cx="451.6" cy="288.0" r="5.5" fill="#2563eb"/>
-<text x="108" y="320.0" text-anchor="end" fill="#111">Jev router</text><line x1="407.5" y1="316.0" x2="513.4" y2="316.0" stroke="#cbd5e1" stroke-width="3"/><circle cx="407.5" cy="316.0" r="5.5" fill="#64748b"/><circle cx="513.4" cy="316.0" r="5.5" fill="#2563eb"/>
-<text x="108" y="348.0" text-anchor="end" fill="#111">Qwen</text><line x1="440.6" y1="344.0" x2="526.4" y2="344.0" stroke="#cbd5e1" stroke-width="3"/><circle cx="440.6" cy="344.0" r="5.5" fill="#64748b"/><circle cx="526.4" cy="344.0" r="5.5" fill="#2563eb"/>
-<text x="108" y="376.0" text-anchor="end" fill="#111">GLM</text><line x1="447.4" y1="372.0" x2="537.0" y2="372.0" stroke="#cbd5e1" stroke-width="3"/><circle cx="447.4" cy="372.0" r="5.5" fill="#64748b"/><circle cx="537.0" cy="372.0" r="5.5" fill="#2563eb"/>
-<text x="108" y="404.0" text-anchor="end" fill="#111">GPT-6.1</text><line x1="506.7" y1="400.0" x2="560.9" y2="400.0" stroke="#cbd5e1" stroke-width="3"/><circle cx="506.7" cy="400.0" r="5.5" fill="#64748b"/><circle cx="560.9" cy="400.0" r="5.5" fill="#2563eb"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 250" font-family="-apple-system, Helvetica, Arial, sans-serif" font-size="14">
+<rect width="560" height="250" fill="white"/>
+<text x="370" y="22" text-anchor="middle" fill="#333" font-weight="bold">Preferred result</text>
+<text x="285.0" y="56" text-anchor="middle" fill="#333">liberal</text>
+<text x="455.0" y="56" text-anchor="middle" fill="#333">conservative</text>
+<text x="24" y="150" fill="#333" font-weight="bold">Reading of</text><text x="24" y="168" fill="#333" font-weight="bold">the law</text>
+<text x="186" y="115.0" text-anchor="end" fill="#333">liberal</text>
+<rect x="200" y="70" width="170" height="80" fill="#f1f5f9" stroke="white" stroke-width="3"/><text x="285.0" y="119.0" text-anchor="middle" fill="#64748b" font-size="26" font-weight="normal">1,366</text>
+<rect x="370" y="70" width="170" height="80" fill="#dbeafe" stroke="white" stroke-width="3"/><text x="455.0" y="119.0" text-anchor="middle" fill="#1e3a8a" font-size="26" font-weight="bold">41</text>
+<text x="186" y="195.0" text-anchor="end" fill="#333">conservative</text>
+<rect x="200" y="150" width="170" height="80" fill="#2563eb" stroke="white" stroke-width="3"/><text x="285.0" y="199.0" text-anchor="middle" fill="white" font-size="26" font-weight="bold">420</text>
+<rect x="370" y="150" width="170" height="80" fill="#f1f5f9" stroke="white" stroke-width="3"/><text x="455.0" y="199.0" text-anchor="middle" fill="#64748b" font-size="26" font-weight="normal">569</text>
 </svg>
