@@ -11,6 +11,20 @@ import yaml
 
 ROOT = Path(__file__).parent
 MIN_SHARED = 8  # minimum cases in common before comparing a model with a justice
+LIBERAL = {"Stevens", "Souter", "Ginsburg", "Breyer", "Sotomayor", "Kagan", "Jackson"}
+CONSERVATIVE = {"Scalia", "Thomas", "Alito", "Roberts", "Gorsuch", "Kavanaugh", "Barrett"}
+
+
+def dissent_direction(case):
+    """'liberal' or 'conservative' if that bloc dissented and the other mostly didn't, else None."""
+    v = case["votes"]
+
+    def share(bloc):
+        members = [j for j in v if j in bloc]
+        return sum(v[j] == "minority" for j in members) / len(members) if members else 0
+
+    gap = share(LIBERAL) - share(CONSERVATIVE)
+    return "liberal" if gap > 0.3 else "conservative" if gap < -0.3 else None
 
 
 def table(header, body):
@@ -135,6 +149,31 @@ def main():
         dis_good = sum(r["answer"]["side"] == "dissent" and r["answer"]["outcome"] == "good" for r in rs)
         body.append([m, pct(maj_bad, len(rs)), pct(dis_good, len(rs)), len(rs)])
     print(table(["model", "majority right, outcome bad", "dissent right, outcome good", "n"], body))
+
+    # 4b. Law vs policy by direction: is the model's legal vote to the left or right of the outcome it wants?
+    print("\n## Legal vote vs preferred outcome, left/right\n")
+    print("Cases where the liberal and conservative justices split. 'Liberal on the law' = voted with the side the "
+          "liberal justices took; 'prefers liberal outcome' = said the liberal side's result is better for the "
+          "country (the Court's result if it called the outcome good, the dissent's if bad). The last two columns "
+          "count answers where the two disagree, in each direction.\n")
+    body = []
+    for m in models:
+        rs = [r for r in rows if r["model"] == m and r["answer"]["outcome"]
+              and dissent_direction(cases[r["variant"]])]
+        law = pol = law_con_pol_lib = law_lib_pol_con = 0
+        for r in rs:
+            dissent_liberal = dissent_direction(cases[r["variant"]]) == "liberal"
+            law_lib = (r["answer"]["side"] == "dissent") == dissent_liberal
+            pol_lib = (r["answer"]["outcome"] == "bad") == dissent_liberal
+            law += law_lib
+            pol += pol_lib
+            law_con_pol_lib += pol_lib and not law_lib
+            law_lib_pol_con += law_lib and not pol_lib
+        n = len(rs)
+        body.append([m, pct(law, n), pct(pol, n), f"{100 * (pol - law) / n:+.0f}" if n else "–",
+                     pct(law_con_pol_lib, n), pct(law_lib_pol_con, n), n])
+    print(table(["model", "liberal on the law", "prefers liberal outcome", "gap (points)",
+                 "law conservative, outcome liberal", "law liberal, outcome conservative", "n"], body))
 
     # 5. Whose opinions models pick as closest to their view.
     print("\n## Opinion closest to the model's view\n")

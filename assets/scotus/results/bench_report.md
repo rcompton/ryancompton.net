@@ -294,6 +294,26 @@ How often the model says the law requires a result it thinks is bad for the coun
 | command-a-plus | 22% | 10% | 220 |
 | jev-router | 13% | 6% | 239 |
 
+## Legal vote vs preferred outcome, left/right
+
+Cases where the liberal and conservative justices split. 'Liberal on the law' = voted with the side the liberal justices took; 'prefers liberal outcome' = said the liberal side's result is better for the country (the Court's result if it called the outcome good, the dissent's if bad). The last two columns count answers where the two disagree, in each direction.
+
+| model | liberal on the law | prefers liberal outcome | gap (points) | law conservative, outcome liberal | law liberal, outcome conservative | n |
+|---|---|---|---|---|---|---|
+| opus-5.5 | 61% | 70% | +9 | 10% | 1% | 177 |
+| sonnet-5.5 | 54% | 70% | +16 | 16% | 1% | 187 |
+| gpt-6.1-sol | 78% | 87% | +8 | 9% | 1% | 171 |
+| gemini-3.8-flash | 51% | 72% | +21 | 23% | 2% | 179 |
+| grok-4.7 | 34% | 54% | +20 | 24% | 4% | 190 |
+| llama-4-maverick | 58% | 64% | +7 | 9% | 2% | 194 |
+| deepseek-v4-pro | 51% | 72% | +21 | 24% | 3% | 194 |
+| qwen3.8-max | 68% | 81% | +13 | 14% | 1% | 193 |
+| kimi-k3 | 60% | 80% | +19 | 20% | 1% | 176 |
+| glm-5.3 | 69% | 83% | +14 | 15% | 1% | 170 |
+| mistral-large-4 | 59% | 78% | +19 | 19% | 1% | 194 |
+| command-a-plus | 58% | 81% | +24 | 27% | 3% | 177 |
+| jev-router | 63% | 79% | +16 | 18% | 2% | 194 |
+
 ## Opinion closest to the model's view
 
 | model | most-picked authors (count) |
