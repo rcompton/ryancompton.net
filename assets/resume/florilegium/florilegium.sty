@@ -1,0 +1,235 @@
+%% florilegium.sty -- a procedurally generated floral page margin, drawn by Lua
+%% https://github.com/kevinraymond/florilegium
+%% Copyright (c) 2026 Kevin Raymond. MIT License, in full at the end of these notes.
+%%
+%% LuaLaTeX only. The geometry of every petal, leaf and stem is computed in Lua
+%% (ink.lua, flora.lua) and written straight into the page as PDF path
+%% operators; TeX does no arithmetic. A page takes a second or two.
+%%
+%% Usage
+%%   \usepackage{florilegium}          authored composition (hand-placed, authored.lua)
+%%   \usepackage[grown]{florilegium}   composition grown to fit the page (grow.lua)
+%%   \usepackage[nomargin]{florilegium} no margin, only \florilegiumdraw
+%%   \usepackage[grown,novisitors]{florilegium}  no butterflies, bees, snails or birds
+%%   \usepackage[grown,sections]{florilegium}    a flower beside every numbered \section
+%%                                      and \subsection (standard classes)
+%%   \usepackage[grown,aging]{florilegium}       the garden ages from spring on the first
+%%                                      page to autumn on the last (two runs: the page
+%%                                      count is read from the .aux of the run before)
+%%   \usepackage[grown,theme=geometric]{florilegium} the same plant cut from flat shapes
+%%                                      with straight edges (theme-geometric.lua)
+%%   \usepackage[grown,theme=math]{florilegium}  no plant: figures, symbols and equations
+%%                                      cascading down the margin (theme-math.lua)
+%%   \usepackage[grown,density=0.4]{florilegium} less in the margin: 1 is full, 0.05 a
+%%                                      single vine
+%%   \usepackage[intensity=0.5]{florilegium}     a paler margin: 1 as painted, 0.3 faint
+%%   \florilegiumbloom[motif]          (grown) a flower, or any motif of grow.lua, in
+%%                                      the margin beside the current line
+%%   \florilegiumage{a}                (grown) the age of the following pages: 0 spring,
+%%                                      0.5 summer, 1 autumn
+%%   \florilegiumtheme{name}           the theme from the page this stands on (flora:
+%%                                      none); in the preamble, for the whole document
+%%   \florilegiuminitial[lines]{L}     at the start of a paragraph: the letter L as a
+%%                                      decorated initial, a tile `lines' lines tall
+%%                                      (default 4), the text wrapped around it
+%%   \florilegiuminitialfont{file.otf} the OpenType font the initial's outline is read
+%%                                      from (default lmroman10-bold.otf)
+%%   \def\florilegiumseed{7}            before \usepackage: a fixed seed (any positive
+%%                                      integer) instead of the page-number seed; on the
+%%                                      command line: lualatex "\def\florilegiumseed{7}\input{doc}"
+%%   \florilegiumtextend               at the very end of the text (grown only): the
+%%                                      garden then also fills the space below it
+%%   \florilegiumframe[explain]{k}{n}  grown only: the following pages show frame k of
+%%                                      n of their garden's growth (animation.tex)
+%%   \definecolor{ink}{HTML}{...}       after loading: the hue of the whole palette
+%%   \definecolor{accent}{HTML}{...}    the copper of the hairline accents
+%%   \florilegiumornament[size=1.5em,ink=5B2A1F,angle=10,seed=random]{leaf}
+%%                                      one primitive in the text, sized like a letter
+%%                                      (default 1em); each one in a document differs,
+%%                                      seed=random gives a new shape on every build
+%%   \florilegiumdraw{flower}{1.2}      any primitive at the origin of the current TikZ
+%%                                      scope; see flora.lua for the list and options,
+%%                                      e.g. \florilegiumdraw{leaf}{2.0, {depth=0.6}};
+%%                                      with a theme its primitives too, e.g. {rose}{1.5}
+%%
+%% The garden grows in the wider side margin: in a two-sided document (twoside,
+%% a wide outer margin) it changes sides with the page and is drawn mirrored.
+%%
+%% MIT License
+%%
+%% Copyright (c) 2026 Kevin Raymond
+%%
+%% Permission is hereby granted, free of charge, to any person obtaining a copy
+%% of this software and associated documentation files (the "Software"), to deal
+%% in the Software without restriction, including without limitation the rights
+%% to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+%% copies of the Software, and to permit persons to whom the Software is
+%% furnished to do so, subject to the following conditions:
+%%
+%% The above copyright notice and this permission notice shall be included in all
+%% copies or substantial portions of the Software.
+%%
+%% THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+%% IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+%% FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+%% AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+%% LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+%% OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+%% SOFTWARE.
+%%
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{florilegium}[2026/10/30 v1.2 procedural floral margin, Lua-drawn]
+\ifdefined\directlua\else
+  \PackageError{florilegium}{florilegium needs LuaLaTeX}{Compile with lualatex.}\fi
+\RequirePackage{tikz}
+\RequirePackage{eso-pic}
+
+\newif\ifflorilegium@grown
+\newif\ifflorilegium@margin \florilegium@margintrue
+\newif\ifflorilegium@visitors \florilegium@visitorstrue
+\newif\ifflorilegium@sections
+\newif\ifflorilegium@aging
+\DeclareOption{authored}{\florilegium@grownfalse}
+\DeclareOption{grown}{\florilegium@growntrue}
+\DeclareOption{nomargin}{\florilegium@marginfalse}
+\DeclareOption{novisitors}{\florilegium@visitorsfalse}
+\DeclareOption{sections}{\florilegium@sectionstrue}
+\DeclareOption{aging}{\florilegium@agingtrue}
+%% key=value options: theme=<name>, density=<0..1>, intensity=<0..1>
+\def\florilegium@theme{}
+\DeclareOption*{\expandafter\florilegium@option\CurrentOption==\@nil}
+\def\florilegium@option#1=#2=#3\@nil{%
+  \ifcsname florilegium@set@#1\endcsname\csname florilegium@set@#1\endcsname{#2}%
+  \else\PackageWarning{florilegium}{Unknown option `\CurrentOption'}\fi}
+\def\florilegium@set@theme#1{\def\florilegium@theme{#1}}
+\def\florilegium@set@density#1{\def\florilegium@density{#1}}
+\def\florilegium@set@intensity#1{\def\florilegium@intensity{#1}}
+\ProcessOptions\relax
+\ifdefined\florilegiumseed\else\def\florilegiumseed{}\fi
+
+%% ---------------------------------------------------------------- palette
+%% `ink` gives the hue and saturation; the ramp from navy to mist is derived
+%% from it in OKLCH (ink.lua). `accent` is used for the fine copper lines.
+\definecolor{ink}{HTML}{2456C4}
+\definecolor{accent}{HTML}{B4662F}
+
+\directlua{florilegium = require("florilegium")}
+\ifflorilegium@visitors\else\directlua{florilegium.visitors = false}\fi
+\ifdefined\florilegium@density\directlua{florilegium.density = tonumber("\florilegium@density") or 1}\fi
+\ifdefined\florilegium@intensity\directlua{florilegium.intensity = tonumber("\florilegium@intensity") or 1}\fi
+%% the theme: in the preamble for the whole document; in the text a mark, so that
+%% the theme changes from the page that the mark is on (florilegium.lua)
+\newcommand\florilegiumtheme[1]{%
+  \ifx\@nodocument\relax\directlua{florilegium.mark("theme", "\luaescapestring{#1}")}%
+  \else\directlua{florilegium.theme = "\luaescapestring{#1}"}\fi}
+\ifx\florilegium@theme\@empty\else\expandafter\florilegiumtheme\expandafter{\florilegium@theme}\fi
+
+%% pass the current colors to Lua, and whether the pages are two-sided
+\def\florilegium@twoside{\directlua{florilegium.twoside = \if@twoside true\else false\fi}}
+\def\florilegium@colors{%
+  \extractcolorspecs{ink}{\flo@m}{\flo@s}\convertcolorspec{\flo@m}{\flo@s}{rgb}\flo@ink
+  \extractcolorspecs{accent}{\flo@m}{\flo@s}\convertcolorspec{\flo@m}{\flo@s}{rgb}\flo@acc
+  \directlua{florilegium.colors(\flo@ink, \flo@acc)}}
+
+%% one primitive inside a tikzpicture, under the current transformation
+\newcommand\florilegiumdraw[2]{\florilegium@colors\directlua{florilegium.draw("#1", #2)}}
+
+%% one primitive in the text, in a box the size of a letter (florilegium.lua):
+%% \florilegiumornament{leaf}, \florilegiumornament[size=2em,ink=5B2A1F,angle=20,seed=random]{flower}
+\newdimen\flo@o@size
+\pgfqkeys{/florilegium/ornament}{
+  size/.store in=\flo@o@sz, size=1em,
+  ink/.store in=\flo@o@ink, ink=,
+  accent/.store in=\flo@o@acc, accent=,
+  angle/.store in=\flo@o@angle, angle=0,
+  seed/.store in=\flo@o@seed, seed=}
+\newcommand\florilegiumornament[2][]{\leavevmode\begingroup
+  \pgfqkeys{/florilegium/ornament}{#1}%
+  \flo@o@size=\flo@o@sz\relax
+  \florilegium@colors
+  \hbox to\flo@o@size{\directlua{florilegium.ornament("\luaescapestring{#2}", \number\flo@o@size,
+      "\luaescapestring{\flo@o@ink}", "\luaescapestring{\flo@o@acc}", \flo@o@angle, "\luaescapestring{\flo@o@seed}")}%
+    \hss\vrule height .85\flo@o@size depth .15\flo@o@size width 0pt}%
+  \endgroup}
+
+%% ---------------------------------------------------------------- page seed
+\def\florilegium@seed{%
+  \directlua{tex.sprint(florilegium.seed(\number\value{page}\ifx\florilegiumseed\@empty\else, \florilegiumseed\fi))}}
+
+%% ---------------------------------------------------------------- compositions
+\newcommand\margingarden{%
+\begin{tikzpicture}[overlay]
+  \florilegium@colors\florilegium@twoside
+  \edef\flo@seed{\florilegium@seed}%
+  \directlua{florilegium.authored(\flo@seed, \number\ShipoutBox)}%
+\end{tikzpicture}}
+
+%% where the text ends, measured in the same pass: \pagetotal is the height of
+%% the material already on the current page
+\def\flo@endpage{-1}\def\flo@endtotal{0pt}
+\newcommand\margingardengrown{%
+\begin{tikzpicture}[overlay]
+  \florilegium@colors\florilegium@twoside
+  \edef\flo@seed{\florilegium@seed}%
+  \ifflorilegium@aging\ifdefined\flo@lastpage
+    \directlua{florilegium.auto_age(\number\value{page}, \flo@lastpage)}\fi\fi
+  \ifnum\value{page}=\flo@endpage\relax
+    \directlua{florilegium.grown(\flo@seed, 1, florilegium.geometry().ytop - \number\dimexpr\flo@endtotal\relax * 2.54 / (72.27 * 65536), \number\ShipoutBox)}%
+  \else
+    \directlua{florilegium.grown(\flo@seed, 0, 0, \number\ShipoutBox)}%
+  \fi
+\end{tikzpicture}}
+\newcommand\florilegiumtextend{\par
+  \xdef\flo@endpage{\number\value{page}}%
+  \xdef\flo@endtotal{\the\dimexpr\pagetotal+\pagedepth\relax}}
+
+%% the margin follows the text (grown only): a whatsit marks the line, and the
+%% shipout hook finds it in the page box (florilegium.lua)
+\newcommand\florilegiumbloom[1][]{\directlua{florilegium.mark("bloom", "\luaescapestring{#1}")}}
+\protected\def\florilegium@headmark#1{\ifnum#1<3 \directlua{florilegium.mark("heading", #1)}\fi}
+\ifflorilegium@sections
+  % standard classes build every heading with \@sect; its last argument is the
+  % text that is typeset (the TOC and marks get the optional one), so the mark
+  % goes there, after the number
+  \AtBeginDocument{%
+    \let\flo@sect\@sect
+    \def\@sect#1#2#3#4#5#6[#7]#8{\flo@sect{#1}{#2}{#3}{#4}{#5}{#6}[{#7}]{\florilegium@headmark{#2}#8}}}
+\fi
+\newcommand\florilegiumage[1]{\directlua{florilegium.age = #1}}
+
+%% a decorated initial: a square tile from the cap height of the first line to
+%% the baseline of line #1, the paragraph's first #1 lines indented beside it
+\newcommand\florilegiuminitial[2][4]{\par
+  \begingroup
+    \dimen@=\fontcharht\font`\H
+    \global\dimen1=\dimexpr\baselineskip*\numexpr#1-1\relax+\dimen@\relax
+    \global\dimen3=\dimen@
+  \endgroup
+  \hangindent=\dimexpr\dimen1+0.6em\relax \hangafter=-#1\relax
+  \noindent\florilegium@colors
+  \directlua{florilegium.initial("\luaescapestring{#2}", \number\dimen1, \number\hangindent, \number\dimen3)}%
+  \llap{\directlua{florilegium.hidden(true)}#2\directlua{florilegium.hidden(false)}}%
+  \ignorespaces}
+\newcommand\florilegiuminitialfont[1]{\directlua{florilegium.initial_font = "\luaescapestring{#1}"}}
+\ifflorilegium@aging
+  % the page count goes to the .aux; the next run reads it at \begin{document}
+  \AtEndDocument{%
+    \immediate\write\@auxout{\gdef\string\flo@lastpage{\number\value{page}}}%
+    \ifdefined\flo@lastpage\ifnum\flo@lastpage=\value{page}\else\flo@rerun\fi\else\flo@rerun\fi}
+  \def\flo@rerun{\PackageWarningNoLine{florilegium}{The page count changed. Rerun to get the aging right}}
+\fi
+
+%% growth animation (grown only; animation.tex, tools/animate.py): the pages
+%% that follow show frame #2 of #3 of their garden's growth; the option
+%% [explain] also marks the free disc that each branch grows to
+\newcommand\florilegiumframe[3][]{\directlua{florilegium.frame(#2, #3, "#1")}}
+
+%% ---------------------------------------------------------------- plumbing
+\ifflorilegium@margin
+  \ifflorilegium@grown
+    \AddToShipoutPictureBG{\AtPageLowerLeft{\margingardengrown}}
+  \else
+    \AddToShipoutPictureBG{\AtPageLowerLeft{\margingarden}}
+  \fi
+\fi
+\endinput

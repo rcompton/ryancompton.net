@@ -1,12 +1,19 @@
 \documentclass[margin,line]{res}
 
-\oddsidemargin -.5in
-\evensidemargin -.5in
-\textwidth=6.0in
+% section titles in a 1in column, the text beside it, and a 1.9in margin
+% on the right where florilegium grows its flowers
+\newsectionwidth{1.0in}
+\oddsidemargin -.55in
+\evensidemargin -.55in
+\textwidth=5.15in
+\topmargin -.6in
+\headsep .2in
+\textheight 9.5in
+\footskip .3in
 \itemsep=0in
 \parsep=0in
-
-\vspace*{-19mm}
+\parskip=.5\baselineskip
+\sectionskip=2.2ex plus .5ex
 
 \newenvironment{list1}{
   \begin{list}{\ding{113}}{%
@@ -22,6 +29,7 @@
       \setlength{\leftmargin}{0.2in}}}{\end{list}}
 
 \usepackage{xcolor}
+\usepackage[grown]{florilegium}
 \usepackage{hyperref}
 \hypersetup{
   urlcolor   = blue,
@@ -39,13 +47,14 @@
 \begin{resume}
 \section{\sc Contact Information}
 \vspace{.05in}
-\begin{tabular}{@{}p{2in}p{4in}}
+\begin{tabular}{@{}p{2in}p{2.8in}}
     ryan@ryancompton.net   &  \url{http://www.ryancompton.net} \\
 \end{tabular}
+\vspace{.1in}
 
 \section{\sc Employment}
 
-    {\bf Software Engineer, Machine Learning, Google.} September 2017-present. I work on the news feed recommendation algorithms that power Google Discover.
+    {\bf Staff Software Engineer, Machine Learning, Google.} September 2017-present. I work on the news feed recommendation algorithms that power Google Discover.
     
     {\bf Head of Applied Machine Learning, Clarifai.} June 2015-September 2017. Built, fine-tuned, and deployed convnets to solve computer vision problems for some of our most important verticals and largest customers. With company expansion took on management responsibilities and oversaw
 team growth from scratch to 10 direct reports.
@@ -100,5 +109,6 @@ Ryan Compton, Stanley Osher and Louis Bouchard, ``Hybrid regularization for MRI 
 \section{\sc Work authorization}
 United States and European Union
 
+\florilegiumtextend
 \end{resume}
 \end{document}
