@@ -31,7 +31,7 @@ def main():
         t[law, pol] += 1
 
     W, H, L, T, cw, ch = 560, 250, 200, 70, 170, 80
-    s = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" '
+    s = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" '
          'font-family="-apple-system, Helvetica, Arial, sans-serif" font-size="14">',
          f'<rect width="{W}" height="{H}" fill="white"/>',
          f'<text x="{L + cw}" y="22" text-anchor="middle" fill="#333" font-weight="bold">Preferred result</text>']
