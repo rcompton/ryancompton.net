@@ -13,11 +13,11 @@
     "test": "astro build && node scripts/check-site.mjs dist"
   },
   "dependencies": {
-    "@astrojs/markdown-satteri": "^0.4.6",
-    "@astrojs/mdx": "^8.1.2",
+    "@astrojs/markdown-satteri": "^0.4.7",
+    "@astrojs/mdx": "^8.1.3",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.4",
-    "astro": "^7.4.4",
+    "astro": "^7.4.7",
     "katex": "^0.19.1",
     "satteri": "^0.11.6"
   }
